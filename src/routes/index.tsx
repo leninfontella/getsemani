@@ -42,14 +42,18 @@ function HomePage() {
     setDays(dates.size);
     setPracticeDates(dates);
     const now = new Date();
+    const monday = new Date(now);
+    monday.setHours(0, 0, 0, 0);
+    monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+    const weekdayLabels = ["SEG", "TER", "QUA", "QUI", "SEX", "SAB", "DOM"];
     setWeek(
       Array.from({ length: 7 }, (_, index) => {
-        const date = new Date(now);
-        date.setDate(now.getDate() - (6 - index));
+        const date = new Date(monday);
+        date.setDate(monday.getDate() + index);
         return {
-          label: date.toLocaleDateString("pt-BR", { weekday: "short" }).charAt(0).toUpperCase(),
+          label: weekdayLabels[index]!,
           key: date.toLocaleDateString("pt-BR"),
-          today: index === 6,
+          today: date.toDateString() === now.toDateString(),
         };
       }),
     );

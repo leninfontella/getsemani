@@ -80,11 +80,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      {
+        name: "viewport",
+        content: "width=device-width, initial-scale=1, viewport-fit=cover",
+      },
       { title: "Getsêmani — Manifeste sua realidade" },
       { name: "description", content: "Manifeste aquilo que deseja, como se já fosse seu." },
       { name: "author", content: "Getsêmani" },
       { name: "theme-color", content: "#12111a" },
+      { name: "application-name", content: "Getsêmani" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-title", content: "Getsêmani" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { property: "og:title", content: "Getsêmani" },
       { property: "og:description", content: "Manifeste aquilo que deseja, como se já fosse seu." },
       { property: "og:type", content: "website" },
@@ -115,6 +123,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/getsemani-icon.png", type: "image/png" },
       { rel: "shortcut icon", href: "/getsemani-icon.png", type: "image/png" },
       { rel: "apple-touch-icon", href: "/getsemani-icon.png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
     ],
   }),
   shellComponent: RootShell,

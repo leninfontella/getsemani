@@ -43,7 +43,7 @@ export function BrandLogo({ className = "" }: { className?: string }) {
 
 export function AppNav() {
   return (
-    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 z-20 w-full max-w-[430px] rounded-t-3xl g-glass border-t border-g-muted/20 px-2 pt-3 pb-6 grid grid-cols-5">
+    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 z-20 grid w-full max-w-[430px] grid-cols-5 rounded-t-3xl border-t border-g-muted/20 g-glass px-2 pt-3 [padding-bottom:max(1.5rem,env(safe-area-inset-bottom))]">
       {nav.map(({ to, label, Icon }) => (
         <Link
           key={to}

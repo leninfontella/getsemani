@@ -1,0 +1,19 @@
+{
+  "name": "Getsêmani",
+  "short_name": "Getsêmani",
+  "description": "Manifeste aquilo que deseja, como se já fosse seu.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#12111a",
+  "theme_color": "#12111a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/getsemani-icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

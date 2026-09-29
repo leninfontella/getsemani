@@ -2,8 +2,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Check, ChevronLeft, ChevronRight, Shell } from "lucide-react";
 import { AppShell, BrandLogo, GoalThumb } from "@/components/AppShell";
-import { loadEntries, loadSettings, manifestedGoals, syncEntries, type Goal } from "@/lib/goals";
-import { loadUser } from "@/lib/auth";
+import {
+  loadEntries,
+  loadSettings,
+  manifestedGoals,
+  saveSettings,
+  syncEntries,
+  type Goal,
+} from "@/lib/goals";
+import { loadUser, refreshCachedUser } from "@/lib/auth";
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [{ title: "Getsêmani — Painel de Manifestação" }] }),
@@ -19,9 +26,10 @@ function HomePage() {
   const [week, setWeek] = useState<{ label: string; key: string; today: boolean }[]>([]);
   const carouselRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    const cachedUser = loadUser();
     setGoals(manifestedGoals());
-    setName(loadSettings().name);
-    const gender = loadUser()?.gender;
+    setName(cachedUser?.name || loadSettings().name);
+    const gender = cachedUser?.gender;
     setWelcome(
       gender === "masculino" ? "Bem-vindo" : gender === "feminino" ? "Bem-vinda" : "Bem-vindo(a)",
     );
@@ -54,6 +62,19 @@ function HomePage() {
         );
         setDays(remoteDates.size);
         setPracticeDates(remoteDates);
+      })
+      .catch(() => undefined);
+    void refreshCachedUser()
+      .then((user) => {
+        setName(user.name);
+        setWelcome(
+          user.gender === "masculino"
+            ? "Bem-vindo"
+            : user.gender === "feminino"
+              ? "Bem-vinda"
+              : "Bem-vindo(a)",
+        );
+        saveSettings({ ...loadSettings(), name: user.name });
       })
       .catch(() => undefined);
   }, []);

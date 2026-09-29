@@ -4,7 +4,13 @@ import { Bell, LogOut, Sparkles, Trash2, Volume2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, BrandLogo } from "@/components/AppShell";
 import { clearAll, defaultSettings, loadSettings, saveSettings, type Settings } from "@/lib/goals";
-import { clearCachedUser, deleteAccount as deleteRemoteAccount, logoutUser } from "@/lib/auth";
+import {
+  clearCachedUser,
+  deleteAccount as deleteRemoteAccount,
+  loadUser,
+  logoutUser,
+  refreshCachedUser,
+} from "@/lib/auth";
 export const Route = createFileRoute("/configuracoes")({ component: SettingsPage });
 function SettingsPage() {
   const navigate = useNavigate();
@@ -13,7 +19,18 @@ function SettingsPage() {
   const [transitionMessage, setTransitionMessage] = useState("ATÉ A PRÓXIMA JORNADA");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  useEffect(() => setSettings(loadSettings()), []);
+  useEffect(() => {
+    const local = loadSettings();
+    const cachedName = loadUser()?.name;
+    setSettings({ ...local, ...(cachedName ? { name: cachedName } : {}) });
+    void refreshCachedUser()
+      .then((user) => {
+        const next = { ...loadSettings(), name: user.name };
+        setSettings(next);
+        saveSettings(next);
+      })
+      .catch(() => undefined);
+  }, []);
   const update = <K extends keyof Settings>(key: K, value: Settings[K]) => {
     const next = { ...settings, [key]: value };
     setSettings(next);

@@ -44,12 +44,39 @@ export async function loginUser(email: string, password: string) {
   const { data, error } = await client.auth.signInWithPassword({ email, password });
   if (error) throw error;
   const metadata = data.user.user_metadata;
+  const { data: profile } = await client
+    .from("profiles")
+    .select("name, gender")
+    .eq("id", data.user.id)
+    .maybeSingle();
   cacheUser({
-    name: String(metadata["name"] || email.split("@")[0]),
+    name: String(profile?.name || metadata["name"] || email.split("@")[0]),
     email,
-    gender: (metadata["gender"] as Gender | undefined) || "nao-informar",
+    gender:
+      (profile?.gender as Gender | undefined) ||
+      (metadata["gender"] as Gender | undefined) ||
+      "nao-informar",
   });
   return data;
+}
+
+export async function refreshCachedUser() {
+  const client = requireSupabase();
+  const { data: auth, error: authError } = await client.auth.getUser();
+  if (authError || !auth.user) throw authError || new Error("Sessão expirada.");
+  const { data: profile, error: profileError } = await client
+    .from("profiles")
+    .select("name, gender")
+    .eq("id", auth.user.id)
+    .single();
+  if (profileError) throw profileError;
+  const user: LocalUser = {
+    name: profile.name,
+    email: auth.user.email || "",
+    gender: profile.gender as Gender,
+  };
+  cacheUser(user);
+  return user;
 }
 
 export async function isAuthenticated() {

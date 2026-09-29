@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Bell, LogOut, Sparkles, Trash2, Volume2 } from "lucide-react";
+import { toast } from "sonner";
 import { AppShell, BrandLogo } from "@/components/AppShell";
 import { clearAll, defaultSettings, loadSettings, saveSettings, type Settings } from "@/lib/goals";
-import { clearCachedUser, logoutUser } from "@/lib/auth";
+import { clearCachedUser, deleteAccount as deleteRemoteAccount, logoutUser } from "@/lib/auth";
 export const Route = createFileRoute("/configuracoes")({ component: SettingsPage });
 function SettingsPage() {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ function SettingsPage() {
   const [exiting, setExiting] = useState(false);
   const [transitionMessage, setTransitionMessage] = useState("ATÉ A PRÓXIMA JORNADA");
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   useEffect(() => setSettings(loadSettings()), []);
   const update = <K extends keyof Settings>(key: K, value: Settings[K]) => {
     const next = { ...settings, [key]: value };
@@ -23,13 +25,22 @@ function SettingsPage() {
     await logoutUser();
     setTimeout(() => navigate({ to: "/login", replace: true }), 2400);
   };
-  const deleteAccount = () => {
-    clearAll();
-    clearCachedUser();
-    setConfirmDelete(false);
-    setTransitionMessage("SUA CONTA FOI EXCLUÍDA");
-    setExiting(true);
-    setTimeout(() => navigate({ to: "/login", replace: true }), 2400);
+  const deleteAccount = async () => {
+    setDeleting(true);
+    try {
+      await deleteRemoteAccount();
+      clearAll();
+      clearCachedUser();
+      setConfirmDelete(false);
+      setTransitionMessage("SUA CONTA FOI EXCLUÍDA");
+      setExiting(true);
+      setTimeout(() => navigate({ to: "/login", replace: true }), 2400);
+    } catch (error) {
+      setDeleting(false);
+      toast("Não foi possível excluir a conta.", {
+        description: error instanceof Error ? error.message : "Tente novamente.",
+      });
+    }
   };
   return (
     <AppShell title="Configurações">
@@ -68,9 +79,10 @@ function SettingsPage() {
               </button>
               <button
                 onClick={deleteAccount}
-                className="rounded-full bg-red-500/90 py-3 font-semibold text-white"
+                disabled={deleting}
+                className="rounded-full bg-red-500/90 py-3 font-semibold text-white disabled:opacity-60"
               >
-                Excluir
+                {deleting ? "Excluindo…" : "Excluir"}
               </button>
             </div>
           </div>

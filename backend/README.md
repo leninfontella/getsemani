@@ -67,6 +67,21 @@ supabase start
 supabase db reset
 ```
 
+## Exclusão completa da conta
+
+A função `delete-account` valida o JWT do usuário e exclui definitivamente o registro em
+`auth.users`. As tabelas `profiles` e `manifestations` usam `ON DELETE CASCADE`, portanto os dados
+relacionados também são removidos.
+
+Publique a função no projeto remoto:
+
+```bash
+supabase functions deploy delete-account --no-verify-jwt
+```
+
+`SUPABASE_URL`, `SUPABASE_ANON_KEY` e `SUPABASE_SERVICE_ROLE_KEY` são disponibilizadas
+automaticamente pelo ambiente das Edge Functions. Nunca envie a service role para o frontend.
+
 O Supabase Studio ficará disponível em `http://localhost:54323`.
 
 > A chave `service_role` nunca deve ser enviada ao navegador nem adicionada ao Git.

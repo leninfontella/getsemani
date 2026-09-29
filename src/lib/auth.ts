@@ -62,6 +62,16 @@ export async function logoutUser() {
   if (supabase) await supabase.auth.signOut();
 }
 
+export async function deleteAccount() {
+  const client = requireSupabase();
+  const { data, error } = await client.functions.invoke("delete-account", {
+    method: "POST",
+  });
+  if (error) throw error;
+  if (!data?.deleted) throw new Error(data?.error || "Não foi possível excluir a conta.");
+  await client.auth.signOut({ scope: "local" });
+}
+
 export function clearCachedUser() {
   localStorage.removeItem(USER_KEY);
 }

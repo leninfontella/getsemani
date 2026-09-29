@@ -25,3 +25,7 @@ enable_signup = true
 enable_signup = true
 double_confirm_changes = true
 enable_confirmations = false
+
+[functions.delete-account]
+# A função valida explicitamente o JWT com auth.getUser antes de usar o cliente administrativo.
+verify_jwt = false

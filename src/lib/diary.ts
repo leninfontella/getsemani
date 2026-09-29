@@ -105,6 +105,16 @@ export async function saveProtectedDiary(entryDate: string, content: string, pas
   if (error) throw error;
 }
 
+export async function deleteCloudDiary(entryDate: string) {
+  const { client, userId } = await currentUserId();
+  const { error } = await client
+    .from("diaries")
+    .delete()
+    .eq("user_id", userId)
+    .eq("entry_date", entryDate);
+  if (error) throw error;
+}
+
 export async function decryptDiary(diary: CloudDiary, password: string) {
   if (!diary.encryption_salt || !diary.encryption_iv) throw new Error("Diário inválido.");
   try {

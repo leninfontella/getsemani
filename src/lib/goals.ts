@@ -130,6 +130,21 @@ export async function saveRemoteEntry(goal: Goal, text: string) {
   return saveEntry(goal.id, text);
 }
 
+export async function deleteRemoteGoal(goalId: string) {
+  const client = requireSupabase();
+  const { error } = await client.from("manifestations").delete().eq("goal_id", goalId);
+  if (error) throw error;
+  const entries = loadEntries();
+  delete entries[goalId];
+  write(ENTRIES, entries);
+  if (goalId.startsWith("custom-")) {
+    write(
+      CUSTOM,
+      loadCustomGoals().filter((goal) => goal.id !== goalId),
+    );
+  }
+}
+
 export function loadCustomGoals(): Goal[] {
   return read<Goal[]>(CUSTOM, []).map((goal) => ({ ...goal, img: goal.img || universe }));
 }

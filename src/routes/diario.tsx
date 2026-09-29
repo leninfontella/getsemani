@@ -10,12 +10,14 @@ import {
   LoaderCircle,
   Lock,
   Save,
+  Trash2,
   Unlock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import {
   decryptDiary,
+  deleteCloudDiary,
   listDiaryDays,
   loadCloudDiary,
   saveOpenDiary,
@@ -48,6 +50,7 @@ function DiaryPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [selectedDate, setSelectedDate] = useState(localDateKey());
   const [savedDays, setSavedDays] = useState<{ entry_date: string; locked: boolean }[]>([]);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -211,8 +214,63 @@ function DiaryPage() {
     year: "numeric",
   });
 
+  const deleteSelectedDay = async () => {
+    setSaving(true);
+    try {
+      await deleteCloudDiary(selectedDate);
+      if (selectedDate === localDateKey()) {
+        saveDiary({ text: "", locked: false, pin: "", updated: new Date().toISOString() });
+      }
+      setText("");
+      setStoredDiary(null);
+      setProtectedDiary(false);
+      setUnlocked(true);
+      setHidden(false);
+      setSessionPassword("");
+      setPasswordMode(null);
+      setConfirmDelete(false);
+      await refreshSavedDays();
+      toast("Registro do dia excluído.");
+    } catch (error) {
+      toast("Não foi possível excluir o registro.", {
+        description: error instanceof Error ? error.message : "Tente novamente.",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <AppShell title="Meu Diário">
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/75 px-6 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-3xl border border-red-300/25 bg-[#191923] p-6 text-center text-g-text shadow-2xl">
+            <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-red-400/10 text-red-300">
+              <Trash2 className="h-6 w-6" />
+            </span>
+            <h2 className="mt-4 text-xl font-semibold">Excluir este dia?</h2>
+            <p className="mt-2 text-sm leading-relaxed text-g-muted">
+              O registro de {formattedSelectedDate} será removido permanentemente.
+            </p>
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setConfirmDelete(false)}
+                disabled={saving}
+                className="rounded-full border border-white/15 py-3 font-semibold"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={deleteSelectedDay}
+                disabled={saving}
+                className="rounded-full bg-red-500/90 py-3 font-semibold text-white disabled:opacity-60"
+              >
+                {saving ? "Excluindo…" : "Excluir"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <main className="px-6 mt-5">
         <section className="mb-4 rounded-2xl border border-g-violet/30 g-glass p-4">
           <div className="flex items-center gap-3">
@@ -396,6 +454,15 @@ function DiaryPage() {
           )}
           {saving ? "Salvando…" : "Salvar no diário"}
         </button>
+        {savedDays.some((day) => day.entry_date === selectedDate) && (
+          <button
+            onClick={() => setConfirmDelete(true)}
+            disabled={saving}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-full border border-red-400/30 py-3 text-sm font-semibold text-red-300 disabled:opacity-40"
+          >
+            <Trash2 className="h-4 w-4" /> Excluir registro deste dia
+          </button>
+        )}
         <p className="mt-3 text-center text-xs text-g-muted">
           Sincronizado com sua conta. Quando protegido, o texto é enviado criptografado.
         </p>

@@ -1,10 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { Eye, EyeOff, KeyRound, LoaderCircle, Lock, Save, Unlock } from "lucide-react";
+import {
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  EyeOff,
+  KeyRound,
+  LoaderCircle,
+  Lock,
+  Save,
+  Unlock,
+} from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import {
   decryptDiary,
+  listDiaryDays,
   loadCloudDiary,
   saveOpenDiary,
   saveProtectedDiary,
@@ -15,6 +27,11 @@ import { loadDiary, saveDiary } from "@/lib/goals";
 export const Route = createFileRoute("/diario")({ component: DiaryPage });
 
 type PasswordMode = "unlock" | "create" | null;
+
+const localDateKey = (date = new Date()) => {
+  const offset = date.getTimezoneOffset() * 60_000;
+  return new Date(date.getTime() - offset).toISOString().slice(0, 10);
+};
 
 function DiaryPage() {
   const [text, setText] = useState("");
@@ -29,10 +46,21 @@ function DiaryPage() {
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(localDateKey());
+  const [savedDays, setSavedDays] = useState<{ entry_date: string; locked: boolean }[]>([]);
 
   useEffect(() => {
-    void loadCloudDiary()
-      .then(async (cloud) => {
+    setLoading(true);
+    setText("");
+    setProtectedDiary(false);
+    setUnlocked(true);
+    setHidden(false);
+    setSessionPassword("");
+    setPasswordMode(null);
+    resetPasswordFields();
+    void Promise.all([loadCloudDiary(selectedDate), listDiaryDays()])
+      .then(async ([cloud, days]) => {
+        setSavedDays(days);
         setStoredDiary(cloud);
         if (cloud?.locked) {
           setProtectedDiary(true);
@@ -42,9 +70,9 @@ function DiaryPage() {
           return;
         }
         const local = loadDiary();
-        const initialText = cloud?.content ?? local.text;
+        const initialText = cloud?.content ?? (selectedDate === localDateKey() ? local.text : "");
         setText(initialText);
-        if (!cloud && initialText) await saveOpenDiary(initialText);
+        if (!cloud && initialText) await saveOpenDiary(selectedDate, initialText);
       })
       .catch((error) =>
         toast("Não foi possível carregar o diário.", {
@@ -52,18 +80,25 @@ function DiaryPage() {
         }),
       )
       .finally(() => setLoading(false));
-  }, []);
+  }, [selectedDate]);
+
+  const refreshSavedDays = async () => setSavedDays(await listDiaryDays());
 
   const save = async () => {
     setSaving(true);
     try {
       if (protectedDiary) {
-        await saveProtectedDiary(text, sessionPassword);
-        saveDiary({ text: "", locked: true, pin: "", updated: new Date().toISOString() });
+        await saveProtectedDiary(selectedDate, text, sessionPassword);
+        if (selectedDate === localDateKey()) {
+          saveDiary({ text: "", locked: true, pin: "", updated: new Date().toISOString() });
+        }
       } else {
-        await saveOpenDiary(text);
-        saveDiary({ text, locked: false, pin: "", updated: new Date().toISOString() });
+        await saveOpenDiary(selectedDate, text);
+        if (selectedDate === localDateKey()) {
+          saveDiary({ text, locked: false, pin: "", updated: new Date().toISOString() });
+        }
       }
+      await refreshSavedDays();
       toast("Página salva no seu diário ✨", { description: "Sincronizada com sua conta." });
     } catch (error) {
       toast("Não foi possível salvar.", {
@@ -87,13 +122,16 @@ function DiaryPage() {
       }
       setSaving(true);
       try {
-        await saveProtectedDiary(text, password);
+        await saveProtectedDiary(selectedDate, text, password);
         setProtectedDiary(true);
         setUnlocked(true);
         setSessionPassword(password);
         setPasswordMode(null);
         setHidden(false);
-        saveDiary({ text: "", locked: true, pin: "", updated: new Date().toISOString() });
+        if (selectedDate === localDateKey()) {
+          saveDiary({ text: "", locked: true, pin: "", updated: new Date().toISOString() });
+        }
+        await refreshSavedDays();
         toast("Diário protegido com senha 🔒");
       } catch (error) {
         toast("Não foi possível proteger o diário.", {
@@ -136,11 +174,14 @@ function DiaryPage() {
     }
     setSaving(true);
     try {
-      await saveOpenDiary(text);
+      await saveOpenDiary(selectedDate, text);
       setProtectedDiary(false);
       setSessionPassword("");
       setStoredDiary(null);
-      saveDiary({ text, locked: false, pin: "", updated: new Date().toISOString() });
+      if (selectedDate === localDateKey()) {
+        saveDiary({ text, locked: false, pin: "", updated: new Date().toISOString() });
+      }
+      await refreshSavedDays();
       toast("Proteção removida. O diário está aberto.");
     } catch (error) {
       toast("Não foi possível remover a proteção.", {
@@ -157,9 +198,67 @@ function DiaryPage() {
     setShowPassword(false);
   };
 
+  const moveDay = (amount: number) => {
+    const date = new Date(`${selectedDate}T12:00:00`);
+    date.setDate(date.getDate() + amount);
+    setSelectedDate(localDateKey(date));
+  };
+
+  const formattedSelectedDate = new Date(`${selectedDate}T12:00:00`).toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
   return (
     <AppShell title="Meu Diário">
       <main className="px-6 mt-5">
+        <section className="mb-4 rounded-2xl border border-g-violet/30 g-glass p-4">
+          <div className="flex items-center gap-3">
+            <CalendarDays className="h-5 w-5 shrink-0 text-g-gold" />
+            <label className="min-w-0 flex-1">
+              <span className="block text-xs text-g-muted">Pesquisar o que escrevi por dia</span>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(event) => setSelectedDate(event.target.value)}
+                className="mt-1 w-full bg-transparent font-semibold text-g-text outline-none [color-scheme:dark]"
+              />
+            </label>
+            <button
+              onClick={() => moveDay(-1)}
+              aria-label="Dia anterior"
+              className="grid h-9 w-9 place-items-center rounded-full border border-white/10"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => moveDay(1)}
+              aria-label="Próximo dia"
+              className="grid h-9 w-9 place-items-center rounded-full border border-white/10"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+          {savedDays.length > 0 && (
+            <div className="mt-4 flex snap-x gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
+              {savedDays.map((day) => (
+                <button
+                  key={day.entry_date}
+                  onClick={() => setSelectedDate(day.entry_date)}
+                  className={`shrink-0 snap-start rounded-full border px-3 py-2 text-xs transition ${selectedDate === day.entry_date ? "border-g-gold bg-g-gold/15 text-g-gold" : "border-white/10 text-g-muted"}`}
+                >
+                  {new Date(`${day.entry_date}T12:00:00`).toLocaleDateString("pt-BR", {
+                    day: "2-digit",
+                    month: "short",
+                  })}
+                  {day.locked ? " 🔒" : ""}
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
         <div className="diary-paper relative overflow-hidden rounded-[28px] border border-g-gold/30 p-6 text-[#382c4c] shadow-2xl">
           <div className="absolute right-4 top-4 flex gap-2">
             <button
@@ -180,13 +279,7 @@ function DiaryPage() {
             </button>
           </div>
           <p className="font-serif-g text-2xl font-bold">Pensamentos de hoje</p>
-          <p className="mt-1 text-xs opacity-60">
-            {new Date().toLocaleDateString("pt-BR", {
-              weekday: "long",
-              day: "numeric",
-              month: "long",
-            })}
-          </p>
+          <p className="mt-1 text-xs opacity-60">{formattedSelectedDate}</p>
           {loading ? (
             <div className="grid min-h-[360px] place-items-center">
               <LoaderCircle className="h-8 w-8 animate-spin opacity-50" />

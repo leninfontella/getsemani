@@ -1,6 +1,7 @@
 import { requireSupabase } from "./supabase";
 
 export type CloudDiary = {
+  entry_date: string;
   content: string;
   locked: boolean;
   encryption_salt: string | null;
@@ -41,30 +42,46 @@ async function currentUserId() {
   return { client, userId: data.user.id };
 }
 
-export async function loadCloudDiary(): Promise<CloudDiary | null> {
+export async function loadCloudDiary(entryDate: string): Promise<CloudDiary | null> {
   const { client, userId } = await currentUserId();
   const { data, error } = await client
     .from("diaries")
-    .select("content, locked, encryption_salt, encryption_iv, updated_at")
+    .select("entry_date, content, locked, encryption_salt, encryption_iv, updated_at")
     .eq("user_id", userId)
+    .eq("entry_date", entryDate)
     .maybeSingle();
   if (error) throw error;
   return data;
 }
 
-export async function saveOpenDiary(content: string) {
+export async function listDiaryDays() {
   const { client, userId } = await currentUserId();
-  const { error } = await client.from("diaries").upsert({
-    user_id: userId,
-    content,
-    locked: false,
-    encryption_salt: null,
-    encryption_iv: null,
-  });
+  const { data, error } = await client
+    .from("diaries")
+    .select("entry_date, updated_at, locked")
+    .eq("user_id", userId)
+    .order("entry_date", { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function saveOpenDiary(entryDate: string, content: string) {
+  const { client, userId } = await currentUserId();
+  const { error } = await client.from("diaries").upsert(
+    {
+      user_id: userId,
+      entry_date: entryDate,
+      content,
+      locked: false,
+      encryption_salt: null,
+      encryption_iv: null,
+    },
+    { onConflict: "user_id,entry_date" },
+  );
   if (error) throw error;
 }
 
-export async function saveProtectedDiary(content: string, password: string) {
+export async function saveProtectedDiary(entryDate: string, content: string, password: string) {
   const { client, userId } = await currentUserId();
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -74,13 +91,17 @@ export async function saveProtectedDiary(content: string, password: string) {
     key,
     encoder.encode(content),
   );
-  const { error } = await client.from("diaries").upsert({
-    user_id: userId,
-    content: toBase64(new Uint8Array(encrypted)),
-    locked: true,
-    encryption_salt: toBase64(salt),
-    encryption_iv: toBase64(iv),
-  });
+  const { error } = await client.from("diaries").upsert(
+    {
+      user_id: userId,
+      entry_date: entryDate,
+      content: toBase64(new Uint8Array(encrypted)),
+      locked: true,
+      encryption_salt: toBase64(salt),
+      encryption_iv: toBase64(iv),
+    },
+    { onConflict: "user_id,entry_date" },
+  );
   if (error) throw error;
 }
 

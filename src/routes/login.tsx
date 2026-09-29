@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { Apple, Eye, EyeOff, LockKeyhole, Mail, UserRound } from "lucide-react";
+import { Eye, EyeOff, LockKeyhole, Mail, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { BrandLogo } from "@/components/AppShell";
@@ -122,8 +122,8 @@ function LoginPage() {
                 />
               </Field>
               <fieldset className="rounded-xl border border-white/10 bg-white/5 p-3">
-                <legend className="px-1 text-xs text-g-muted">Como você se identifica?</legend>
-                <div className="mt-1 grid gap-2">
+                <p className="px-1 text-xs text-g-muted">Como você se identifica?</p>
+                <div className="mt-2 grid gap-2">
                   {(
                     [
                       ["masculino", "Masculino"],
@@ -198,15 +198,15 @@ function LoginPage() {
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={() => futureLogin("Google")}
-            className="rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-semibold"
+            className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-semibold"
           >
-            <span className="mr-2 font-bold text-g-gold">G</span>Google
+            <GoogleLogo /> Google
           </button>
           <button
             onClick={() => futureLogin("Apple")}
             className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-semibold"
           >
-            <Apple className="h-5 w-5" />
+            <AppleLogo />
             Apple
           </button>
         </div>
@@ -215,6 +215,37 @@ function LoginPage() {
         </p>
       </main>
     </div>
+  );
+}
+
+function GoogleLogo() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5">
+      <path
+        fill="#4285F4"
+        d="M21.6 12.23c0-.71-.06-1.4-.18-2.07H12v3.92h5.38a4.6 4.6 0 0 1-1.99 3.01v2.54h3.23c1.89-1.74 2.98-4.31 2.98-7.4Z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 22c2.7 0 4.96-.9 6.62-2.42l-3.23-2.54c-.9.6-2.04.96-3.39.96-2.6 0-4.81-1.76-5.6-4.13H3.07v2.62A10 10 0 0 0 12 22Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M6.4 13.87A6.02 6.02 0 0 1 6.09 12c0-.65.11-1.28.31-1.87V7.51H3.07A10 10 0 0 0 2 12c0 1.61.39 3.14 1.07 4.49l3.33-2.62Z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 6c1.47 0 2.79.51 3.83 1.5l2.87-2.87A9.64 9.64 0 0 0 12 2a10 10 0 0 0-8.93 5.51l3.33 2.62C7.19 7.76 9.4 6 12 6Z"
+      />
+    </svg>
+  );
+}
+
+function AppleLogo() {
+  return (
+    <svg viewBox="0 0 384 512" aria-hidden="true" className="h-5 w-5 fill-current">
+      <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.4 4 272.2 4 298.1 8.7 324.9 18.2 352c12.7 36.7 58.5 126.7 106.4 125.2 25.1-.6 42.9-17.8 75.5-17.8 31.6 0 48.1 17.8 76 17.8 48.4-.7 90-82.5 102.1-119.3-64.9-30.6-59.5-87.2-59.5-89.2ZM261.3 104.5c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3Z" />
+    </svg>
   );
 }
 

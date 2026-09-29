@@ -5,6 +5,7 @@ import travel from "@/assets/goal-travel.jpg";
 import universe from "@/assets/goal-universe.png";
 import love from "@/assets/goal-love.jpg";
 import money from "@/assets/goal-money.jpeg";
+import gratitude from "@/assets/goal-gratitude.jpg";
 import { requireSupabase } from "./supabase";
 
 export type Goal = { id: string; title: string; img?: string; prompt: string; example: string };
@@ -44,6 +45,13 @@ export const manifestGoals: Goal[] = [
     img: money,
     prompt: "Descreva a prosperidade e a abundância financeira que já fazem parte da sua vida…",
     example: "Eu sou grata porque o dinheiro chega até mim com facilidade, abundância e propósito.",
+  },
+  {
+    id: "gratidao",
+    title: "Agradecimento, Gratidão...",
+    img: gratitude,
+    prompt: "Escreva tudo aquilo que hoje enche seu coração de gratidão…",
+    example: "Eu agradeço por todas as bênçãos que fazem parte da minha vida.",
   },
   {
     id: "viagem",

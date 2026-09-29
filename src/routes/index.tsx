@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { Check, ChevronLeft, ChevronRight, Shell } from "lucide-react";
 import { AppShell, BrandLogo, GoalThumb } from "@/components/AppShell";
 import {
@@ -25,6 +25,7 @@ function HomePage() {
   const [practiceDates, setPracticeDates] = useState<Set<string>>(new Set());
   const [week, setWeek] = useState<{ label: string; key: string; today: boolean }[]>([]);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const carouselDrag = useRef({ active: false, moved: false, startX: 0, scrollLeft: 0 });
   useEffect(() => {
     const cachedUser = loadUser();
     setGoals(manifestedGoals());
@@ -81,8 +82,36 @@ function HomePage() {
   const today = new Date()
     .toLocaleDateString("pt-BR", { day: "numeric", month: "short" })
     .replace(".", "");
+  const dayLabel = days === 1 ? "dia" : "dias";
   const moveCarousel = (direction: -1 | 1) => {
     carouselRef.current?.scrollBy({ left: direction * 164, behavior: "smooth" });
+  };
+  const startCarouselDrag = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== "mouse" || event.button !== 0 || !carouselRef.current) return;
+    carouselDrag.current = {
+      active: true,
+      moved: false,
+      startX: event.clientX,
+      scrollLeft: carouselRef.current.scrollLeft,
+    };
+  };
+  const dragCarousel = (event: PointerEvent<HTMLDivElement>) => {
+    const drag = carouselDrag.current;
+    if (!drag.active || !carouselRef.current) return;
+    const distance = event.clientX - drag.startX;
+    if (Math.abs(distance) > 8 && !drag.moved) {
+      drag.moved = true;
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+    if (!drag.moved) return;
+    carouselRef.current.scrollLeft = drag.scrollLeft - distance;
+  };
+  const stopCarouselDrag = (event: PointerEvent<HTMLDivElement>) => {
+    if (!carouselDrag.current.active) return;
+    carouselDrag.current.active = false;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
   };
 
   return (
@@ -112,7 +141,7 @@ function HomePage() {
           <div className="journey-ring relative grid h-28 w-28 shrink-0 place-items-center rounded-full">
             <div className="grid h-[86px] w-[86px] place-content-center rounded-full bg-[#222336]/90 text-center">
               <strong className="text-3xl leading-none">{days}</strong>
-              <span className="mt-1 text-sm text-g-muted">Dias</span>
+              <span className="mt-1 text-sm text-g-muted">{dayLabel}</span>
             </div>
           </div>
           <div className="min-w-0 flex-1">
@@ -135,7 +164,7 @@ function HomePage() {
               })}
             </div>
             <p className="mt-4 whitespace-nowrap text-[11px] text-g-muted">
-              Sequência: {days} Dias <span className="text-g-gold">| brilho ativo</span>
+              Sequência: {days} {dayLabel} <span className="text-g-gold">| brilho ativo</span>
             </p>
           </div>
         </div>
@@ -173,7 +202,18 @@ function HomePage() {
         {goals.length ? (
           <div
             ref={carouselRef}
-            className="manifestation-carousel mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-3 [scrollbar-width:none]"
+            onPointerDown={startCarouselDrag}
+            onPointerMove={dragCarousel}
+            onPointerUp={stopCarouselDrag}
+            onPointerCancel={stopCarouselDrag}
+            onClickCapture={(event) => {
+              if (!carouselDrag.current.moved) return;
+              event.preventDefault();
+              event.stopPropagation();
+              carouselDrag.current.moved = false;
+            }}
+            onDragStart={(event) => event.preventDefault()}
+            className="manifestation-carousel mt-3 flex cursor-grab snap-x snap-mandatory select-none gap-3 overflow-x-auto px-6 pb-3 active:cursor-grabbing [scrollbar-width:none]"
           >
             {goals.map((goal) => (
               <Link

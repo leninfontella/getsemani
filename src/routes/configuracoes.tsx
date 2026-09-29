@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Bell, LogOut, Sparkles, Trash2, Volume2 } from "lucide-react";
 import { AppShell, BrandLogo } from "@/components/AppShell";
 import { clearAll, defaultSettings, loadSettings, saveSettings, type Settings } from "@/lib/goals";
-import { deleteLocalAccount, logoutLocal } from "@/lib/auth";
+import { clearCachedUser, logoutUser } from "@/lib/auth";
 export const Route = createFileRoute("/configuracoes")({ component: SettingsPage });
 function SettingsPage() {
   const navigate = useNavigate();
@@ -17,15 +17,15 @@ function SettingsPage() {
     setSettings(next);
     saveSettings(next);
   };
-  const logout = () => {
+  const logout = async () => {
     setTransitionMessage("ATÉ A PRÓXIMA JORNADA");
     setExiting(true);
-    logoutLocal();
+    await logoutUser();
     setTimeout(() => navigate({ to: "/login", replace: true }), 2400);
   };
   const deleteAccount = () => {
     clearAll();
-    deleteLocalAccount();
+    clearCachedUser();
     setConfirmDelete(false);
     setTransitionMessage("SUA CONTA FOI EXCLUÍDA");
     setExiting(true);

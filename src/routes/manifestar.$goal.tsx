@@ -3,7 +3,14 @@ import { useEffect, useState } from "react";
 import { ChevronLeft, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-import { allGoals, manifestGoals, loadEntries, saveEntry, type Entry } from "@/lib/goals";
+import {
+  allGoals,
+  manifestGoals,
+  loadEntries,
+  saveRemoteEntry,
+  syncEntries,
+  type Entry,
+} from "@/lib/goals";
 import { AppNav } from "@/components/AppShell";
 
 export const Route = createFileRoute("/manifestar/$goal")({
@@ -53,7 +60,12 @@ function ManifestGoal() {
   const [text, setText] = useState("");
   const [entries, setEntries] = useState<Entry[]>([]);
 
-  useEffect(() => setEntries(loadEntries()[goalId] || []), [goalId]);
+  useEffect(() => {
+    setEntries(loadEntries()[goalId] || []);
+    void syncEntries()
+      .then((all) => setEntries(all[goalId] || []))
+      .catch(() => undefined);
+  }, [goalId]);
 
   if (!goal) return <GoalNotFound />;
 
@@ -61,15 +73,21 @@ function ManifestGoal() {
     (e) => new Date(e.date).toDateString() === new Date().toDateString(),
   );
 
-  const submit = () => {
+  const submit = async () => {
     const t = text.trim();
     if (!t) {
       toast("Escreva sua manifestação primeiro.");
       return;
     }
-    setEntries(saveEntry(goalId, t));
-    setText("");
-    toast("✨ Assim é, e já é seu.", { description: "Sua manifestação foi registrada." });
+    try {
+      setEntries(await saveRemoteEntry(goal, t));
+      setText("");
+      toast("✨ Assim é, e já é seu.", { description: "Sua manifestação foi registrada." });
+    } catch (error) {
+      toast("Não foi possível salvar.", {
+        description: error instanceof Error ? error.message : "Verifique sua conexão.",
+      });
+    }
   };
 
   const formatOnEnter = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {

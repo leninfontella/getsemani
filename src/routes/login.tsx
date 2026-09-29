@@ -4,7 +4,7 @@ import { Apple, Eye, EyeOff, LockKeyhole, Mail, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { BrandLogo } from "@/components/AppShell";
-import { isAuthenticated, loginLocal, loadUser, registerLocal, type Gender } from "@/lib/auth";
+import { isAuthenticated, loginUser, registerUser, type Gender } from "@/lib/auth";
 import { loadSettings, saveSettings } from "@/lib/goals";
 
 export const Route = createFileRoute("/login")({
@@ -23,10 +23,12 @@ function LoginPage() {
   const [entering, setEntering] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated()) navigate({ to: "/", replace: true });
+    void isAuthenticated().then((authenticated) => {
+      if (authenticated) navigate({ to: "/", replace: true });
+    });
   }, [navigate]);
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
     const cleanEmail = email.trim().toLocaleLowerCase();
     if (!cleanEmail || password.length < 6 || (mode === "register" && (!name.trim() || !gender))) {
@@ -37,23 +39,29 @@ function LoginPage() {
     }
     if (mode === "register") {
       if (!gender) return;
-      const existing = loadUser();
-      if (existing && existing.email.toLocaleLowerCase() === cleanEmail) {
-        toast("Este e-mail já está cadastrado.");
+      try {
+        await registerUser({ name: name.trim(), email: cleanEmail, password, gender });
+        saveSettings({ ...loadSettings(), name: name.trim() });
         setMode("login");
-        return;
+        setName("");
+        setPassword("");
+        setGender("");
+        toast("Conta criada com sucesso ✨", {
+          description: "Confira seu e-mail, se solicitado, e depois entre com sua senha.",
+        });
+      } catch (error) {
+        toast("Não foi possível criar a conta.", {
+          description: error instanceof Error ? error.message : "Tente novamente.",
+        });
       }
-      registerLocal({ name: name.trim(), email: cleanEmail, password, gender });
-      saveSettings({ ...loadSettings(), name: name.trim() });
-      setMode("login");
-      setName("");
-      setPassword("");
-      setGender("");
-      toast("Conta criada com sucesso ✨", { description: "Agora entre com seu e-mail e senha." });
       return;
     }
-    if (!loginLocal(cleanEmail, password)) {
-      toast("E-mail ou senha incorretos.");
+    try {
+      await loginUser(cleanEmail, password);
+    } catch (error) {
+      toast("Não foi possível entrar.", {
+        description: error instanceof Error ? error.message : "E-mail ou senha incorretos.",
+      });
       return;
     }
     setEntering(true);

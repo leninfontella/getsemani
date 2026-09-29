@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Check, ChevronLeft, ChevronRight, Shell } from "lucide-react";
 import { AppShell, BrandLogo, GoalThumb } from "@/components/AppShell";
-import { loadEntries, loadSettings, manifestedGoals, type Goal } from "@/lib/goals";
+import { loadEntries, loadSettings, manifestedGoals, syncEntries, type Goal } from "@/lib/goals";
 import { loadUser } from "@/lib/auth";
 
 export const Route = createFileRoute("/")({
@@ -44,6 +44,18 @@ function HomePage() {
         };
       }),
     );
+    void syncEntries()
+      .then((remote) => {
+        setGoals(manifestedGoals());
+        const remoteDates = new Set(
+          Object.values(remote)
+            .flat()
+            .map((entry) => new Date(entry.date).toLocaleDateString("pt-BR")),
+        );
+        setDays(remoteDates.size);
+        setPracticeDates(remoteDates);
+      })
+      .catch(() => undefined);
   }, []);
   const today = new Date()
     .toLocaleDateString("pt-BR", { day: "numeric", month: "short" })

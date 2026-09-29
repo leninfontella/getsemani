@@ -142,9 +142,10 @@ function RootComponent() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   useEffect(() => {
-    if (pathname !== "/login" && !isAuthenticated()) {
-      navigate({ to: "/login", replace: true });
-    }
+    if (pathname === "/login") return;
+    void isAuthenticated().then((authenticated) => {
+      if (!authenticated) navigate({ to: "/login", replace: true });
+    });
   }, [navigate, pathname]);
 
   useEffect(() => {

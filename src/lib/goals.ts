@@ -5,6 +5,7 @@ import travel from "@/assets/goal-travel.jpg";
 import universe from "@/assets/goal-universe.png";
 import love from "@/assets/goal-love.jpg";
 import money from "@/assets/goal-money.jpeg";
+import { requireSupabase } from "./supabase";
 
 export type Goal = { id: string; title: string; img?: string; prompt: string; example: string };
 
@@ -79,6 +80,46 @@ export function saveEntry(goalId: string, text: string) {
   all[goalId] = [{ date: new Date().toISOString(), text }, ...(all[goalId] || [])];
   write(ENTRIES, all);
   return all[goalId];
+}
+
+export async function syncEntries() {
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from("manifestations")
+    .select("goal_id, title, content, created_at")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  const entries: Record<string, Entry[]> = {};
+  const customGoals = loadCustomGoals();
+  for (const row of data || []) {
+    (entries[row.goal_id] ||= []).push({ date: row.created_at, text: row.content });
+    if (row.goal_id.startsWith("custom-") && !customGoals.some((goal) => goal.id === row.goal_id)) {
+      customGoals.push({
+        id: row.goal_id,
+        title: row.title,
+        img: universe,
+        prompt: `Escreva sobre "${row.title}" como se já fosse seu…`,
+        example: `Eu sou grata porque ${row.title.toLowerCase()} já é minha realidade.`,
+      });
+    }
+  }
+  write(ENTRIES, entries);
+  write(CUSTOM, customGoals);
+  return entries;
+}
+
+export async function saveRemoteEntry(goal: Goal, text: string) {
+  const client = requireSupabase();
+  const { data: auth, error: authError } = await client.auth.getUser();
+  if (authError || !auth.user) throw authError || new Error("Sessão expirada.");
+  const { error } = await client.from("manifestations").insert({
+    user_id: auth.user.id,
+    goal_id: goal.id,
+    title: goal.title,
+    content: text,
+  });
+  if (error) throw error;
+  return saveEntry(goal.id, text);
 }
 
 export function loadCustomGoals(): Goal[] {

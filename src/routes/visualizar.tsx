@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Sparkles } from "lucide-react";
 import { AppShell, GoalThumb } from "@/components/AppShell";
-import { loadEntries, manifestedGoals, type Entry, type Goal } from "@/lib/goals";
+import { loadEntries, manifestedGoals, syncEntries, type Entry, type Goal } from "@/lib/goals";
 
 export const Route = createFileRoute("/visualizar")({ component: VisualizePage });
 type Item = { goal: Goal; entries: Entry[] };
@@ -11,6 +11,11 @@ function VisualizePage() {
   useEffect(() => {
     const entries = loadEntries();
     setItems(manifestedGoals().map((goal) => ({ goal, entries: entries[goal.id] || [] })));
+    void syncEntries()
+      .then((remote) =>
+        setItems(manifestedGoals().map((goal) => ({ goal, entries: remote[goal.id] || [] }))),
+      )
+      .catch(() => undefined);
   }, []);
   return (
     <AppShell title="Todas as manifestações">

@@ -222,11 +222,14 @@ html.is-scrolling::-webkit-scrollbar-thumb {
 }
 
 .journey-card {
-  background: linear-gradient(135deg, oklch(0.27 0.045 285 / 0.88), oklch(0.2 0.035 280 / 0.78));
+  background:
+    linear-gradient(145deg, oklch(1 0 0 / 0.14), transparent 38%),
+    linear-gradient(135deg, oklch(0.38 0.09 290 / 0.55), oklch(0.16 0.035 280 / 0.48));
   box-shadow:
-    0 0 24px oklch(0.7 0.2 310 / 0.28),
-    inset 0 0 30px oklch(0.72 0.17 305 / 0.08);
-  backdrop-filter: blur(18px);
+    inset 0 1px 0 oklch(1 0 0 / 0.24),
+    0 18px 55px oklch(0.05 0.03 280 / 0.45),
+    0 0 24px oklch(0.7 0.2 310 / 0.22);
+  backdrop-filter: blur(24px) saturate(165%);
 }
 
 .journey-ring {
@@ -264,6 +267,76 @@ html.is-scrolling::-webkit-scrollbar-thumb {
   display: none;
 }
 
+.liquid-overlay {
+  background:
+    radial-gradient(circle at 50% 35%, oklch(0.7 0.2 310 / 0.18), transparent 45%),
+    oklch(0.07 0.025 275 / 0.72);
+  backdrop-filter: blur(18px) saturate(145%);
+  animation: liquid-fade 0.2s ease-out;
+}
+
+.liquid-dialog,
+.liquid-toast {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid oklch(1 0 0 / 0.24);
+  background:
+    linear-gradient(145deg, oklch(1 0 0 / 0.16), transparent 42%),
+    linear-gradient(160deg, oklch(0.42 0.11 300 / 0.76), oklch(0.18 0.05 278 / 0.72));
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.3),
+    inset 0 -1px 0 oklch(0.75 0.18 310 / 0.18),
+    0 24px 80px oklch(0.04 0.03 280 / 0.68),
+    0 0 36px oklch(0.7 0.2 310 / 0.16);
+  backdrop-filter: blur(28px) saturate(180%);
+}
+
+.liquid-dialog::before,
+.liquid-toast::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  background: linear-gradient(
+    115deg,
+    oklch(1 0 0 / 0.2),
+    transparent 28% 72%,
+    oklch(0.9 0.1 85 / 0.09)
+  );
+}
+
+.liquid-dialog {
+  animation: liquid-rise 0.28s cubic-bezier(0.2, 0.9, 0.25, 1.15);
+}
+
+.liquid-icon,
+.liquid-button {
+  border: 1px solid oklch(1 0 0 / 0.2);
+  background: linear-gradient(145deg, oklch(1 0 0 / 0.14), oklch(1 0 0 / 0.04));
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.18);
+  backdrop-filter: blur(12px);
+}
+
+@keyframes liquid-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes liquid-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @keyframes auth-logo-blink {
   from {
     opacity: 0.25;
@@ -275,8 +348,25 @@ html.is-scrolling::-webkit-scrollbar-thumb {
   }
 }
 @utility g-glass {
-  background: var(--g-card);
-  backdrop-filter: blur(16px);
+  background:
+    linear-gradient(145deg, oklch(1 0 0 / 0.13), transparent 40%),
+    linear-gradient(155deg, oklch(0.34 0.07 292 / 0.52), oklch(0.15 0.035 275 / 0.48));
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.2),
+    0 14px 45px oklch(0.04 0.03 280 / 0.34);
+  backdrop-filter: blur(24px) saturate(170%);
+}
+
+.glass-panel {
+  border: 1px solid oklch(1 0 0 / 0.2);
+  background:
+    linear-gradient(145deg, oklch(1 0 0 / 0.15), transparent 38%),
+    linear-gradient(155deg, oklch(0.31 0.075 294 / 0.62), oklch(0.12 0.03 275 / 0.58));
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.26),
+    inset 0 -1px 0 oklch(0.75 0.16 310 / 0.1),
+    0 24px 70px oklch(0.04 0.03 280 / 0.5);
+  backdrop-filter: blur(28px) saturate(180%);
 }
 @utility g-cta {
   background: linear-gradient(90deg, var(--g-violet), oklch(0.9 0.06 320), var(--g-gold));
@@ -359,8 +449,13 @@ html.is-scrolling::-webkit-scrollbar-thumb {
 
 .diary-paper {
   background:
-    radial-gradient(circle at 85% 12%, oklch(0.83 0.12 305 / 0.35), transparent 28%),
-    radial-gradient(circle at 10% 88%, oklch(0.85 0.12 85 / 0.3), transparent 32%),
+    linear-gradient(145deg, oklch(1 0 0 / 0.46), transparent 42%),
+    radial-gradient(circle at 85% 12%, oklch(0.83 0.12 305 / 0.3), transparent 28%),
+    radial-gradient(circle at 10% 88%, oklch(0.85 0.12 85 / 0.25), transparent 32%),
     repeating-linear-gradient(transparent 0 31px, oklch(0.55 0.06 285 / 0.13) 31px 32px),
-    oklch(0.94 0.025 85);
+    oklch(0.94 0.025 85 / 0.72);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.7),
+    0 22px 65px oklch(0.05 0.03 280 / 0.45);
+  backdrop-filter: blur(22px) saturate(145%);
 }

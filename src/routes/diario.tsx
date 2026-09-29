@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
+import { LiquidConfirmDialog } from "@/components/LiquidConfirmDialog";
 import {
   decryptDiary,
   deleteCloudDiary,
@@ -242,35 +243,17 @@ function DiaryPage() {
 
   return (
     <AppShell title="Meu Diário">
-      {confirmDelete && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/75 px-6 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-3xl border border-red-300/25 bg-[#191923] p-6 text-center text-g-text shadow-2xl">
-            <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-red-400/10 text-red-300">
-              <Trash2 className="h-6 w-6" />
-            </span>
-            <h2 className="mt-4 text-xl font-semibold">Excluir este dia?</h2>
-            <p className="mt-2 text-sm leading-relaxed text-g-muted">
-              O registro de {formattedSelectedDate} será removido permanentemente.
-            </p>
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <button
-                onClick={() => setConfirmDelete(false)}
-                disabled={saving}
-                className="rounded-full border border-white/15 py-3 font-semibold"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={deleteSelectedDay}
-                disabled={saving}
-                className="rounded-full bg-red-500/90 py-3 font-semibold text-white disabled:opacity-60"
-              >
-                {saving ? "Excluindo…" : "Excluir"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <LiquidConfirmDialog
+        open={confirmDelete}
+        icon={<Trash2 className="h-7 w-7" />}
+        title="Excluir este dia?"
+        description={<>O registro de {formattedSelectedDate} será removido permanentemente.</>}
+        confirmLabel="Excluir"
+        loading={saving}
+        destructive
+        onCancel={() => setConfirmDelete(false)}
+        onConfirm={deleteSelectedDay}
+      />
       <main className="px-6 mt-5">
         <section className="mb-4 rounded-2xl border border-g-violet/30 g-glass p-4">
           <div className="flex items-center gap-3">
@@ -287,14 +270,14 @@ function DiaryPage() {
             <button
               onClick={() => moveDay(-1)}
               aria-label="Dia anterior"
-              className="grid h-9 w-9 place-items-center rounded-full border border-white/10"
+              className="g-glass grid h-9 w-9 place-items-center rounded-full border border-white/15"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
             <button
               onClick={() => moveDay(1)}
               aria-label="Próximo dia"
-              className="grid h-9 w-9 place-items-center rounded-full border border-white/10"
+              className="g-glass grid h-9 w-9 place-items-center rounded-full border border-white/15"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
@@ -323,7 +306,7 @@ function DiaryPage() {
               onClick={() => setHidden(!hidden)}
               disabled={!unlocked}
               aria-label={hidden ? "Mostrar texto" : "Esconder texto"}
-              className="h-9 w-9 rounded-full bg-[#493867]/10 grid place-items-center disabled:opacity-40"
+              className="grid h-9 w-9 place-items-center rounded-full border border-white/30 bg-white/15 shadow-inner backdrop-blur-xl disabled:opacity-40"
             >
               {hidden ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
             </button>
@@ -331,7 +314,7 @@ function DiaryPage() {
               onClick={toggleProtection}
               disabled={!unlocked || saving}
               aria-label={protectedDiary ? "Remover senha" : "Proteger com senha"}
-              className="h-9 w-9 rounded-full bg-[#493867]/10 grid place-items-center disabled:opacity-40"
+              className="grid h-9 w-9 place-items-center rounded-full border border-white/30 bg-white/15 shadow-inner backdrop-blur-xl disabled:opacity-40"
             >
               {protectedDiary ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
             </button>
@@ -357,9 +340,9 @@ function DiaryPage() {
           </div>
 
           {passwordMode && (
-            <div className="absolute inset-0 z-10 grid place-items-center bg-[#f3e9d2]/95 p-6 backdrop-blur-md">
+            <div className="absolute inset-0 z-10 grid place-items-center bg-[#eadff0]/65 p-6 backdrop-blur-2xl">
               <form onSubmit={handlePassword} className="w-full max-w-xs text-center">
-                <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#493867]/10">
+                <span className="mx-auto grid h-14 w-14 place-items-center rounded-full border border-white/30 bg-white/15 shadow-inner backdrop-blur-xl">
                   {passwordMode === "unlock" ? (
                     <Lock className="h-6 w-6" />
                   ) : (
@@ -388,7 +371,7 @@ function DiaryPage() {
                       setPassword(event.target.value.replace(/\D/g, "").slice(0, 4))
                     }
                     placeholder="4 números"
-                    className="w-full rounded-xl border border-[#493867]/20 bg-white/60 px-4 py-3 pr-11 outline-none focus:border-[#7650a8]"
+                    className="w-full rounded-xl border border-white/35 bg-white/30 px-4 py-3 pr-11 shadow-inner backdrop-blur-xl outline-none focus:border-[#7650a8]"
                   />
                   <button
                     type="button"
@@ -412,7 +395,7 @@ function DiaryPage() {
                       setPasswordConfirmation(event.target.value.replace(/\D/g, "").slice(0, 4))
                     }
                     placeholder="Confirme os 4 números"
-                    className="mt-3 w-full rounded-xl border border-[#493867]/20 bg-white/60 px-4 py-3 outline-none focus:border-[#7650a8]"
+                    className="mt-3 w-full rounded-xl border border-white/35 bg-white/30 px-4 py-3 shadow-inner backdrop-blur-xl outline-none focus:border-[#7650a8]"
                   />
                 )}
                 <button

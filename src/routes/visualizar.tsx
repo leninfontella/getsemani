@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, GoalThumb } from "@/components/AppShell";
+import { LiquidConfirmDialog } from "@/components/LiquidConfirmDialog";
 import {
   deleteRemoteGoal,
   loadEntries,
@@ -45,35 +46,19 @@ function VisualizePage() {
   };
   return (
     <AppShell title="Todas as manifestações">
-      {pendingDelete && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/75 px-6 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-3xl border border-red-300/25 bg-[#191923] p-6 text-center shadow-2xl">
-            <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-red-400/10 text-red-300">
-              <Trash2 className="h-6 w-6" />
-            </span>
-            <h2 className="mt-4 text-xl font-semibold">Excluir manifestação?</h2>
-            <p className="mt-2 text-sm leading-relaxed text-g-muted">
-              Todos os registros de “{pendingDelete.title}” serão removidos permanentemente.
-            </p>
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <button
-                onClick={() => setPendingDelete(null)}
-                disabled={deleting}
-                className="rounded-full border border-white/15 py-3 font-semibold"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={confirmDelete}
-                disabled={deleting}
-                className="rounded-full bg-red-500/90 py-3 font-semibold text-white disabled:opacity-60"
-              >
-                {deleting ? "Excluindo…" : "Excluir"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <LiquidConfirmDialog
+        open={Boolean(pendingDelete)}
+        icon={<Trash2 className="h-7 w-7" />}
+        title="Excluir manifestação?"
+        description={
+          <>Todos os registros de “{pendingDelete?.title}” serão removidos permanentemente.</>
+        }
+        confirmLabel="Excluir"
+        loading={deleting}
+        destructive
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={confirmDelete}
+      />
       <main className="px-6 mt-6">
         <p className="text-sm text-g-muted">Releia, sinta e visualize como se tudo já fosse seu.</p>
         {items.length ? (

@@ -99,7 +99,7 @@ function ChooseGoal() {
                 onChange={(e) => setCustomName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && createCustom()}
                 placeholder="Ex.: Meu novo projeto"
-                className="mt-3 w-full rounded-xl border border-g-muted/30 bg-g-bg/50 px-4 py-3 outline-none focus:border-g-gold"
+                className="g-glass mt-3 w-full rounded-xl border border-g-muted/30 px-4 py-3 outline-none focus:border-g-gold"
               />
               <button
                 onClick={createCustom}

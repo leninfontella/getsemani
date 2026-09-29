@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Bell, LogOut, Sparkles, Trash2, Volume2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, BrandLogo } from "@/components/AppShell";
+import { LiquidConfirmDialog } from "@/components/LiquidConfirmDialog";
 import { clearAll, defaultSettings, loadSettings, saveSettings, type Settings } from "@/lib/goals";
 import {
   clearCachedUser,
@@ -18,6 +19,7 @@ function SettingsPage() {
   const [exiting, setExiting] = useState(false);
   const [transitionMessage, setTransitionMessage] = useState("ATÉ A PRÓXIMA JORNADA");
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
   const [deleting, setDeleting] = useState(false);
   useEffect(() => {
     const local = loadSettings();
@@ -37,6 +39,7 @@ function SettingsPage() {
     saveSettings(next);
   };
   const logout = async () => {
+    setConfirmLogout(false);
     setTransitionMessage("ATÉ A PRÓXIMA JORNADA");
     setExiting(true);
     await logoutUser();
@@ -69,42 +72,26 @@ function SettingsPage() {
           </div>
         </div>
       )}
-      {confirmDelete && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/75 px-6 backdrop-blur-sm">
-          <div
-            role="alertdialog"
-            aria-modal="true"
-            aria-labelledby="delete-title"
-            className="w-full max-w-sm rounded-3xl border border-red-300/25 bg-[#191923] p-6 shadow-2xl"
-          >
-            <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-red-400/10 text-red-300">
-              <Trash2 className="h-6 w-6" />
-            </span>
-            <h2 id="delete-title" className="mt-4 text-center text-xl font-semibold">
-              Excluir sua conta?
-            </h2>
-            <p className="mt-2 text-center text-sm leading-relaxed text-g-muted">
-              Esta ação apagará permanentemente a conta, manifestações, diário e configurações
-              salvas neste navegador.
-            </p>
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <button
-                onClick={() => setConfirmDelete(false)}
-                className="rounded-full border border-white/15 py-3 font-semibold"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={deleteAccount}
-                disabled={deleting}
-                className="rounded-full bg-red-500/90 py-3 font-semibold text-white disabled:opacity-60"
-              >
-                {deleting ? "Excluindo…" : "Excluir"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <LiquidConfirmDialog
+        open={confirmLogout}
+        icon={<LogOut className="h-7 w-7" />}
+        title="Sair do Getsêmani?"
+        description="Sua jornada continuará salva e estará esperando por você no próximo acesso."
+        confirmLabel="Sair"
+        onCancel={() => setConfirmLogout(false)}
+        onConfirm={logout}
+      />
+      <LiquidConfirmDialog
+        open={confirmDelete}
+        icon={<Trash2 className="h-7 w-7" />}
+        title="Excluir sua conta?"
+        description="Esta ação apagará permanentemente sua conta, manifestações, diário, sessões e dados locais."
+        confirmLabel="Excluir"
+        loading={deleting}
+        destructive
+        onCancel={() => setConfirmDelete(false)}
+        onConfirm={deleteAccount}
+      />
       <main className="px-6 mt-6 space-y-5">
         <section className="rounded-2xl border border-g-muted/20 g-glass p-4">
           <label htmlFor="name" className="text-sm text-g-muted">
@@ -114,7 +101,7 @@ function SettingsPage() {
             id="name"
             value={settings.name}
             onChange={(e) => update("name", e.target.value)}
-            className="mt-2 w-full rounded-xl border border-g-muted/30 bg-g-bg/40 px-4 py-3 outline-none focus:border-g-gold"
+            className="g-glass mt-2 w-full rounded-xl border border-g-muted/30 px-4 py-3 outline-none focus:border-g-gold"
           />
         </section>
         <section className="overflow-hidden rounded-2xl border border-g-muted/20 g-glass">
@@ -132,7 +119,7 @@ function SettingsPage() {
                 type="time"
                 value={settings.reminderTime}
                 onChange={(e) => update("reminderTime", e.target.value)}
-                className="rounded-lg bg-g-bg/50 px-3 py-2"
+                className="g-glass rounded-lg border border-white/10 px-3 py-2"
               />
             </div>
           )}
@@ -148,15 +135,15 @@ function SettingsPage() {
           </SettingRow>
         </section>
         <button
-          onClick={logout}
+          onClick={() => setConfirmLogout(true)}
           disabled={exiting}
-          className="w-full rounded-full border border-red-300/40 py-4 font-semibold text-red-200 flex items-center justify-center gap-2"
+          className="liquid-button w-full rounded-full border border-red-300/40 py-4 font-semibold text-red-200 flex items-center justify-center gap-2"
         >
           <LogOut className="h-5 w-5" /> Sair
         </button>
         <button
           onClick={() => setConfirmDelete(true)}
-          className="w-full rounded-full border border-red-500/25 py-4 text-sm font-semibold text-red-300/90 flex items-center justify-center gap-2"
+          className="liquid-button w-full rounded-full border border-red-500/25 py-4 text-sm font-semibold text-red-300/90 flex items-center justify-center gap-2"
         >
           <Trash2 className="h-4 w-4" /> Excluir Conta
         </button>

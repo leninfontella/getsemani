@@ -82,9 +82,9 @@ function LoginPage() {
           </div>
         </div>
       )}
-      <main className="w-full max-w-[430px] rounded-[32px] border border-g-gold/25 bg-[#171923]/90 px-6 py-7 shadow-[0_0_60px_rgba(201,169,93,.18)] backdrop-blur-xl">
+      <main className="glass-panel w-full max-w-[430px] rounded-[32px] px-6 py-7">
         <BrandLogo className="mx-auto h-[200px] w-[360px] max-w-full" />
-        <div className="mt-3 grid grid-cols-2 rounded-full bg-white/5 p-1">
+        <div className="g-glass mt-3 grid grid-cols-2 rounded-full border border-white/10 p-1">
           <button
             onClick={() => setMode("login")}
             className={`rounded-full py-2.5 text-sm font-semibold transition ${mode === "login" ? "bg-g-gold text-g-bg" : "text-g-muted"}`}
@@ -121,7 +121,7 @@ function LoginPage() {
                   className="auth-input"
                 />
               </Field>
-              <fieldset className="rounded-xl border border-white/10 bg-white/5 p-3">
+              <fieldset className="g-glass rounded-xl border border-white/15 p-3">
                 <p className="px-1 text-xs text-g-muted">Como você se identifica?</p>
                 <div className="mt-2 grid gap-2">
                   {(
@@ -198,13 +198,13 @@ function LoginPage() {
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={() => futureLogin("Google")}
-            className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-semibold"
+            className="g-glass flex items-center justify-center gap-2 rounded-xl border border-white/15 py-3 text-sm font-semibold"
           >
             <GoogleLogo /> Google
           </button>
           <button
             onClick={() => futureLogin("Apple")}
-            className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-semibold"
+            className="g-glass flex items-center justify-center gap-2 rounded-xl border border-white/15 py-3 text-sm font-semibold"
           >
             <AppleLogo />
             Apple
@@ -251,7 +251,7 @@ function AppleLogo() {
 
 function Field({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <label className="relative flex items-center rounded-xl border border-white/10 bg-white/5 px-4 focus-within:border-g-gold">
+    <label className="g-glass relative flex items-center rounded-xl border border-white/15 px-4 focus-within:border-g-gold">
       <span className="text-g-gold [&>svg]:h-5 [&>svg]:w-5">{icon}</span>
       {children}
     </label>

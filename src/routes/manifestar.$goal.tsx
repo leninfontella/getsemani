@@ -179,7 +179,7 @@ function ManifestGoal() {
               </span>
             </div>
             {entries.length === 0 ? (
-              <p className="mt-4 rounded-2xl border border-dashed border-g-muted/30 p-5 text-center text-sm text-g-muted">
+              <p className="g-glass mt-4 rounded-2xl border border-dashed border-g-muted/30 p-5 text-center text-sm text-g-muted">
                 Nenhum registro salvo ainda.
               </p>
             ) : (

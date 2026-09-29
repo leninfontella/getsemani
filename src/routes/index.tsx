@@ -124,7 +124,7 @@ function HomePage() {
         <span className="text-xs text-g-muted">Hoje, {today}</span>
         <BrandLogo className="absolute left-1/2 top-8 h-[180px] w-[315px] -translate-x-1/2 rounded-xl" />
         <div className="h-11 w-11 rounded-full p-[2px] g-cta">
-          <div className="h-full w-full rounded-full bg-g-bg grid place-items-center font-bold text-g-gold">
+          <div className="g-glass h-full w-full rounded-full grid place-items-center font-bold text-g-gold">
             {name.charAt(0).toUpperCase()}
           </div>
         </div>
@@ -143,7 +143,7 @@ function HomePage() {
         </div>
         <div className="mt-4 flex items-center gap-5">
           <div className="journey-ring relative grid h-28 w-28 shrink-0 place-items-center rounded-full">
-            <div className="grid h-[86px] w-[86px] place-content-center rounded-full bg-[#222336]/90 text-center">
+            <div className="g-glass grid h-[86px] w-[86px] place-content-center rounded-full text-center">
               <strong className="text-3xl leading-none">{days}</strong>
               <span className="mt-1 text-sm text-g-muted">{dayLabel}</span>
             </div>
@@ -185,14 +185,14 @@ function HomePage() {
                 <button
                   onClick={() => moveCarousel(-1)}
                   aria-label="Manifestação anterior"
-                  className="hidden h-8 w-8 place-items-center rounded-full border border-g-muted/20 text-g-muted md:grid"
+                  className="g-glass hidden h-8 w-8 place-items-center rounded-full border border-g-muted/20 text-g-muted md:grid"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => moveCarousel(1)}
                   aria-label="Próxima manifestação"
-                  className="hidden h-8 w-8 place-items-center rounded-full border border-g-muted/20 text-g-gold md:grid"
+                  className="g-glass hidden h-8 w-8 place-items-center rounded-full border border-g-muted/20 text-g-gold md:grid"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
@@ -233,7 +233,7 @@ function HomePage() {
             ))}
           </div>
         ) : (
-          <div className="mx-6 mt-3 rounded-2xl border border-dashed border-g-muted/30 p-5 text-center text-sm text-g-muted">
+          <div className="g-glass mx-6 mt-3 rounded-2xl border border-dashed border-g-muted/30 p-5 text-center text-sm text-g-muted">
             Suas manifestações aparecerão aqui depois que você escrever a primeira.
           </div>
         )}

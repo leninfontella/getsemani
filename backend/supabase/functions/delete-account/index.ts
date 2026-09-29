@@ -51,6 +51,8 @@ Deno.serve(async (request: Request) => {
   const adminClient = createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+  // Revoga os refresh tokens de todas as sessões/dispositivos antes de remover o usuário.
+  await adminClient.auth.admin.signOut(token, "global");
   const { error: deleteError } = await adminClient.auth.admin.deleteUser(data.user.id, false);
   if (deleteError) return json(request, { error: "Não foi possível excluir a conta." }, 500);
 

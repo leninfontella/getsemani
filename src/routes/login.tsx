@@ -47,7 +47,7 @@ function LoginPage() {
         setPassword("");
         setGender("");
         toast("Conta criada com sucesso ✨", {
-          description: "Confira seu e-mail, se solicitado, e depois entre com sua senha.",
+          description: "Entre com o seu e-mail e senha.",
         });
       } catch (error) {
         toast("Não foi possível criar a conta.", {

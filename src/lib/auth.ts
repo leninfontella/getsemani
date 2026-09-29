@@ -81,8 +81,12 @@ export async function refreshCachedUser() {
 
 export async function isAuthenticated() {
   if (!supabase) return false;
-  const { data } = await supabase.auth.getSession();
-  return Boolean(data.session);
+  const { data, error } = await supabase.auth.getUser();
+  if (data.user) return true;
+  if (error && (error.status === 401 || error.status === 403)) return false;
+  // Uma falha temporária de rede não deve desconectar o usuário imediatamente.
+  const { data: session } = await supabase.auth.getSession();
+  return Boolean(session.session);
 }
 
 export async function logoutUser() {

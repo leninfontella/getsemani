@@ -5,7 +5,6 @@ import {
   createRootRouteWithContext,
   useRouter,
   useRouterState,
-  useNavigate,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -13,7 +12,9 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { isAuthenticated } from "../lib/auth";
+import { clearCachedUser, isAuthenticated } from "../lib/auth";
+import { clearAll } from "../lib/goals";
+import { clearLocalSupabaseSession } from "../lib/supabase";
 
 function NotFoundComponent() {
   return (
@@ -138,15 +139,29 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const navigate = useNavigate();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   useEffect(() => {
     if (pathname === "/login") return;
-    void isAuthenticated().then((authenticated) => {
-      if (!authenticated) navigate({ to: "/login", replace: true });
-    });
-  }, [navigate, pathname]);
+    let active = true;
+    const validateSession = async () => {
+      const authenticated = await isAuthenticated();
+      if (!active || authenticated) return;
+      clearAll();
+      clearCachedUser();
+      clearLocalSupabaseSession();
+      window.location.replace("/login");
+    };
+    void validateSession();
+    const interval = window.setInterval(validateSession, 30_000);
+    const validateOnFocus = () => void validateSession();
+    window.addEventListener("focus", validateOnFocus);
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+      window.removeEventListener("focus", validateOnFocus);
+    };
+  }, [pathname]);
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;

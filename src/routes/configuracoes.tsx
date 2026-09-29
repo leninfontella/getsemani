@@ -51,7 +51,7 @@ function SettingsPage() {
       setConfirmDelete(false);
       setTransitionMessage("SUA CONTA FOI EXCLUÍDA");
       setExiting(true);
-      setTimeout(() => navigate({ to: "/login", replace: true }), 2400);
+      setTimeout(() => window.location.replace("/login"), 2400);
     } catch (error) {
       setDeleting(false);
       toast("Não foi possível excluir a conta.", {

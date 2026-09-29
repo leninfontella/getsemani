@@ -1,5 +1,5 @@
 export type Gender = "masculino" | "feminino" | "nao-informar";
-import { requireSupabase, supabase } from "./supabase";
+import { clearLocalSupabaseSession, requireSupabase, supabase } from "./supabase";
 
 export type LocalUser = { name: string; email: string; gender?: Gender };
 
@@ -96,7 +96,9 @@ export async function deleteAccount() {
   });
   if (error) throw error;
   if (!data?.deleted) throw new Error(data?.error || "Não foi possível excluir a conta.");
-  await client.auth.signOut({ scope: "local" });
+  // O usuário já foi removido do Auth. Limpar o armazenamento diretamente evita
+  // uma chamada redundante a /logout, que responderia 403 para uma conta inexistente.
+  clearLocalSupabaseSession();
 }
 
 export function clearCachedUser() {

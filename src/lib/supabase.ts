@@ -24,3 +24,13 @@ export function requireSupabase() {
   }
   return supabase;
 }
+
+export function clearLocalSupabaseSession() {
+  if (typeof window === "undefined" || !supabaseUrl) return;
+  const projectRef = new URL(supabaseUrl).hostname.split(".")[0];
+  const storagePrefix = `sb-${projectRef}-auth-token`;
+  for (let index = localStorage.length - 1; index >= 0; index -= 1) {
+    const key = localStorage.key(index);
+    if (key?.startsWith(storagePrefix)) localStorage.removeItem(key);
+  }
+}

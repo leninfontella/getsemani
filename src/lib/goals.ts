@@ -180,5 +180,9 @@ export const loadSettings = () => ({
 });
 export const saveSettings = (s: Settings) => write(SETTINGS, s);
 export function clearAll() {
-  [ENTRIES, CUSTOM, DIARY, SETTINGS].forEach((k) => localStorage.removeItem(k));
+  if (typeof window === "undefined") return;
+  for (let index = localStorage.length - 1; index >= 0; index -= 1) {
+    const key = localStorage.key(index);
+    if (key?.startsWith("getsemani-")) localStorage.removeItem(key);
+  }
 }

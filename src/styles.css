@@ -823,6 +823,17 @@ h3 {
   -webkit-backdrop-filter: blur(var(--g-glass-blur)) saturate(125%);
   backdrop-filter: blur(var(--g-glass-blur)) saturate(125%);
 }
+
+/* The installed app has less usable vertical space because iOS overlays its safe areas. */
+@media (display-mode: standalone) and (max-width: 767px) {
+  .home-main-hero {
+    height: 310px;
+  }
+
+  .app-page:has(.home-main-hero) {
+    padding-bottom: calc(6.25rem + env(safe-area-inset-bottom));
+  }
+}
 @utility g-glass {
   background:
     linear-gradient(145deg, rgb(255 255 255 / 0.07), rgb(255 255 255 / 0.018)),

@@ -17,7 +17,7 @@ export function NotificationCenter({ name }: { name: string }) {
 
   useEffect(() => {
     const refresh = () => setItems(loadNotifications());
-    ensureAutomaticNotifications(name);
+    ensureAutomaticNotifications();
     refresh();
     window.addEventListener(NOTIFICATIONS_CHANGED, refresh);
     window.addEventListener("storage", refresh);

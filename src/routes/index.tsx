@@ -158,7 +158,7 @@ function HomePage() {
 
   return (
     <AppShell>
-      <header className="home-hero relative h-[340px] px-5 pt-3">
+      <header className="home-main-hero home-hero relative h-[340px] px-5 pt-3">
         <div
           className="hero-landscape absolute inset-0"
           style={{ backgroundImage: `url(${homeHero})` }}
@@ -260,7 +260,7 @@ function HomePage() {
           <div className="min-w-0 flex-1 self-center">
             <p className="font-semibold text-g-text">Prática Diária</p>
             <p className="mt-2 text-xs text-g-muted">
-              Sequência: {days} {dayLabel} <span className="text-g-gold">| brilho ativo</span>
+              Sequência: {days} {dayLabel} <span className="text-g-gold">| Meta diária</span>
             </p>
           </div>
         </div>
@@ -361,7 +361,7 @@ function HomePage() {
                     onClick={() => {
                       const card =
                         carouselRef.current?.querySelectorAll<HTMLElement>(".manifestation-card")[
-                          index
+                        index
                         ];
                       card?.scrollIntoView({
                         behavior: "smooth",
@@ -380,10 +380,10 @@ function HomePage() {
           </div>
         )}
       </section>
-      <div className="px-8 mt-8">
+      <div className="home-primary-action mt-8 px-8">
         <Link
           to="/manifestar"
-          className="manifest-now w-full rounded-full py-5 text-lg font-extrabold tracking-wide text-[#251536] flex items-center justify-center gap-3 active:scale-95 transition"
+          className="manifest-now flex min-h-14 w-full items-center justify-center gap-3 rounded-full px-5 py-3.5 text-lg font-extrabold tracking-wide text-[#251536] transition active:scale-95"
         >
           MANIFESTAR AGORA <Shell className="h-7 w-7 stroke-[2.4]" />
         </Link>

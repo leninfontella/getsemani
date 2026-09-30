@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { BrandLogo } from "@/components/AppShell";
 import { isAuthenticated, loginUser, registerUser, type Gender } from "@/lib/auth";
 import { loadSettings, saveSettings } from "@/lib/goals";
+import { scheduleWelcomeNotification } from "@/lib/notifications";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Getsêmani" }] }),
@@ -41,6 +42,7 @@ function LoginPage() {
       if (!gender) return;
       try {
         await registerUser({ name: name.trim(), email: cleanEmail, password, gender });
+        scheduleWelcomeNotification(name.trim(), cleanEmail);
         saveSettings({ ...loadSettings(), name: name.trim() });
         setMode("login");
         setName("");

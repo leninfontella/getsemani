@@ -431,27 +431,34 @@ function DiaryPage() {
             </div>
           )}
         </div>
-        <button
-          onClick={save}
-          disabled={!unlocked || loading || saving}
-          className="g-cta mt-5 w-full rounded-full py-4 font-bold text-g-bg flex items-center justify-center gap-2 disabled:opacity-40"
-        >
-          {saving ? (
-            <LoaderCircle className="h-5 w-5 animate-spin" />
-          ) : (
-            <Save className="h-5 w-5" />
-          )}
-          {saving ? "Salvando…" : "Salvar no diário"}
-        </button>
-        {savedDays.some((day) => day.entry_date === selectedDate) && (
+        <div className="mt-5 flex items-center justify-center gap-4">
           <button
-            onClick={() => setConfirmDelete(true)}
-            disabled={saving}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-full border border-red-400/30 py-3 text-sm font-semibold text-red-300 disabled:opacity-40"
+            type="button"
+            onClick={save}
+            disabled={!unlocked || loading || saving}
+            aria-label={saving ? "Salvando no diário" : "Salvar no diário"}
+            title={saving ? "Salvando…" : "Salvar no diário"}
+            className="g-cta grid h-12 w-12 place-items-center rounded-full text-g-bg transition active:scale-95 disabled:opacity-40"
           >
-            <Trash2 className="h-4 w-4" /> Excluir registro deste dia
+            {saving ? (
+              <LoaderCircle className="h-5 w-5 animate-spin" />
+            ) : (
+              <Save className="h-5 w-5" />
+            )}
           </button>
-        )}
+          {savedDays.some((day) => day.entry_date === selectedDate) && (
+            <button
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+              disabled={saving}
+              aria-label="Excluir registro deste dia"
+              title="Excluir registro deste dia"
+              className="grid h-12 w-12 place-items-center rounded-full border border-red-400/30 bg-red-950/20 text-red-300 transition active:scale-95 disabled:opacity-40"
+            >
+              <Trash2 className="h-5 w-5" />
+            </button>
+          )}
+        </div>
         <p className="mt-3 text-center text-xs text-g-muted">
           Sincronizado com sua conta. Quando protegido, o texto é enviado criptografado.
         </p>

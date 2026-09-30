@@ -64,7 +64,7 @@ export function AppShell({ title, children }: { title?: string; children: ReactN
   return (
     <div className="min-h-screen g-space font-sans-g text-g-text flex justify-center">
       <Toaster />
-      <div className="page-enter relative w-full max-w-[430px] min-h-screen g-stars pb-32">
+      <div className="app-page page-enter relative w-full max-w-[430px] min-h-screen g-stars pb-32">
         {title && (
           <header className="home-hero relative flex h-[240px] flex-col items-center px-6 pt-5 text-center">
             <div

@@ -209,7 +209,9 @@ html.is-scrolling::-webkit-scrollbar-thumb {
 :root {
   --g-bg: oklch(0.12 0.025 275);
   --g-bg-2: oklch(0.2 0.04 285);
-  --g-card: oklch(0.25 0.035 285 / 0.68);
+  --g-card: oklch(0.16 0.035 285 / 0.86);
+  --g-glass-bg: rgb(13 10 24 / 0.84);
+  --g-glass-blur: 48px;
   --g-violet: oklch(0.7 0.2 310);
   --g-violet-soft: oklch(0.8 0.12 305);
   --g-gold: oklch(0.85 0.12 85);
@@ -329,20 +331,22 @@ html.is-scrolling::-webkit-scrollbar-thumb {
   box-shadow:
     0 4px 14px rgb(0 0 0 / 0.45),
     0 0 12px rgb(234 192 102 / 0.2);
-  backdrop-filter: blur(10px);
+  background-color: var(--g-glass-bg);
+  -webkit-backdrop-filter: blur(var(--g-glass-blur)) saturate(120%);
+  backdrop-filter: blur(var(--g-glass-blur)) saturate(120%);
 }
 
 .notification-glass {
   border: 1px solid rgb(255 255 255 / 0.62);
-  background: transparent;
+  background: var(--g-glass-bg);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.78),
     inset 0 -1px 0 rgb(255 255 255 / 0.18),
     inset 14px 0 28px rgb(255 255 255 / 0.035),
     0 22px 55px rgb(0 0 0 / 0.42),
     0 0 28px rgb(199 158 255 / 0.14);
-  -webkit-backdrop-filter: blur(24px) saturate(145%);
-  backdrop-filter: blur(24px) saturate(145%);
+  -webkit-backdrop-filter: blur(var(--g-glass-blur)) saturate(135%);
+  backdrop-filter: blur(var(--g-glass-blur)) saturate(135%);
 }
 
 .notification-glass::before {
@@ -360,9 +364,9 @@ html.is-scrolling::-webkit-scrollbar-thumb {
 }
 
 .notification-item-glass {
-  background: transparent;
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  background: rgb(255 255 255 / 0.025);
+  -webkit-backdrop-filter: blur(32px);
+  backdrop-filter: blur(32px);
 }
 
 .notification-item-glass:hover {
@@ -789,8 +793,11 @@ h3 {
 .glass-level-2,
 .glass-level-3 {
   border: 1px solid rgb(255 255 255 / 0.1);
-  background: linear-gradient(145deg, rgb(255 255 255 / 0.075), rgb(255 255 255 / 0.025));
-  backdrop-filter: blur(14px) saturate(125%);
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 0.075), rgb(255 255 255 / 0.018)),
+    var(--g-glass-bg);
+  -webkit-backdrop-filter: blur(var(--g-glass-blur)) saturate(120%);
+  backdrop-filter: blur(var(--g-glass-blur)) saturate(120%);
 }
 
 .glass-level-1 {
@@ -809,27 +816,34 @@ h3 {
 
 .app-nav {
   border: 1px solid rgb(255 255 255 / 0.11);
-  background: rgb(15 14 27 / 0.72);
+  background: rgb(13 10 24 / 0.88);
   box-shadow:
     0 18px 55px rgb(0 0 0 / 0.5),
     inset 0 1px 0 rgb(255 255 255 / 0.1);
-  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--g-glass-blur)) saturate(125%);
+  backdrop-filter: blur(var(--g-glass-blur)) saturate(125%);
 }
 @utility g-glass {
-  background: linear-gradient(145deg, rgb(255 255 255 / 0.07), rgb(255 255 255 / 0.025));
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 0.07), rgb(255 255 255 / 0.018)),
+    var(--g-glass-bg);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.08),
     0 12px 34px rgb(0 0 0 / 0.2);
-  backdrop-filter: blur(16px) saturate(125%);
+  -webkit-backdrop-filter: blur(var(--g-glass-blur)) saturate(120%);
+  backdrop-filter: blur(var(--g-glass-blur)) saturate(120%);
 }
 
 .glass-panel {
   border: 1px solid rgb(255 255 255 / 0.12);
-  background: linear-gradient(145deg, rgb(255 255 255 / 0.095), rgb(255 255 255 / 0.03));
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 0.095), rgb(255 255 255 / 0.02)),
+    var(--g-glass-bg);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.11),
     0 22px 60px rgb(0 0 0 / 0.34);
-  backdrop-filter: blur(22px) saturate(135%);
+  -webkit-backdrop-filter: blur(var(--g-glass-blur)) saturate(125%);
+  backdrop-filter: blur(var(--g-glass-blur)) saturate(125%);
 }
 @utility g-cta {
   background: linear-gradient(90deg, var(--g-violet), oklch(0.9 0.06 320), var(--g-gold));

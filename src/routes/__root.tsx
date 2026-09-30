@@ -15,7 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { clearCachedUser, isAuthenticated } from "../lib/auth";
 import { clearAll } from "../lib/goals";
 import { clearNotifications } from "../lib/notifications";
-import { clearLocalSupabaseSession } from "../lib/supabase";
+import { clearBrowserSessionData, supabase } from "../lib/supabase";
 import { AudioPlayerProvider } from "../components/AudioPlayerProvider";
 
 function NotFoundComponent() {
@@ -161,7 +161,8 @@ function RootComponent() {
       clearAll();
       clearNotifications();
       clearCachedUser();
-      clearLocalSupabaseSession();
+      queryClient.clear();
+      await clearBrowserSessionData();
       window.location.replace("/login");
     };
     void validateSession();
@@ -173,7 +174,26 @@ function RootComponent() {
       window.clearInterval(interval);
       window.removeEventListener("focus", validateOnFocus);
     };
-  }, [pathname]);
+  }, [pathname, queryClient]);
+
+  useEffect(() => {
+    if (!supabase) return;
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event !== "SIGNED_OUT" && event !== "USER_DELETED") return;
+      queryClient.clear();
+      void clearBrowserSessionData().finally(() => {
+        if (window.location.pathname !== "/login") window.location.replace("/login");
+      });
+    });
+    const rejectRestoredPrivatePage = (event: PageTransitionEvent) => {
+      if (event.persisted && window.location.pathname !== "/login") window.location.reload();
+    };
+    window.addEventListener("pageshow", rejectRestoredPrivatePage);
+    return () => {
+      data.subscription.unsubscribe();
+      window.removeEventListener("pageshow", rejectRestoredPrivatePage);
+    };
+  }, [queryClient]);
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;

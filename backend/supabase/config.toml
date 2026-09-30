@@ -27,9 +27,9 @@ double_confirm_changes = true
 enable_confirmations = false
 
 [functions.delete-account]
-# A função valida explicitamente o JWT com auth.getUser antes de usar o cliente administrativo.
-verify_jwt = false
+# Validação no gateway e novamente com auth.getUser (defesa em profundidade).
+verify_jwt = true
 
 [functions.avatar]
-# A função valida explicitamente o JWT e mantém as credenciais Google somente no servidor.
-verify_jwt = false
+# Validação no gateway e novamente com auth.getUser (defesa em profundidade).
+verify_jwt = true

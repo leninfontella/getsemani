@@ -9,9 +9,7 @@ const allowedOrigins = new Set([
 function corsHeaders(request: Request) {
   const origin = request.headers.get("origin") || "";
   return {
-    "Access-Control-Allow-Origin": allowedOrigins.has(origin)
-      ? origin
-      : "https://getsemani-two.vercel.app",
+    "Access-Control-Allow-Origin": allowedOrigins.has(origin) ? origin : "null",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     Vary: "Origin",
@@ -21,11 +19,19 @@ function corsHeaders(request: Request) {
 function json(request: Request, body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders(request), "Content-Type": "application/json" },
+    headers: {
+      ...corsHeaders(request),
+      "Content-Type": "application/json",
+      "Cache-Control": "private, no-store, max-age=0",
+      "X-Content-Type-Options": "nosniff",
+    },
   });
 }
 
 Deno.serve(async (request: Request) => {
+  const origin = request.headers.get("origin");
+  if (origin && !allowedOrigins.has(origin))
+    return json(request, { error: "Origem não permitida." }, 403);
   if (request.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders(request) });
   }

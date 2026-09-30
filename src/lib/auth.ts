@@ -1,5 +1,10 @@
 export type Gender = "masculino" | "feminino" | "nao-informar";
-import { clearLocalSupabaseSession, requireSupabase, supabase } from "./supabase";
+import {
+  clearBrowserSessionData,
+  clearLocalSupabaseSession,
+  requireSupabase,
+  supabase,
+} from "./supabase";
 
 export type LocalUser = { name: string; email: string; gender?: Gender; avatarUrl?: string };
 
@@ -40,6 +45,8 @@ export async function registerUser(user: LocalUser & { password: string }) {
 }
 
 export async function loginUser(email: string, password: string) {
+  // Never let a previous account's cached UI survive into a new session.
+  await clearBrowserSessionData();
   const client = requireSupabase();
   const { data, error } = await client.auth.signInWithPassword({ email, password });
   if (error) throw error;
@@ -56,7 +63,7 @@ export async function loginUser(email: string, password: string) {
       (profile?.gender as Gender | undefined) ||
       (metadata["gender"] as Gender | undefined) ||
       "nao-informar",
-    ...(profile?.avatar_url ? { avatarUrl: String(profile.avatar_url) } : {}),
+    ...(profile?.avatar_url ? { avatarUrl: await loadPrivateAvatarUrl() } : {}),
   });
   return data;
 }
@@ -75,7 +82,7 @@ export async function refreshCachedUser() {
     name: profile.name,
     email: auth.user.email || "",
     gender: profile.gender as Gender,
-    ...(profile.avatar_url ? { avatarUrl: String(profile.avatar_url) } : {}),
+    ...(profile.avatar_url ? { avatarUrl: await loadPrivateAvatarUrl() } : {}),
   };
   cacheUser(user);
   return user;
@@ -127,19 +134,27 @@ export async function uploadUserAvatar(file: File) {
     body: file,
   });
   if (error) throw error;
-  if (!data?.url) throw new Error(data?.error || "Não foi possível enviar a foto.");
+  if (!data?.uploaded) throw new Error(data?.error || "Não foi possível enviar a foto.");
 
   const { error: profileError } = await client
     .from("profiles")
-    .update({ avatar_url: data.url })
+    .update({ avatar_url: "private" })
     .eq("id", data.userId);
   if (profileError) throw profileError;
 
   const current = loadUser();
   if (!current) throw new Error("Sessão expirada.");
-  const user = { ...current, avatarUrl: String(data.url) };
+  const user = { ...current, avatarUrl: await loadPrivateAvatarUrl() };
   cacheUser(user);
   return user;
+}
+
+async function loadPrivateAvatarUrl() {
+  const client = requireSupabase();
+  const { data, error } = await client.functions.invoke("avatar", { method: "GET" });
+  if (error) throw error;
+  const blob = data instanceof Blob ? data : new Blob([data]);
+  return URL.createObjectURL(blob);
 }
 
 export async function removeUserAvatar() {
@@ -174,7 +189,11 @@ export async function isAuthenticated() {
 }
 
 export async function logoutUser() {
-  if (supabase) await supabase.auth.signOut();
+  try {
+    if (supabase) await supabase.auth.signOut({ scope: "global" });
+  } finally {
+    await clearBrowserSessionData();
+  }
 }
 
 export async function deleteAccount() {
@@ -187,6 +206,7 @@ export async function deleteAccount() {
   // O usuário já foi removido do Auth. Limpar o armazenamento diretamente evita
   // uma chamada redundante a /logout, que responderia 403 para uma conta inexistente.
   clearLocalSupabaseSession();
+  await clearBrowserSessionData();
 }
 
 export function clearCachedUser() {

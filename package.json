@@ -8,6 +8,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
+    "test:security": "node scripts/security-isolation.mjs",
     "lint": "eslint .",
     "format": "prettier --write ."
   },

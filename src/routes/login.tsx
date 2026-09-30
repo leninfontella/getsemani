@@ -32,9 +32,13 @@ function LoginPage() {
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     const cleanEmail = email.trim().toLocaleLowerCase();
-    if (!cleanEmail || password.length < 6 || (mode === "register" && (!name.trim() || !gender))) {
+    const invalidPassword = mode === "register" ? password.length < 12 : password.length < 6;
+    if (!cleanEmail || invalidPassword || (mode === "register" && (!name.trim() || !gender))) {
       toast("Preencha os dados corretamente.", {
-        description: "A senha deve ter ao menos 6 caracteres.",
+        description:
+          mode === "register"
+            ? "Use uma senha com pelo menos 12 caracteres."
+            : "Confira o e-mail e a senha.",
       });
       return;
     }
@@ -51,9 +55,9 @@ function LoginPage() {
         toast("Conta criada com sucesso ✨", {
           description: "Entre com o seu e-mail e senha.",
         });
-      } catch (error) {
+      } catch {
         toast("Não foi possível criar a conta.", {
-          description: error instanceof Error ? error.message : "Tente novamente.",
+          description: "Confira os dados ou tente novamente em alguns minutos.",
         });
       }
       return;
@@ -62,9 +66,9 @@ function LoginPage() {
       await loginUser(cleanEmail, password);
       clearAccountContentCache();
       clearNotifications();
-    } catch (error) {
+    } catch {
       toast("Não foi possível entrar.", {
-        description: error instanceof Error ? error.message : "E-mail ou senha incorretos.",
+        description: "E-mail ou senha incorretos.",
       });
       return;
     }

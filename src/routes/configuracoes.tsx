@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Bell, Camera, LogOut, Sparkles, Trash2, Volume2, X } from "lucide-react";
@@ -19,7 +19,7 @@ import {
 } from "@/lib/auth";
 export const Route = createFileRoute("/configuracoes")({ component: SettingsPage });
 function SettingsPage() {
-  const navigate = useNavigate();
+  const { queryClient } = Route.useRouteContext();
   const [settings, setSettings] = useState<Settings>(defaultSettings);
   const [exiting, setExiting] = useState(false);
   const [transitionMessage, setTransitionMessage] = useState("ATÉ A PRÓXIMA JORNADA");
@@ -130,16 +130,18 @@ function SettingsPage() {
     try {
       await logoutUser();
     } finally {
+      queryClient.clear();
       clearAll();
       clearNotifications();
       clearCachedUser();
-      setTimeout(() => navigate({ to: "/login", replace: true }), 2400);
+      window.location.replace("/login");
     }
   };
   const deleteAccount = async () => {
     setDeleting(true);
     try {
       await deleteRemoteAccount();
+      queryClient.clear();
       clearAll();
       clearCachedUser();
       setConfirmDelete(false);

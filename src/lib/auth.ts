@@ -185,8 +185,8 @@ async function loadPrivateAvatarUrl() {
     import.meta.env["VITE_SUPABASE_ANON_KEY"]) as string | undefined;
   if (!supabaseUrl || !publishableKey) throw new Error("Supabase não configurado.");
 
-  // functions.invoke parses image/* as text in the currently installed SDK.
-  // A direct authenticated fetch preserves the exact bytes returned by GCS.
+  // Use fetch directly so image responses remain binary from the Edge Function
+  // through to the object URL used by <img>.
   const response = await fetch(`${supabaseUrl}/functions/v1/avatar`, {
     method: "GET",
     headers: {
@@ -206,9 +206,16 @@ async function loadPrivateAvatarUrl() {
     throw new Error(message);
   }
 
-  const bytes = await response.blob();
-  const mediaType = response.headers.get("x-avatar-content-type") || "image/jpeg";
-  const blob = bytes.type === mediaType ? bytes : bytes.slice(0, bytes.size, mediaType);
+  const bytes = await response.arrayBuffer();
+  const normalizeMediaType = (value: string | null) =>
+    value ? value.split(";")[0]?.trim().toLowerCase() : undefined;
+  const responseType = normalizeMediaType(response.headers.get("content-type"));
+  const exposedType = normalizeMediaType(response.headers.get("x-avatar-content-type"));
+  const mediaType = [responseType, exposedType].find((type) => type && AVATAR_TYPES.has(type));
+  if (!mediaType || bytes.byteLength === 0) {
+    throw new Error("A foto recebida está vazia ou em um formato inválido.");
+  }
+  const blob = new Blob([bytes], { type: mediaType });
   return URL.createObjectURL(blob);
 }
 

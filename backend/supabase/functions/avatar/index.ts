@@ -32,6 +32,11 @@ function json(request: Request, body: unknown, status = 200) {
   });
 }
 
+function safeImageType(contentType: string | null) {
+  const mediaType = contentType?.split(";")[0].trim().toLowerCase() || "";
+  return ALLOWED_TYPES.has(mediaType) ? mediaType : "application/octet-stream";
+}
+
 function base64Url(value: Uint8Array | string) {
   const bytes = typeof value === "string" ? new TextEncoder().encode(value) : value;
   let binary = "";
@@ -126,14 +131,13 @@ Deno.serve(async (request: Request) => {
       );
       if (download.status === 404) return json(request, { error: "Foto não encontrada." }, 404);
       if (!download.ok) throw new Error("Falha ao baixar do Cloud Storage.");
+      const mediaType = safeImageType(download.headers.get("content-type"));
       return new Response(download.body, {
         status: 200,
         headers: {
           ...corsHeaders(request),
-          // functions-js parses arbitrary image/* responses as text. Transport the
-          // bytes as a Blob and expose the original media type separately.
-          "Content-Type": "application/octet-stream",
-          "X-Avatar-Content-Type": download.headers.get("content-type") || "image/jpeg",
+          "Content-Type": mediaType,
+          "X-Avatar-Content-Type": mediaType,
           "Cache-Control": "private, no-store, max-age=0",
           "X-Content-Type-Options": "nosniff",
         },

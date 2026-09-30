@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Bell, Camera, LogOut, Sparkles, Trash2, Volume2, X } from "lucide-react";
 import { toast } from "sonner";
 import { addNotification, clearNotifications } from "@/lib/notifications";
@@ -154,14 +155,17 @@ function SettingsPage() {
   };
   return (
     <AppShell title="Ajustes">
-      {exiting && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-[#0b0c12]/95 backdrop-blur-md">
-          <div className="text-center">
-            <BrandLogo className="auth-logo-blink mx-auto h-[280px] w-[400px] max-w-[95vw]" />
-            <p className="mt-4 text-sm tracking-[0.2em] text-g-gold">{transitionMessage}</p>
-          </div>
-        </div>
-      )}
+      {exiting &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div className="fixed inset-0 z-[100] grid min-h-[100dvh] w-screen place-items-center bg-[#0b0c12]/95 backdrop-blur-md">
+            <div className="text-center">
+              <BrandLogo className="auth-logo-blink mx-auto h-[280px] w-[400px] max-w-[95vw]" />
+              <p className="mt-4 text-sm tracking-[0.2em] text-g-gold">{transitionMessage}</p>
+            </div>
+          </div>,
+          document.body,
+        )}
       <LiquidConfirmDialog
         open={confirmLogout}
         icon={<LogOut className="h-7 w-7" />}

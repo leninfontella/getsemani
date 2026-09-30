@@ -432,6 +432,71 @@ h3 {
   box-shadow: 0 0 12px rgb(239 205 119 / 0.16);
 }
 
+.journey-detail-card {
+  border: 1px solid rgb(255 255 255 / 0.11);
+}
+
+.achievement-countdown {
+  color: #2b1b08;
+  background: linear-gradient(145deg, #ffe89b, #d7aa4d);
+  box-shadow: 0 4px 14px rgb(223 174 75 / 0.18);
+}
+
+.achievement-badge {
+  border: 1px solid rgb(255 255 255 / 0.15);
+  color: #9e8fc8;
+  background: rgb(8 6 18 / 0.2);
+  transition: 0.25s ease;
+}
+
+.achievement-badge.is-achieved {
+  border-color: rgb(239 205 119 / 0.72);
+  color: var(--g-gold);
+  background: rgb(239 205 119 / 0.08);
+  box-shadow: 0 0 16px rgb(239 205 119 / 0.12);
+}
+
+.achievement-badge.is-next {
+  border-color: rgb(185 165 255 / 0.72);
+  color: #c3b0ff;
+  box-shadow:
+    0 0 0 2px rgb(185 165 255 / 0.08),
+    0 0 18px rgb(158 106 245 / 0.18);
+}
+
+.calendar-day {
+  display: block;
+  aspect-ratio: 1;
+  min-width: 0;
+  border: 1px solid rgb(255 255 255 / 0.025);
+  border-radius: 5px;
+  background: rgb(255 255 255 / 0.075);
+}
+
+.calendar-day.is-active {
+  border-color: rgb(255 226 151 / 0.32);
+  background: linear-gradient(145deg, #dabb6e, #9f8144);
+  box-shadow: 0 0 9px rgb(224 182 88 / 0.12);
+}
+
+.calendar-day.is-today:not(.is-active) {
+  border-color: rgb(185 165 255 / 0.52);
+  box-shadow: inset 0 0 0 1px rgb(185 165 255 / 0.15);
+}
+
+.calendar-day.is-empty {
+  visibility: hidden;
+}
+
+.progress-track {
+  background: rgb(255 255 255 / 0.15);
+}
+
+.progress-value {
+  background: linear-gradient(90deg, #f7d67e, #d5a748);
+  box-shadow: 0 0 8px rgb(239 205 119 / 0.25);
+}
+
 .auth-input {
   width: 100%;
   background: transparent;
@@ -491,6 +556,39 @@ h3 {
   box-shadow: 0 0 8px rgb(239 205 119 / 0.4);
 }
 
+.manifest-group-chips {
+  scrollbar-width: none;
+}
+
+.manifest-group-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.manifest-group-chip {
+  border-color: rgb(255 255 255 / 0.18);
+  color: rgb(232 225 255 / 0.86);
+  background: rgb(255 255 255 / 0.025);
+}
+
+.manifest-group-chip:hover {
+  background: rgb(255 255 255 / 0.07);
+}
+
+.manifest-group-chip[aria-pressed="true"] {
+  border-color: var(--g-gold);
+  color: #21152e;
+  background: linear-gradient(145deg, #ffe89b, #d7aa4d);
+  box-shadow: 0 4px 14px rgb(223 174 75 / 0.16);
+}
+
+.manifest-search::-webkit-search-cancel-button {
+  filter: invert(1) opacity(0.7);
+}
+
+.manifest-goal-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .app-nav-brand {
   display: none;
 }
@@ -530,6 +628,232 @@ h3 {
   border-radius: 50%;
   color: var(--g-gold);
   background: rgb(255 255 255 / 0.04);
+}
+
+/* Meditation player and sound cards */
+.meditation-content {
+  padding-bottom: 1.5rem;
+}
+
+.meditation-player {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 94px;
+  padding: 14px;
+  border: 1px solid rgb(239 205 119 / 0.45);
+  border-radius: 18px;
+  background: linear-gradient(115deg, rgb(31 25 48 / 0.94), rgb(21 18 35 / 0.94));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.05),
+    0 18px 45px rgb(0 0 0 / 0.2);
+}
+
+.meditation-player-cover {
+  display: grid;
+  width: 60px;
+  height: 60px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid #9763ff;
+  border-radius: 50%;
+  color: #d7b4ff;
+  background: linear-gradient(145deg, rgb(115 62 197 / 0.55), rgb(61 42 107 / 0.8));
+  box-shadow: 0 0 23px rgb(133 75 242 / 0.34);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.meditation-player-cover:active {
+  transform: scale(0.95);
+}
+
+.meditation-player-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.meditation-progress-row {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 34px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 9px;
+  color: var(--g-muted);
+  font-size: 0.65rem;
+}
+
+.meditation-progress-row input {
+  width: 100%;
+  height: 4px;
+  appearance: none;
+  border-radius: 999px;
+  outline: none;
+  background: linear-gradient(
+    to right,
+    var(--g-gold) var(--progress),
+    rgb(255 255 255 / 0.18) var(--progress)
+  );
+}
+
+.meditation-progress-row input::-webkit-slider-thumb {
+  width: 12px;
+  height: 12px;
+  appearance: none;
+  border: 0;
+  border-radius: 50%;
+  background: var(--g-gold);
+  box-shadow: 0 0 8px rgb(239 205 119 / 0.3);
+}
+
+.meditation-progress-row input::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--g-gold);
+}
+
+.meditation-volume {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 0.18);
+  border-radius: 50%;
+  color: var(--g-muted);
+}
+
+.meditation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.meditation-card {
+  position: relative;
+  display: flex;
+  min-height: 118px;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 13px;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 17px;
+  text-align: left;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.035);
+  transition:
+    transform 170ms ease,
+    border-color 170ms ease,
+    filter 170ms ease;
+}
+
+.meditation-card:hover {
+  filter: brightness(1.08);
+}
+
+.meditation-card:active {
+  transform: scale(0.985);
+}
+
+.meditation-card.is-rain {
+  color: #a9ceff;
+  background: linear-gradient(135deg, rgb(28 62 99 / 0.94), rgb(24 24 57 / 0.96));
+}
+
+.meditation-card.is-bowls {
+  color: #f4c854;
+  background: linear-gradient(135deg, rgb(101 59 25 / 0.92), rgb(39 22 43 / 0.96));
+}
+
+.meditation-card.is-432 {
+  color: #cda7ff;
+  background: linear-gradient(135deg, rgb(74 36 137 / 0.96), rgb(31 23 63 / 0.98));
+}
+
+.meditation-card.is-528 {
+  color: #dc9acb;
+  background: linear-gradient(135deg, rgb(115 43 94 / 0.9), rgb(40 22 53 / 0.98));
+}
+
+.meditation-card.is-active {
+  border-color: var(--g-gold);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.07),
+    0 0 22px rgb(239 205 119 / 0.08);
+}
+
+.meditation-card-icon {
+  width: 21px;
+  height: 21px;
+  stroke-width: 2.25;
+}
+
+.meditation-card-control {
+  position: absolute;
+  align-self: flex-end;
+  display: grid;
+  width: 31px;
+  height: 31px;
+  place-items: center;
+  border: 1px solid rgb(239 205 119 / 0.5);
+  border-radius: 50%;
+  color: var(--g-gold);
+  background: rgb(15 13 26 / 0.72);
+}
+
+.meditation-equalizer {
+  display: flex;
+  height: 16px;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.meditation-equalizer i {
+  width: 2px;
+  height: 55%;
+  border-radius: 2px;
+  background: currentColor;
+  animation: meditation-bar 0.75s ease-in-out infinite alternate;
+}
+
+.meditation-equalizer i:nth-child(2) {
+  height: 95%;
+  animation-delay: -0.45s;
+}
+.meditation-equalizer i:nth-child(3) {
+  height: 70%;
+  animation-delay: -0.2s;
+}
+.meditation-equalizer i:nth-child(4) {
+  height: 100%;
+  animation-delay: -0.6s;
+}
+
+@keyframes meditation-bar {
+  to {
+    height: 28%;
+  }
+}
+
+@media (max-width: 380px) {
+  .meditation-player {
+    gap: 10px;
+    padding: 12px;
+  }
+  .meditation-player-cover {
+    width: 52px;
+    height: 52px;
+  }
+  .meditation-volume {
+    display: none;
+  }
+  .meditation-card {
+    min-height: 112px;
+    padding: 12px;
+  }
 }
 
 /* Desktop site layout. The mobile app remains the default below this breakpoint. */
@@ -752,16 +1076,22 @@ h3 {
     border-radius: 8px;
   }
 
-  .app-page:has(.home-main-hero) > section:not(.journey-card) {
+  .app-page:has(.home-main-hero) > .journey-insights {
+    grid-column: 1;
+    grid-row: 3;
+    margin: 0;
+  }
+
+  .app-page:has(.home-main-hero) > section:not(.journey-card):not(.journey-insights) {
     grid-column: 2;
-    grid-row: 2;
+    grid-row: 2 / span 2;
     margin: 0;
     min-width: 0;
   }
 
   .app-page:has(.home-main-hero) > .home-primary-action {
     grid-column: 1 / -1;
-    grid-row: 3;
+    grid-row: 4;
     width: min(100%, 520px);
     margin: 8px auto 0;
     padding: 0;
@@ -795,18 +1125,16 @@ h3 {
   }
 
   .manifest-picker-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
     padding: 0;
   }
 
-  .manifest-picker-grid > * {
-    margin-top: 0;
+  .manifest-picker-tools {
+    padding-right: 0;
+    padding-left: 0;
   }
 
-  .manifest-picker-grid > div:last-child {
-    grid-column: 1 / -1;
+  .manifest-goal-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .manifest-editor-page {
@@ -915,6 +1243,42 @@ h3 {
   background: linear-gradient(145deg, oklch(1 0 0 / 0.14), oklch(1 0 0 / 0.04));
   box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.18);
   backdrop-filter: blur(12px);
+}
+
+.settings-logout {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--g-glass-bg), var(--g-glass-bg)) padding-box,
+    linear-gradient(105deg, #a786ff, #f1ce72) border-box;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.05),
+    0 8px 24px rgb(0 0 0 / 0.18);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.settings-logout:hover {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.08),
+    0 8px 26px rgb(157 106 245 / 0.14);
+}
+
+.settings-logout:active {
+  transform: scale(0.98);
+}
+
+.settings-delete {
+  border: 0;
+  color: #d688a0;
+  background: transparent;
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.settings-delete:hover {
+  color: #f0a2b8;
 }
 
 @keyframes liquid-fade {

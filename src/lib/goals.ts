@@ -9,6 +9,28 @@ import gratitude from "@/assets/goal-gratitude.jpg";
 import healthyFood from "@/assets/goal-healthy-food.jpg";
 import health from "@/assets/goal-health.jpg";
 import newCar from "@/assets/goal-new-car.jpg";
+import business from "@/assets/goal-business.jpg";
+import financialFreedom from "@/assets/goal-financial-freedom.jpg";
+import debtFree from "@/assets/goal-debt-free.jpg";
+import exam from "@/assets/goal-exam.jpg";
+import family from "@/assets/goal-family.jpg";
+import friendship from "@/assets/goal-friendship.jpg";
+import forgiveness from "@/assets/goal-forgiveness.jpg";
+import dreamBody from "@/assets/goal-dream-body.jpg";
+import confidence from "@/assets/goal-confidence.jpg";
+import sleep from "@/assets/goal-sleep.jpg";
+import faith from "@/assets/goal-faith.jpg";
+import protection from "@/assets/goal-protection.jpg";
+import god from "@/assets/goal-god.jpg";
+import energy from "@/assets/goal-energy.jpg";
+import liveAbroad from "@/assets/goal-live-abroad.jpg";
+import countryHouse from "@/assets/goal-country-house.jpg";
+import newTalent from "@/assets/goal-new-talent.jpg";
+import parenthood from "@/assets/goal-parenthood.jpg";
+import marriage from "@/assets/goal-marriage.jpg";
+import recognition from "@/assets/goal-recognition.jpg";
+import creativity from "@/assets/goal-creativity.jpg";
+import habitFreedom from "@/assets/goal-habit-freedom.jpg";
 import { requireSupabase } from "./supabase";
 
 export type Goal = { id: string; title: string; img?: string; prompt: string; example: string };
@@ -84,6 +106,161 @@ export const manifestGoals: Goal[] = [
     img: travel,
     prompt: "Onde você está agora? O que vê e sente?",
     example: "Eu sou grata por conhecer lugares incríveis pelo mundo.",
+  },
+  {
+    id: "proprio-negocio",
+    title: "Meu Próprio Negócio",
+    img: business,
+    prompt: "Descreva o negócio próspero que você já construiu…",
+    example: "Eu sou grata pelo meu negócio próspero, sólido e cheio de propósito.",
+  },
+  {
+    id: "liberdade-financeira",
+    title: "Liberdade Financeira",
+    img: financialFreedom,
+    prompt: "Como é viver com independência, tranquilidade e liberdade financeira?",
+    example: "Eu sou grata por viver com liberdade financeira e fazer escolhas com tranquilidade.",
+  },
+  {
+    id: "dividas-quitadas",
+    title: "Dívidas Quitadas",
+    img: debtFree,
+    prompt: "Descreva o alívio de ter todas as suas dívidas quitadas…",
+    example: "Eu sou grata porque quitei todas as minhas dívidas e vivo em paz financeira.",
+  },
+  {
+    id: "aprovacao-concurso",
+    title: "Aprovação no Concurso",
+    img: exam,
+    prompt: "Conte como você se sente ao ver sua aprovação conquistada…",
+    example: "Eu sou grata pela minha aprovação e celebro o resultado da minha dedicação.",
+  },
+  {
+    id: "familia-unida",
+    title: "Família Unida",
+    img: family,
+    prompt: "Descreva a harmonia, o carinho e a presença que existem em sua família…",
+    example: "Eu sou grata pela união, pelo amor e pela paz que habitam a minha família.",
+  },
+  {
+    id: "amizades-verdadeiras",
+    title: "Amizades Verdadeiras",
+    img: friendship,
+    prompt: "Como são as amizades sinceras e recíprocas que fazem parte da sua vida?",
+    example: "Eu sou grata por cultivar amizades verdadeiras, leves e presentes.",
+  },
+  {
+    id: "perdao-libertacao",
+    title: "Perdão e Libertação",
+    img: forgiveness,
+    prompt: "Escreva sobre a leveza de perdoar e deixar as mágoas para trás…",
+    example: "Eu libero o passado com amor e sigo em paz, leve e livre.",
+  },
+  {
+    id: "corpo-dos-sonhos",
+    title: "Corpo dos Sonhos",
+    img: dreamBody,
+    prompt: "Descreva seu corpo saudável, forte e cheio de vitalidade…",
+    example: "Eu sou grata pelo meu corpo saudável, forte e em constante evolução.",
+  },
+  {
+    id: "autoconfianca",
+    title: "Autoconfiança",
+    img: confidence,
+    prompt: "Como você age e se sente quando confia plenamente em si?",
+    example: "Eu confio em mim, reconheço meu valor e caminho com segurança.",
+  },
+  {
+    id: "sono-descanso",
+    title: "Sono e Descanso",
+    img: sleep,
+    prompt: "Descreva suas noites tranquilas e o bem-estar ao despertar…",
+    example: "Eu durmo profundamente e acordo em paz, renovada e cheia de energia.",
+  },
+  {
+    id: "fe-proposito",
+    title: "Fé e Propósito",
+    img: faith,
+    prompt: "Escreva sobre a fé que guia seus passos e o propósito que move sua vida…",
+    example: "Eu caminho com fé e reconheço o propósito divino presente em minha jornada.",
+  },
+  {
+    id: "protecao",
+    title: "Proteção",
+    img: protection,
+    prompt: "Visualize seu lar e as pessoas que ama envolvidos em proteção…",
+    example: "Eu sou grata pela proteção que envolve meu lar e todos que amo.",
+  },
+  {
+    id: "conexao-com-deus",
+    title: "Conexão com Deus",
+    img: god,
+    prompt: "Como você sente a presença de Deus em sua vida e em suas escolhas?",
+    example: "Eu sou grata pela minha conexão com Deus, que me fortalece e guia todos os dias.",
+  },
+  {
+    id: "energia-disposicao",
+    title: "Energia e Disposição",
+    img: energy,
+    prompt: "Descreva seus dias com vitalidade, entusiasmo e disposição…",
+    example: "Eu acordo com energia e disposição para viver plenamente cada novo dia.",
+  },
+  {
+    id: "morar-exterior",
+    title: "Morar no Exterior",
+    img: liveAbroad,
+    prompt: "Conte como é sua nova vida no país onde sempre quis morar…",
+    example: "Eu sou grata pela vida próspera, segura e feliz que construí no exterior.",
+  },
+  {
+    id: "casa-praia-campo",
+    title: "Casa na Praia ou no Campo",
+    img: countryHouse,
+    prompt: "Descreva cada detalhe do seu refúgio na praia ou no campo…",
+    example: "Eu sou grata pelo meu lar tranquilo, cercado de natureza e paz.",
+  },
+  {
+    id: "novo-idioma-talento",
+    title: "Novo Idioma ou Talento",
+    img: newTalent,
+    prompt: "Como é dominar a habilidade que você sempre quis aprender?",
+    example: "Eu aprendo com facilidade e celebro o novo talento que já faz parte de mim.",
+  },
+  {
+    id: "maternidade-paternidade",
+    title: "Maternidade e Paternidade",
+    img: parenthood,
+    prompt: "Descreva o amor e a alegria de viver a maternidade ou a paternidade…",
+    example: "Eu sou grata por viver a maternidade e a paternidade com amor, presença e sabedoria.",
+  },
+  {
+    id: "casamento-parceria",
+    title: "Casamento e Parceria",
+    img: marriage,
+    prompt: "Como é compartilhar a vida em um casamento amoroso e companheiro?",
+    example: "Eu sou grata por viver um casamento de amor, respeito, parceria e cumplicidade.",
+  },
+  {
+    id: "reconhecimento-influencia",
+    title: "Reconhecimento e Influência",
+    img: recognition,
+    prompt: "Descreva o reconhecimento que seu trabalho e sua presença já conquistaram…",
+    example: "Eu sou grata por ser reconhecida e por usar minha influência para transformar vidas.",
+  },
+  {
+    id: "criatividade",
+    title: "Criatividade",
+    img: creativity,
+    prompt: "Conte como suas ideias fluem e ganham vida através da sua criatividade…",
+    example:
+      "Minha criatividade flui livremente e transforma minhas ideias em algo extraordinário.",
+  },
+  {
+    id: "libertacao-habitos",
+    title: "Libertação de Hábitos",
+    img: habitFreedom,
+    prompt: "Descreva a liberdade de deixar para trás os hábitos que já não servem a você…",
+    example: "Eu sou livre, escolho o que me faz bem e construo hábitos que fortalecem minha vida.",
   },
 ];
 

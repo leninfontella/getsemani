@@ -1,6 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { Check, ChevronRight, Shell, Sparkles, X } from "lucide-react";
+import {
+  Check,
+  ChevronRight,
+  Flame,
+  MoonStar,
+  Shell,
+  Sparkles,
+  Sprout,
+  Sun,
+  X,
+} from "lucide-react";
 import { AppShell, BrandLogo, GoalThumb } from "@/components/AppShell";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import {
@@ -9,6 +19,7 @@ import {
   manifestedGoals,
   saveSettings,
   syncEntries,
+  type Entry,
   type Goal,
 } from "@/lib/goals";
 import { loadUser, refreshCachedUser } from "@/lib/auth";
@@ -21,6 +32,7 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [entries, setEntries] = useState<Record<string, Entry[]>>({});
   const [name, setName] = useState("Amelia");
   const [avatarUrl, setAvatarUrl] = useState<string>();
   const [avatarOpen, setAvatarOpen] = useState(false);
@@ -34,6 +46,8 @@ function HomePage() {
   const carouselDrag = useRef({ active: false, moved: false, startX: 0, scrollLeft: 0 });
   useEffect(() => {
     const cachedUser = loadUser();
+    const cachedEntries = loadEntries();
+    setEntries(cachedEntries);
     setGoals(manifestedGoals());
     setName(cachedUser?.name || loadSettings().name);
     setAvatarUrl(cachedUser?.avatarUrl);
@@ -66,6 +80,7 @@ function HomePage() {
     );
     void syncEntries()
       .then((remote) => {
+        setEntries(remote);
         setGoals(manifestedGoals());
         const remoteDates = new Set(
           Object.values(remote)
@@ -107,6 +122,24 @@ function HomePage() {
     month: "long",
   });
   const dayLabel = days === 1 ? "dia" : "dias";
+  const achievementDays = [3, 7, 21, 40];
+  const nextAchievement = achievementDays.find((milestone) => days < milestone);
+  const daysUntilNextAchievement = nextAchievement ? nextAchievement - days : 0;
+  const achievementIcons = [Sprout, Flame, MoonStar, Sun];
+  const calendarNow = new Date();
+  const calendarYear = calendarNow.getFullYear();
+  const calendarMonth = calendarNow.getMonth();
+  const calendarMonthLabel = calendarNow.toLocaleDateString("pt-BR", { month: "long" });
+  const calendarDays = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+  const calendarOffset = new Date(calendarYear, calendarMonth, 1).getDay();
+  const calendarCells = [
+    ...Array.from({ length: calendarOffset }, () => null),
+    ...Array.from({ length: calendarDays }, (_, index) => index + 1),
+  ];
+  const activeDaysThisMonth = Array.from({ length: calendarDays }, (_, index) => index + 1).filter(
+    (day) =>
+      practiceDates.has(new Date(calendarYear, calendarMonth, day).toLocaleDateString("pt-BR")),
+  ).length;
   const journeyProgress = days === 0 ? 0 : (((days - 1) % 7) + 1) / 7;
   const ringCircumference = 301.6;
   const ringEndAngle = Math.PI * 2 * journeyProgress;
@@ -284,6 +317,113 @@ function HomePage() {
           })}
         </div>
       </section>
+      <section
+        className="journey-insights mx-6 mt-4 space-y-4"
+        aria-label="Detalhes da sua jornada"
+      >
+        <div className="journey-detail-card glass-level-2 rounded-3xl p-4">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="font-serif-g text-xl font-semibold">Conquistas</h3>
+            {nextAchievement ? (
+              <span className="achievement-countdown rounded-full px-2.5 py-1 text-[11px] font-bold">
+                {daysUntilNextAchievement === 1
+                  ? "Falta 1 dia"
+                  : `Faltam ${daysUntilNextAchievement} dias`}
+              </span>
+            ) : (
+              <span className="achievement-countdown rounded-full px-2.5 py-1 text-[11px] font-bold">
+                Todas alcançadas
+              </span>
+            )}
+          </div>
+          <div className="mt-3 grid grid-cols-4 gap-2">
+            {achievementDays.map((milestone, index) => {
+              const Icon = achievementIcons[index]!;
+              const achieved = days >= milestone;
+              const isNext = milestone === nextAchievement;
+              return (
+                <div key={milestone} className="text-center">
+                  <div
+                    className={`achievement-badge mx-auto grid aspect-[1.35] w-full max-w-16 place-items-center rounded-[50%] ${achieved ? "is-achieved" : ""} ${isNext ? "is-next" : ""}`}
+                    aria-label={`${milestone} dias${achieved ? ", conquista alcançada" : isNext ? ", próxima conquista" : ""}`}
+                  >
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <p
+                    className={`mt-1.5 text-xs ${achieved || isNext ? "text-g-gold" : "text-g-muted"}`}
+                  >
+                    {milestone} dias
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="journey-detail-card glass-level-2 rounded-3xl p-4">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="font-serif-g text-xl font-semibold capitalize">{calendarMonthLabel}</h3>
+            <span className="text-xs font-medium text-[#b9a5ff]">
+              {activeDaysThisMonth} {activeDaysThisMonth === 1 ? "dia ativo" : "dias ativos"}
+            </span>
+          </div>
+          <div className="journey-calendar mt-3 grid grid-cols-7 gap-1.5">
+            {calendarCells.map((day, index) => {
+              const active = day
+                ? practiceDates.has(
+                    new Date(calendarYear, calendarMonth, day).toLocaleDateString("pt-BR"),
+                  )
+                : false;
+              const todayCell = day === calendarNow.getDate();
+              return day ? (
+                <span
+                  key={day}
+                  className={`calendar-day ${active ? "is-active" : ""} ${todayCell ? "is-today" : ""}`}
+                  title={`${day} de ${calendarMonthLabel}${active ? " — prática realizada" : ""}`}
+                  aria-label={`${day} de ${calendarMonthLabel}${active ? ", prática realizada" : ""}`}
+                />
+              ) : (
+                <span key={`empty-${index}`} className="calendar-day is-empty" aria-hidden="true" />
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="journey-detail-card glass-level-2 rounded-3xl p-4">
+          <h3 className="font-serif-g text-xl font-semibold">Manifestações em andamento</h3>
+          {goals.length ? (
+            <div className="mt-3 space-y-3">
+              {goals.map((goal) => {
+                const current = Math.min(entries[goal.id]?.length || 0, 30);
+                return (
+                  <Link
+                    key={goal.id}
+                    to="/manifestar/$goal"
+                    params={{ goal: goal.id }}
+                    search={{ historico: true }}
+                    className="progress-goal block rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-g-gold"
+                  >
+                    <span className="flex items-center justify-between gap-3 text-xs">
+                      <strong className="truncate font-semibold text-g-text">{goal.title}</strong>
+                      <span className="shrink-0 text-[#b9a5ff]">{current} de 30</span>
+                    </span>
+                    <span className="progress-track mt-1.5 block h-1.5 overflow-hidden rounded-full">
+                      <span
+                        className="progress-value block h-full rounded-full"
+                        style={{ width: `${(current / 30) * 100}%` }}
+                      />
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-g-muted">
+              Comece uma manifestação para acompanhar seu progresso.
+            </p>
+          )}
+        </div>
+      </section>
       <section className="mt-7">
         <div className="flex items-center justify-between px-6">
           <div>
@@ -361,7 +501,7 @@ function HomePage() {
                     onClick={() => {
                       const card =
                         carouselRef.current?.querySelectorAll<HTMLElement>(".manifestation-card")[
-                        index
+                          index
                         ];
                       card?.scrollIntoView({
                         behavior: "smooth",

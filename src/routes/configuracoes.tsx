@@ -244,21 +244,19 @@ function SettingsPage() {
             type="button"
             onClick={() => avatarInput.current?.click()}
             disabled={savingAvatar}
-            className="liquid-button mt-4 w-full rounded-full border border-g-gold/40 py-3 font-semibold text-g-gold disabled:opacity-45"
+            className="settings-logout mx-auto mt-4 flex w-[min(82%,268px)] items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-g-text disabled:opacity-45"
           >
-            <span className="inline-flex items-center gap-2">
-              <Camera className="h-4 w-4" />{" "}
-              {savingAvatar ? "Enviando..." : avatarUrl ? "Trocar foto" : "Escolher foto"}
-            </span>
+            <Camera className="h-4 w-4" />
+            {savingAvatar ? "Enviando..." : avatarUrl ? "Trocar foto" : "Escolher foto"}
           </button>
           {avatarUrl && (
             <button
               type="button"
               onClick={() => void removeAvatar()}
               disabled={savingAvatar}
-              className="mt-3 text-sm text-red-200 disabled:opacity-45"
+              className="settings-delete mx-auto mt-3 flex w-fit items-center justify-center gap-2 px-3 py-1 text-sm font-medium disabled:opacity-45"
             >
-              Remover foto
+              <Trash2 className="h-3.5 w-3.5" /> Remover foto
             </button>
           )}
           <p className="mt-3 text-xs text-g-muted">JPG, PNG ou WebP, até 5 MB.</p>
@@ -281,7 +279,7 @@ function SettingsPage() {
             type="button"
             onClick={() => void saveName()}
             disabled={savingName || !settings.name.trim() || settings.name.trim() === savedName}
-            className="liquid-button mt-3 w-full rounded-full border border-g-gold/40 py-3 font-semibold text-g-gold disabled:cursor-not-allowed disabled:opacity-45"
+            className="settings-logout mx-auto mt-3 flex w-[min(82%,268px)] items-center justify-center rounded-full px-5 py-3 text-sm font-semibold text-g-text disabled:cursor-not-allowed disabled:opacity-45"
           >
             {savingName ? "Salvando..." : "Salvar nome"}
           </button>
@@ -319,15 +317,15 @@ function SettingsPage() {
         <button
           onClick={() => setConfirmLogout(true)}
           disabled={exiting}
-          className="liquid-button w-full rounded-full border border-red-300/40 py-4 font-semibold text-red-200 flex items-center justify-center gap-2"
+          className="settings-logout mx-auto flex w-[min(82%,268px)] items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-g-text disabled:opacity-45"
         >
-          <LogOut className="h-5 w-5" /> Sair
+          <LogOut className="h-4 w-4" /> Sair
         </button>
         <button
           onClick={() => setConfirmDelete(true)}
-          className="liquid-button w-full rounded-full border border-red-500/25 py-4 text-sm font-semibold text-red-300/90 flex items-center justify-center gap-2"
+          className="settings-delete mx-auto flex w-fit items-center justify-center gap-2 px-3 py-1 text-sm font-medium"
         >
-          <Trash2 className="h-4 w-4" /> Excluir Conta
+          <Trash2 className="h-3.5 w-3.5" /> Excluir conta
         </button>
         <p className="text-center text-xs text-g-muted">Getsêmani · versão 1.0</p>
       </main>

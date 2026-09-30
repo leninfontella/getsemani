@@ -1,9 +1,32 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { LoaderCircle, Pause, Play, RotateCcw, Volume2, Waves } from "lucide-react";
+import {
+  AudioLines,
+  BellRing,
+  CloudRain,
+  LoaderCircle,
+  Pause,
+  Play,
+  Radio,
+  Volume2,
+} from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { meditationSounds, useAudioPlayer } from "@/components/AudioPlayerProvider";
+import {
+  meditationSounds,
+  type MeditationSound,
+  useAudioPlayer,
+} from "@/components/AudioPlayerProvider";
 
 export const Route = createFileRoute("/meditar")({ component: MeditatePage });
+
+const cardPresentation: Record<
+  MeditationSound["id"],
+  { Icon: typeof CloudRain; category: string; className: string }
+> = {
+  rain: { Icon: CloudRain, category: "Natureza", className: "is-rain" },
+  bowls: { Icon: BellRing, category: "Meditação", className: "is-bowls" },
+  "432-hz": { Icon: AudioLines, category: "Frequências", className: "is-432" },
+  "528-hz": { Icon: Radio, category: "Frequências", className: "is-528" },
+};
 
 const formatTime = (seconds: number) => {
   if (!Number.isFinite(seconds)) return "0:00";
@@ -11,114 +34,119 @@ const formatTime = (seconds: number) => {
   return `${minutes}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
 };
 
+function Equalizer() {
+  return (
+    <span className="meditation-equalizer" aria-hidden="true">
+      <i />
+      <i />
+      <i />
+      <i />
+    </span>
+  );
+}
+
 function MeditatePage() {
-  const {
-    activeSound,
-    playing,
-    loading,
-    currentTime,
-    duration,
-    error,
-    toggleSound,
-    toggleActiveSound,
-    restart,
-    seek,
-  } = useAudioPlayer();
+  const { activeSound, playing, loading, currentTime, duration, error, toggleSound, seek } =
+    useAudioPlayer();
+
+  const selectedSound = activeSound ?? meditationSounds[2];
+  const SelectedIcon = cardPresentation[selectedSound.id].Icon;
 
   return (
     <AppShell title="Meditar">
-      <main className="desktop-content mt-6 px-6">
-        <div className="g-glass rounded-3xl border border-g-gold/40 p-6 text-center">
+      <main className="desktop-content meditation-content mt-6 px-5 sm:px-6">
+        <section className="meditation-player" aria-label="Player de meditação">
           <button
             type="button"
-            onClick={toggleActiveSound}
-            disabled={!activeSound || loading}
+            onClick={() => void toggleSound(selectedSound)}
+            disabled={loading}
             aria-label={playing ? "Pausar meditação" : "Reproduzir meditação"}
-            className={`mx-auto grid h-24 w-24 place-items-center rounded-full border border-g-violet/50 text-g-gold shadow-[0_0_35px_var(--g-violet)] transition active:scale-95 disabled:cursor-default ${playing ? "bg-g-violet/25" : ""}`}
+            className="meditation-player-cover"
           >
             {loading ? (
-              <LoaderCircle className="h-10 w-10 animate-spin" />
+              <LoaderCircle className="h-7 w-7 animate-spin" />
             ) : playing ? (
-              <Pause className="h-10 w-10 fill-current" />
-            ) : activeSound ? (
-              <Play className="ml-1 h-10 w-10 fill-current" />
+              <Pause className="h-7 w-7 fill-current" />
             ) : (
-              <Waves className="h-10 w-10" />
+              <Play className="ml-1 h-7 w-7 fill-current" />
             )}
           </button>
-          <h2 className="mt-5 text-xl font-semibold">
-            {activeSound?.title || "Encontre sua frequência"}
-          </h2>
-          <p className="mt-2 text-sm text-g-muted">
-            {activeSound?.detail || "Escolha um som para acompanhar sua prática."}
-          </p>
 
-          <div className="mt-5 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={restart}
-              disabled={!activeSound}
-              aria-label="Reiniciar faixa"
-              title="Reiniciar faixa"
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/15 text-g-muted disabled:opacity-35"
-            >
-              <RotateCcw className="h-4 w-4" />
-            </button>
-            <span className="w-10 text-right text-[10px] text-g-muted">
-              {formatTime(currentTime)}
-            </span>
-            <input
-              type="range"
-              min={0}
-              max={duration || 0}
-              step={1}
-              value={Math.min(currentTime, duration || 0)}
-              disabled={!activeSound || !duration}
-              onChange={(event) => seek(Number(event.target.value))}
-              aria-label="Progresso da faixa"
-              className="h-1 min-w-0 flex-1 cursor-pointer accent-[var(--g-gold)] disabled:opacity-35"
-            />
-            <span className="w-10 text-[10px] text-g-muted">{formatTime(duration)}</span>
+          <div className="meditation-player-body">
+            <div className="min-w-0">
+              <h2 className="font-serif-g truncate text-[1.35rem] font-semibold leading-tight sm:text-2xl">
+                {selectedSound.title}
+              </h2>
+              <p className="truncate text-xs text-g-muted">{selectedSound.detail}</p>
+            </div>
+
+            <div className="meditation-progress-row">
+              <span>{formatTime(currentTime)}</span>
+              <input
+                type="range"
+                min={0}
+                max={duration || 0}
+                step={1}
+                value={Math.min(currentTime, duration || 0)}
+                disabled={!activeSound || !duration}
+                onChange={(event) => seek(Number(event.target.value))}
+                aria-label="Progresso da faixa"
+                style={
+                  {
+                    "--progress": duration ? `${(currentTime / duration) * 100}%` : "0%",
+                  } as React.CSSProperties
+                }
+              />
+              <span>{duration ? formatTime(duration) : "30:00"}</span>
+            </div>
           </div>
-          {error && <p className="mt-3 text-xs text-red-300">{error}</p>}
-        </div>
 
-        <div className="mt-6 space-y-3">
+          <span className="meditation-volume" aria-hidden="true">
+            <Volume2 className="h-5 w-5" />
+          </span>
+        </section>
+
+        {error && <p className="mt-3 text-center text-xs text-red-300">{error}</p>}
+
+        <div className="meditation-grid">
           {meditationSounds.map((sound) => {
-            const { id, title, detail, Icon } = sound;
-            const active = activeSound?.id === id;
+            const active = activeSound?.id === sound.id;
+            const presentation = cardPresentation[sound.id];
+            const Icon = presentation.Icon;
+
             return (
               <button
                 type="button"
-                key={id}
+                key={sound.id}
                 onClick={() => void toggleSound(sound)}
-                aria-label={`${active && playing ? "Pausar" : "Reproduzir"} ${title}`}
-                className={`g-glass flex w-full items-center gap-4 rounded-2xl border p-4 text-left transition active:scale-[0.99] ${active ? "border-g-gold/60 bg-g-violet/10" : "border-g-muted/20"}`}
+                aria-label={`${active && playing ? "Pausar" : "Reproduzir"} ${sound.title}`}
+                aria-pressed={active}
+                className={`meditation-card ${presentation.className} ${active ? "is-active" : ""}`}
               >
-                <span className="grid h-11 w-11 place-items-center rounded-full bg-g-violet/20 text-g-gold">
-                  <Icon className={`h-5 w-5 ${active && playing ? "animate-pulse" : ""}`} />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <strong className="block">{title}</strong>
-                  <small className="text-g-muted">{detail}</small>
-                </span>
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-g-gold/30 text-g-gold">
+                <Icon
+                  className={`meditation-card-icon ${active && playing ? "animate-pulse" : ""}`}
+                />
+                <span className="meditation-card-control">
                   {active && loading ? (
                     <LoaderCircle className="h-4 w-4 animate-spin" />
                   ) : active && playing ? (
-                    <Pause className="h-4 w-4 fill-current" />
+                    <Equalizer />
                   ) : (
                     <Play className="ml-0.5 h-4 w-4 fill-current" />
                   )}
+                </span>
+                <span className="mt-auto block min-w-0">
+                  <strong className="block truncate text-[0.95rem] leading-tight">
+                    {sound.title}
+                  </strong>
+                  <small className="mt-0.5 block text-xs text-g-muted">
+                    {active && playing ? "Tocando agora" : `${presentation.category} · 30 min`}
+                  </small>
                 </span>
               </button>
             );
           })}
         </div>
-        <p className="mt-5 flex items-center justify-center gap-1.5 text-center text-xs text-g-muted">
-          <Volume2 className="h-3.5 w-3.5" /> Use fones de ouvido para uma experiência mais
-          imersiva.
-        </p>
       </main>
     </AppShell>
   );

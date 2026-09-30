@@ -90,7 +90,7 @@ function SettingsPage() {
     }
   };
   return (
-    <AppShell title="Configurações">
+    <AppShell title="Ajustes">
       {exiting && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-[#0b0c12]/95 backdrop-blur-md">
           <div className="text-center">

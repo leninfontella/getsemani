@@ -60,6 +60,7 @@ function ManifestGoal() {
   const [text, setText] = useState("");
   const [entries, setEntries] = useState<Entry[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [celebrating, setCelebrating] = useState(false);
 
   useEffect(() => {
     setEntries(loadEntries()[goalId] || []);
@@ -86,6 +87,11 @@ function ManifestGoal() {
     try {
       setEntries(await saveRemoteEntry(goal, t));
       setText("");
+      if (!writtenToday) {
+        navigator.vibrate?.(35);
+        setCelebrating(true);
+        window.setTimeout(() => setCelebrating(false), 1800);
+      }
       toast("✨ Assim é, e já é seu.", { description: "Sua manifestação foi registrada." });
     } catch (error) {
       toast("Não foi possível salvar.", {
@@ -124,6 +130,11 @@ function ManifestGoal() {
   return (
     <div className="min-h-screen g-space font-sans-g text-g-text flex justify-center">
       <Toaster />
+      {celebrating && (
+        <div className="gold-confetti" aria-hidden="true">
+          {Array.from({ length: 18 }, (_, index) => <i key={index} />)}
+        </div>
+      )}
       <div className="relative w-full max-w-[430px] min-h-screen g-stars pb-32">
         <div className="relative">
           {goal.img ? (
@@ -152,7 +163,7 @@ function ManifestGoal() {
           <div className="flex items-center justify-between gap-3 text-sm text-g-muted">
             <p>
               {writtenToday ? (
-                <span className="text-g-gold">Você já manifestou hoje ✨ Pode escrever mais.</span>
+                <span className="text-g-gold">Já manifestou hoje? Então, aproveite e escreva mais!</span>
               ) : (
                 "Sua manifestação de hoje"
               )}

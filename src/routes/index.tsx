@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { Check, ChevronLeft, ChevronRight, Shell } from "lucide-react";
+import { Check, ChevronRight, Shell, Sparkles } from "lucide-react";
 import { AppShell, BrandLogo, GoalThumb } from "@/components/AppShell";
 import {
   loadEntries,
@@ -11,6 +11,7 @@ import {
   type Goal,
 } from "@/lib/goals";
 import { loadUser, refreshCachedUser } from "@/lib/auth";
+import homeHero from "@/assets/home-hero.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [{ title: "Getsêmani — Painel de Manifestação" }] }),
@@ -24,6 +25,8 @@ function HomePage() {
   const [days, setDays] = useState(0);
   const [practiceDates, setPracticeDates] = useState<Set<string>>(new Set());
   const [week, setWeek] = useState<{ label: string; key: string; today: boolean }[]>([]);
+  const [isSyncing, setIsSyncing] = useState(true);
+  const [activeManifestation, setActiveManifestation] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
   const carouselDrag = useRef({ active: false, moved: false, startX: 0, scrollLeft: 0 });
   useEffect(() => {
@@ -68,7 +71,8 @@ function HomePage() {
         setDays(remoteDates.size);
         setPracticeDates(remoteDates);
       })
-      .catch(() => undefined);
+      .catch(() => undefined)
+      .finally(() => setIsSyncing(false));
     void refreshCachedUser()
       .then((user) => {
         setName(user.name);
@@ -87,8 +91,25 @@ function HomePage() {
     .toLocaleDateString("pt-BR", { day: "numeric", month: "short" })
     .replace(".", "");
   const dayLabel = days === 1 ? "dia" : "dias";
-  const moveCarousel = (direction: -1 | 1) => {
-    carouselRef.current?.scrollBy({ left: direction * 164, behavior: "smooth" });
+  const journeyProgress = days === 0 ? 0 : (((days - 1) % 7) + 1) / 7;
+  const ringCircumference = 301.6;
+  const ringEndAngle = Math.PI * 2 * journeyProgress;
+  const ringEndX = 56 + 48 * Math.cos(ringEndAngle);
+  const ringEndY = 56 + 48 * Math.sin(ringEndAngle);
+  const updateManifestationIndicator = () => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+    const cards = Array.from(carousel.querySelectorAll<HTMLElement>(".manifestation-card"));
+    if (!cards.length) return;
+    const carouselCenter = carousel.scrollLeft + carousel.clientWidth / 2;
+    const closestIndex = cards.reduce((closest, card, index) => {
+      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+      const closestCenter = cards[closest].offsetLeft + cards[closest].offsetWidth / 2;
+      return Math.abs(cardCenter - carouselCenter) < Math.abs(closestCenter - carouselCenter)
+        ? index
+        : closest;
+    }, 0);
+    setActiveManifestation(closestIndex);
   };
   const startCarouselDrag = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== "mouse" || event.button !== 0 || !carouselRef.current) return;
@@ -120,118 +141,187 @@ function HomePage() {
 
   return (
     <AppShell>
-      <header className="relative flex min-h-[180px] items-center justify-between px-6 pt-8">
-        <span className="text-xs text-g-muted">Hoje, {today}</span>
-        <BrandLogo className="absolute left-1/2 top-8 h-[180px] w-[315px] -translate-x-1/2 rounded-xl" />
-        <div className="h-11 w-11 rounded-full p-[2px] g-cta">
-          <div className="g-glass h-full w-full rounded-full grid place-items-center font-bold text-g-gold">
-            {name.charAt(0).toUpperCase()}
-          </div>
-        </div>
-      </header>
-      <section className="px-6 mt-8">
-        <h2 className="text-2xl font-semibold leading-snug">
-          {welcome}, {name} <span className="text-g-gold">✨</span>
+      <header className="home-hero relative flex h-[320px] flex-col items-center px-6 pt-5">
+        <div
+          className="hero-landscape absolute inset-0"
+          style={{ backgroundImage: `url(${homeHero})` }}
+          aria-hidden="true"
+        />
+        <span className="absolute left-6 top-7 z-10 text-xs font-medium text-white/80">
+          Hoje, {today}
+        </span>
+        <BrandLogo className="relative z-10 mt-1 h-[176px] w-[320px]" />
+        <h2 className="font-serif-g relative z-10 mt-2 self-start text-left text-[2rem] font-semibold leading-[1.05]">
+          <span className="inline-flex items-center gap-2">
+            {welcome}, {name}
+            <Sparkles className="h-5 w-5 shrink-0 text-g-gold" aria-hidden="true" />
+          </span>
           <br />
           Sua realidade te aguarda.
         </h2>
-      </section>
-      <section className="journey-card mx-6 mt-6 rounded-3xl border border-g-violet p-5">
+      </header>
+      <div
+        className="hero-avatar mx-auto mt-4 grid aspect-square w-[50vw] max-w-[215px] place-items-center rounded-full p-1"
+        aria-label={`Avatar de ${name}`}
+      >
+        <div className="grid h-full w-full place-items-center rounded-full border border-white/20 bg-[#161225]/75 font-serif-g text-7xl font-semibold text-g-gold backdrop-blur-xl">
+          {name.charAt(0).toUpperCase()}
+        </div>
+      </div>
+      <section className="journey-card glass-level-2 mx-6 mt-6 rounded-3xl p-5">
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-semibold">Sua Jornada</h3>
+          <h3 className="font-serif-g text-2xl font-semibold">Sua Jornada</h3>
           <ChevronRight className="h-5 w-5 text-g-muted" />
         </div>
         <div className="mt-4 flex items-center gap-5">
-          <div className="journey-ring relative grid h-28 w-28 shrink-0 place-items-center rounded-full">
-            <div className="g-glass grid h-[86px] w-[86px] place-content-center rounded-full text-center">
+          <div className="relative grid h-28 w-28 shrink-0 place-items-center">
+            <svg
+              className="journey-progress absolute inset-0 -rotate-90"
+              viewBox="0 0 112 112"
+              aria-hidden="true"
+            >
+              <defs>
+                <linearGradient id="journeyGold" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stopColor="#fff0aa" />
+                  <stop offset=".55" stopColor="#d8a94e" />
+                  <stop offset="1" stopColor="#9d6af5" />
+                </linearGradient>
+              </defs>
+              <circle cx="56" cy="56" r="48" className="journey-progress-track" />
+              <circle
+                cx="56"
+                cy="56"
+                r="48"
+                className="journey-progress-value"
+                strokeDasharray={ringCircumference}
+                strokeDashoffset={ringCircumference * (1 - journeyProgress)}
+              />
+              {journeyProgress > 0 && (
+                <circle cx={ringEndX} cy={ringEndY} r="4.5" className="journey-progress-end" />
+              )}
+            </svg>
+            <div className="glass-level-1 grid h-[82px] w-[82px] place-content-center rounded-full text-center">
               <strong className="text-3xl leading-none">{days}</strong>
               <span className="mt-1 text-sm text-g-muted">{dayLabel}</span>
             </div>
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="font-semibold">Prática Diária</p>
-            <div className="mt-2 grid grid-cols-7 gap-1.5">
-              {week.map((day) => {
-                const completed = practiceDates.has(day.key);
-                return (
-                  <div key={day.key} className="flex flex-col items-center gap-2">
-                    <span className={`text-xs ${day.today ? "text-g-gold" : "text-g-muted"}`}>
-                      {day.label}
-                    </span>
-                    <span
-                      className={`grid h-7 w-7 place-items-center rounded-lg border ${completed ? "border-g-violet/60 bg-g-violet/20 text-g-gold" : day.today ? "g-cta border-transparent" : "border-g-muted/25 bg-white/5"}`}
-                    >
-                      {completed && <Check className="h-4 w-4" />}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-            <p className="mt-4 whitespace-nowrap text-[11px] text-g-muted">
+          <div className="min-w-0 flex-1 self-center">
+            <p className="font-semibold text-g-text">Prática Diária</p>
+            <p className="mt-2 text-xs text-g-muted">
               Sequência: {days} {dayLabel} <span className="text-g-gold">| brilho ativo</span>
             </p>
           </div>
+        </div>
+        <div className="mt-4 grid grid-cols-7 gap-1">
+          {week.map((day) => {
+            const completed = practiceDates.has(day.key);
+            return (
+              <div key={day.key} className="flex min-w-0 flex-col items-center gap-2">
+                <span
+                  className={`text-xs font-medium ${day.today ? "text-g-gold" : "text-g-muted"}`}
+                >
+                  {day.label}
+                </span>
+                <span
+                  className={`day-chip grid h-11 w-full max-w-11 place-items-center rounded-full ${completed ? "is-complete text-g-gold" : day.today ? "is-today text-g-bg" : ""}`}
+                >
+                  {completed && <Check className="h-4 w-4" />}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </section>
       <section className="mt-7">
         <div className="flex items-center justify-between px-6">
           <div>
-            <h3 className="text-lg font-semibold">Minhas Manifestações</h3>
-            <p className="text-xs text-g-muted">Metas Visualizadas</p>
+            <h3 className="font-serif-g text-2xl font-semibold">Minhas Manifestações</h3>
+            <p className="text-xs text-g-muted">Metas visualizadas</p>
           </div>
-          <div className="flex items-center gap-1">
-            {goals.length > 1 && (
-              <>
-                <button
-                  onClick={() => moveCarousel(-1)}
-                  aria-label="Manifestação anterior"
-                  className="g-glass hidden h-8 w-8 place-items-center rounded-full border border-g-muted/20 text-g-muted md:grid"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => moveCarousel(1)}
-                  aria-label="Próxima manifestação"
-                  className="g-glass hidden h-8 w-8 place-items-center rounded-full border border-g-muted/20 text-g-gold md:grid"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </>
-            )}
-            <Link to="/visualizar" aria-label="Ver todas" className="ml-1">
-              <ChevronRight className="h-5 w-5 text-g-gold" />
+          <div className="flex items-center">
+            <Link
+              to="/visualizar"
+              className="flex min-h-11 items-center gap-0.5 rounded-full px-2 text-sm font-semibold text-g-gold"
+            >
+              Ver tudo <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
         </div>
-        {goals.length ? (
+        {isSyncing && goals.length === 0 ? (
           <div
-            ref={carouselRef}
-            onPointerDown={startCarouselDrag}
-            onPointerMove={dragCarousel}
-            onPointerUp={stopCarouselDrag}
-            onPointerCancel={stopCarouselDrag}
-            onClickCapture={(event) => {
-              if (!carouselDrag.current.moved) return;
-              event.preventDefault();
-              event.stopPropagation();
-              carouselDrag.current.moved = false;
-            }}
-            onDragStart={(event) => event.preventDefault()}
-            className="manifestation-carousel mt-3 flex cursor-grab snap-x snap-mandatory select-none gap-3 overflow-x-auto px-6 pb-3 active:cursor-grabbing [scrollbar-width:none]"
+            className="mt-3 flex gap-3 overflow-hidden px-6"
+            aria-label="Carregando manifestações"
           >
-            {goals.map((goal) => (
-              <Link
-                key={goal.id}
-                to="/manifestar/$goal"
-                params={{ goal: goal.id }}
-                search={{ historico: true }}
-                className="w-[145px] shrink-0 snap-start rounded-2xl border border-g-violet/50 g-glass p-2"
-              >
-                <GoalThumb img={goal.img} title={goal.title} className="h-28 w-full rounded-xl" />
-                <p className="p-2 text-sm font-semibold leading-tight">{goal.title}</p>
-              </Link>
+            {[0, 1, 2].map((item) => (
+              <div key={item} className="skeleton-card h-44 w-[154px] shrink-0 rounded-2xl" />
             ))}
           </div>
+        ) : goals.length ? (
+          <>
+            <div
+              ref={carouselRef}
+              onPointerDown={startCarouselDrag}
+              onPointerMove={dragCarousel}
+              onPointerUp={stopCarouselDrag}
+              onPointerCancel={stopCarouselDrag}
+              onClickCapture={(event) => {
+                if (!carouselDrag.current.moved) return;
+                event.preventDefault();
+                event.stopPropagation();
+                carouselDrag.current.moved = false;
+              }}
+              onDragStart={(event) => event.preventDefault()}
+              onScroll={updateManifestationIndicator}
+              className="manifestation-carousel mt-3 flex cursor-grab snap-x snap-mandatory scroll-px-6 select-none gap-3 overflow-x-auto px-6 pb-3 active:cursor-grabbing [scrollbar-width:none]"
+            >
+              {goals.map((goal) => (
+                <Link
+                  key={goal.id}
+                  to="/manifestar/$goal"
+                  params={{ goal: goal.id }}
+                  search={{ historico: true }}
+                  className="manifestation-card glass-level-1 relative h-48 w-[154px] shrink-0 snap-start overflow-hidden rounded-2xl"
+                >
+                  <GoalThumb
+                    img={goal.img}
+                    title={goal.title}
+                    className="absolute inset-0 h-full w-full"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#080711] via-[#080711]/25 to-transparent" />
+                  <p className="absolute inset-x-0 bottom-0 p-4 text-base font-semibold leading-tight text-white">
+                    {goal.title}
+                  </p>
+                </Link>
+              ))}
+            </div>
+            {goals.length > 1 && (
+              <div
+                className="manifestation-dots mt-1 flex justify-center gap-2"
+                aria-label={`Manifestação ${activeManifestation + 1} de ${goals.length}`}
+              >
+                {goals.map((goal, index) => (
+                  <button
+                    key={goal.id}
+                    type="button"
+                    className={`manifestation-dot ${index === activeManifestation ? "is-active" : ""}`}
+                    aria-label={`Ir para manifestação ${index + 1}`}
+                    aria-current={index === activeManifestation ? "true" : undefined}
+                    onClick={() => {
+                      const card =
+                        carouselRef.current?.querySelectorAll<HTMLElement>(".manifestation-card")[
+                          index
+                        ];
+                      card?.scrollIntoView({
+                        behavior: "smooth",
+                        block: "nearest",
+                        inline: "center",
+                      });
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         ) : (
           <div className="g-glass mx-6 mt-3 rounded-2xl border border-dashed border-g-muted/30 p-5 text-center text-sm text-g-muted">
             Suas manifestações aparecerão aqui depois que você escrever a primeira.

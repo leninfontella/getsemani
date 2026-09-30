@@ -4,6 +4,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight, Plus, Sparkles } from "lucide-react";
 import { addCustomGoal, manifestGoals } from "@/lib/goals";
 import universe from "@/assets/goal-universe.png";
+import homeHero from "@/assets/home-hero.png";
 import { BrandLogo } from "@/components/AppShell";
 
 export const Route = createFileRoute("/manifestar/")({
@@ -36,24 +37,31 @@ function ChooseGoal() {
   };
   return (
     <div className="min-h-screen g-space font-sans-g text-g-text flex justify-center">
-      <div className="w-full max-w-[430px] min-h-screen g-stars px-6 pt-8 pb-10">
-        <header className="relative flex min-h-[158px] items-center">
+      <div className="w-full max-w-[430px] min-h-screen g-stars pb-10">
+        <header className="home-hero relative flex h-[320px] flex-col items-center px-6 pt-5 text-center">
+          <div
+            className="hero-landscape absolute inset-0"
+            style={{ backgroundImage: `url(${homeHero})` }}
+            aria-hidden="true"
+          />
           <Link
             to="/"
             aria-label="Voltar"
-            className="h-10 w-10 grid place-items-center rounded-full g-glass shrink-0"
+            className="g-glass absolute left-6 top-7 z-10 grid h-11 w-11 place-items-center rounded-full"
           >
             <ChevronLeft className="h-5 w-5" />
           </Link>
-          <BrandLogo className="absolute left-1/2 top-0 h-[158px] w-[315px] -translate-x-1/2 rounded-xl" />
+          <BrandLogo className="relative z-10 h-[176px] w-[320px]" />
+          <h2 className="font-serif-g relative z-10 mt-1 text-[2rem] font-semibold leading-[1.05]">
+            O que você deseja
+            <br />
+            manifestar hoje?
+          </h2>
+          <p className="relative z-10 mt-3 text-sm text-g-muted">
+            Escolha e escreva como se já fosse seu.
+          </p>
         </header>
-        <h2 className="mt-8 text-2xl font-semibold leading-snug">
-          O que você deseja
-          <br />
-          manifestar hoje?
-        </h2>
-        <p className="mt-2 text-sm text-g-muted">Escolha e escreva como se já fosse seu.</p>
-        <div className="mt-6 space-y-4">
+        <div className="mt-6 space-y-4 px-6">
           {manifestGoals.map((g) => (
             <Link
               key={g.id}

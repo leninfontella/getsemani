@@ -29,3 +29,7 @@ enable_confirmations = false
 [functions.delete-account]
 # A função valida explicitamente o JWT com auth.getUser antes de usar o cliente administrativo.
 verify_jwt = false
+
+[functions.avatar]
+# A função valida explicitamente o JWT e mantém as credenciais Google somente no servidor.
+verify_jwt = false

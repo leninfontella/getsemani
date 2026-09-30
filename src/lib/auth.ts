@@ -1,7 +1,7 @@
 export type Gender = "masculino" | "feminino" | "nao-informar";
 import { clearLocalSupabaseSession, requireSupabase, supabase } from "./supabase";
 
-export type LocalUser = { name: string; email: string; gender?: Gender };
+export type LocalUser = { name: string; email: string; gender?: Gender; avatarUrl?: string };
 
 const USER_KEY = "getsemani-user";
 
@@ -46,7 +46,7 @@ export async function loginUser(email: string, password: string) {
   const metadata = data.user.user_metadata;
   const { data: profile } = await client
     .from("profiles")
-    .select("name, gender")
+    .select("name, gender, avatar_url")
     .eq("id", data.user.id)
     .maybeSingle();
   cacheUser({
@@ -56,6 +56,7 @@ export async function loginUser(email: string, password: string) {
       (profile?.gender as Gender | undefined) ||
       (metadata["gender"] as Gender | undefined) ||
       "nao-informar",
+    ...(profile?.avatar_url ? { avatarUrl: String(profile.avatar_url) } : {}),
   });
   return data;
 }
@@ -66,7 +67,7 @@ export async function refreshCachedUser() {
   if (authError || !auth.user) throw authError || new Error("Sessão expirada.");
   const { data: profile, error: profileError } = await client
     .from("profiles")
-    .select("name, gender")
+    .select("name, gender, avatar_url")
     .eq("id", auth.user.id)
     .single();
   if (profileError) throw profileError;
@@ -74,6 +75,7 @@ export async function refreshCachedUser() {
     name: profile.name,
     email: auth.user.email || "",
     gender: profile.gender as Gender,
+    ...(profile.avatar_url ? { avatarUrl: String(profile.avatar_url) } : {}),
   };
   cacheUser(user);
   return user;
@@ -105,7 +107,58 @@ export async function updateUserName(name: string) {
     name: normalizedName,
     email: auth.user.email || current?.email || "",
     ...(current?.gender ? { gender: current.gender } : {}),
+    ...(current?.avatarUrl ? { avatarUrl: current.avatarUrl } : {}),
   };
+  cacheUser(user);
+  return user;
+}
+
+const AVATAR_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const MAX_AVATAR_SIZE = 5 * 1024 * 1024;
+
+export async function uploadUserAvatar(file: File) {
+  if (!AVATAR_TYPES.has(file.type)) throw new Error("Escolha uma imagem JPG, PNG ou WebP.");
+  if (file.size > MAX_AVATAR_SIZE) throw new Error("A foto deve ter no máximo 5 MB.");
+
+  const client = requireSupabase();
+  const { data, error } = await client.functions.invoke("avatar", {
+    method: "POST",
+    headers: { "Content-Type": file.type },
+    body: file,
+  });
+  if (error) throw error;
+  if (!data?.url) throw new Error(data?.error || "Não foi possível enviar a foto.");
+
+  const { error: profileError } = await client
+    .from("profiles")
+    .update({ avatar_url: data.url })
+    .eq("id", data.userId);
+  if (profileError) throw profileError;
+
+  const current = loadUser();
+  if (!current) throw new Error("Sessão expirada.");
+  const user = { ...current, avatarUrl: String(data.url) };
+  cacheUser(user);
+  return user;
+}
+
+export async function removeUserAvatar() {
+  const client = requireSupabase();
+  const { data, error } = await client.functions.invoke("avatar", {
+    method: "DELETE",
+  });
+  if (error) throw error;
+  if (!data?.removed) throw new Error(data?.error || "Não foi possível remover a foto.");
+
+  const { error: profileError } = await client
+    .from("profiles")
+    .update({ avatar_url: null })
+    .eq("id", data.userId);
+  if (profileError) throw profileError;
+
+  const current = loadUser();
+  if (!current) throw new Error("Sessão expirada.");
+  const { avatarUrl: _avatarUrl, ...user } = current;
   cacheUser(user);
   return user;
 }

@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Bell, LogOut, Sparkles, Trash2, Volume2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Bell, Camera, LogOut, Sparkles, Trash2, Volume2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, BrandLogo } from "@/components/AppShell";
 import { LiquidConfirmDialog } from "@/components/LiquidConfirmDialog";
@@ -10,8 +10,10 @@ import {
   deleteAccount as deleteRemoteAccount,
   loadUser,
   logoutUser,
+  removeUserAvatar,
   refreshCachedUser,
   updateUserName,
+  uploadUserAvatar,
 } from "@/lib/auth";
 export const Route = createFileRoute("/configuracoes")({ component: SettingsPage });
 function SettingsPage() {
@@ -24,16 +26,21 @@ function SettingsPage() {
   const [deleting, setDeleting] = useState(false);
   const [savedName, setSavedName] = useState("");
   const [savingName, setSavingName] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string>();
+  const [savingAvatar, setSavingAvatar] = useState(false);
+  const avatarInput = useRef<HTMLInputElement>(null);
   useEffect(() => {
     const local = loadSettings();
     const cachedName = loadUser()?.name;
     setSettings({ ...local, ...(cachedName ? { name: cachedName } : {}) });
     setSavedName(cachedName || local.name);
+    setAvatarUrl(loadUser()?.avatarUrl);
     void refreshCachedUser()
       .then((user) => {
         const next = { ...loadSettings(), name: user.name };
         setSettings(next);
         setSavedName(user.name);
+        setAvatarUrl(user.avatarUrl);
         saveSettings(next);
       })
       .catch(() => undefined);
@@ -42,6 +49,36 @@ function SettingsPage() {
     const next = { ...settings, [key]: value };
     setSettings(next);
     saveSettings(next);
+  };
+  const uploadAvatar = async (file?: File) => {
+    if (!file) return;
+    setSavingAvatar(true);
+    try {
+      const user = await uploadUserAvatar(file);
+      setAvatarUrl(user.avatarUrl);
+      toast("Foto atualizada!");
+    } catch (error) {
+      toast("Não foi possível salvar a foto.", {
+        description: error instanceof Error ? error.message : "Tente novamente.",
+      });
+    } finally {
+      setSavingAvatar(false);
+      if (avatarInput.current) avatarInput.current.value = "";
+    }
+  };
+  const removeAvatar = async () => {
+    setSavingAvatar(true);
+    try {
+      await removeUserAvatar();
+      setAvatarUrl(undefined);
+      toast("Foto removida.");
+    } catch (error) {
+      toast("Não foi possível remover a foto.", {
+        description: error instanceof Error ? error.message : "Tente novamente.",
+      });
+    } finally {
+      setSavingAvatar(false);
+    }
   };
   const saveName = async () => {
     const name = settings.name.trim();
@@ -120,6 +157,50 @@ function SettingsPage() {
         onConfirm={deleteAccount}
       />
       <main className="px-6 mt-6 space-y-5">
+        <section className="rounded-2xl border border-g-muted/20 g-glass p-4 text-center">
+          <div className="mx-auto h-28 w-28 overflow-hidden rounded-full border border-g-gold/40 bg-[#161225]">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt="Sua foto de perfil"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="grid h-full place-items-center font-serif-g text-5xl text-g-gold">
+                {(settings.name || "U").charAt(0).toUpperCase()}
+              </div>
+            )}
+          </div>
+          <input
+            ref={avatarInput}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="sr-only"
+            onChange={(event) => void uploadAvatar(event.target.files?.[0])}
+          />
+          <button
+            type="button"
+            onClick={() => avatarInput.current?.click()}
+            disabled={savingAvatar}
+            className="liquid-button mt-4 w-full rounded-full border border-g-gold/40 py-3 font-semibold text-g-gold disabled:opacity-45"
+          >
+            <span className="inline-flex items-center gap-2">
+              <Camera className="h-4 w-4" />{" "}
+              {savingAvatar ? "Enviando..." : avatarUrl ? "Trocar foto" : "Escolher foto"}
+            </span>
+          </button>
+          {avatarUrl && (
+            <button
+              type="button"
+              onClick={() => void removeAvatar()}
+              disabled={savingAvatar}
+              className="mt-3 text-sm text-red-200 disabled:opacity-45"
+            >
+              Remover foto
+            </button>
+          )}
+          <p className="mt-3 text-xs text-g-muted">JPG, PNG ou WebP, até 5 MB.</p>
+        </section>
         <section className="rounded-2xl border border-g-muted/20 g-glass p-4">
           <label htmlFor="name" className="text-sm text-g-muted">
             Como devemos chamar você?

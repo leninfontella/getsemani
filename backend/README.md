@@ -12,7 +12,42 @@ Backend Supabase com PostgreSQL, autenticação GoTrue e políticas de seguranç
 
 ### `profiles`
 
-Perfil criado automaticamente após o cadastro no Supabase Auth. Armazena nome e gênero.
+Perfil criado automaticamente após o cadastro no Supabase Auth. Armazena nome, gênero e a URL da foto.
+
+## Fotos de perfil no Google Cloud Storage
+
+A Edge Function `avatar` recebe JPG, PNG ou WebP de até 5 MB, valida o usuário pelo JWT do
+Supabase e envia o arquivo ao Cloud Storage. As credenciais Google ficam somente na função.
+
+1. No Google Cloud, crie uma conta de serviço para o app e conceda a ela o papel
+   **Storage Object Admin** apenas no bucket de fotos.
+2. Crie e baixe uma chave JSON dessa conta. Use os campos `client_email` e `private_key` nos
+   comandos abaixo. Nunca coloque esse JSON ou a chave privada no `.env` do frontend.
+3. Para que o navegador exiba as fotos, conceda ao principal `allUsers` o papel
+   **Storage Object Viewer** nesse bucket. Isso torna as fotos públicas para quem souber a URL.
+   Se a prevenção de acesso público estiver ativa, desative-a somente para esse bucket.
+4. Cadastre os segredos no projeto Supabase:
+
+   ```bash
+   supabase secrets set GCS_BUCKET_NAME="SEU_BUCKET"
+   supabase secrets set GCS_CLIENT_EMAIL="EMAIL_DA_CONTA_DE_SERVICO"
+   supabase secrets set GCS_PRIVATE_KEY="CHAVE_PRIVADA_DO_JSON"
+   ```
+
+5. Aplique a coluna `avatar_url` e publique a função:
+
+   ```bash
+   cd backend
+   supabase db push
+   supabase functions deploy avatar --no-verify-jwt
+   ```
+
+6. Confirme que a origem publicada está em `allowedOrigins` no arquivo
+   `supabase/functions/avatar/index.ts`. Para testar localmente, copie `.env.example` para um
+   arquivo local ignorado pelo Git e inicie as funções com `supabase functions serve --env-file`.
+
+O objeto usa o caminho `avatars/{user-id}/profile`; trocar a foto sobrescreve o mesmo objeto e
+um parâmetro de versão evita que o navegador continue mostrando a imagem antiga.
 
 ### `manifestations`
 

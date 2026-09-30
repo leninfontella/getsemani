@@ -21,6 +21,7 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [name, setName] = useState("Amelia");
+  const [avatarUrl, setAvatarUrl] = useState<string>();
   const [welcome, setWelcome] = useState("Bem-vindo(a)");
   const [days, setDays] = useState(0);
   const [practiceDates, setPracticeDates] = useState<Set<string>>(new Set());
@@ -33,6 +34,7 @@ function HomePage() {
     const cachedUser = loadUser();
     setGoals(manifestedGoals());
     setName(cachedUser?.name || loadSettings().name);
+    setAvatarUrl(cachedUser?.avatarUrl);
     const gender = cachedUser?.gender;
     setWelcome(
       gender === "masculino" ? "Bem-vindo" : gender === "feminino" ? "Bem-vinda" : "Bem-vindo(a)",
@@ -76,6 +78,7 @@ function HomePage() {
     void refreshCachedUser()
       .then((user) => {
         setName(user.name);
+        setAvatarUrl(user.avatarUrl);
         setWelcome(
           user.gender === "masculino"
             ? "Bem-vindo"
@@ -104,7 +107,8 @@ function HomePage() {
     const carouselCenter = carousel.scrollLeft + carousel.clientWidth / 2;
     const closestIndex = cards.reduce((closest, card, index) => {
       const cardCenter = card.offsetLeft + card.offsetWidth / 2;
-      const closestCenter = cards[closest].offsetLeft + cards[closest].offsetWidth / 2;
+      const closestCard = cards[closest]!;
+      const closestCenter = closestCard.offsetLeft + closestCard.offsetWidth / 2;
       return Math.abs(cardCenter - carouselCenter) < Math.abs(closestCenter - carouselCenter)
         ? index
         : closest;
@@ -164,9 +168,17 @@ function HomePage() {
         className="hero-avatar mx-auto mt-4 grid aspect-square w-[50vw] max-w-[215px] place-items-center rounded-full p-1"
         aria-label={`Avatar de ${name}`}
       >
-        <div className="grid h-full w-full place-items-center rounded-full border border-white/20 bg-[#161225]/75 font-serif-g text-7xl font-semibold text-g-gold backdrop-blur-xl">
-          {name.charAt(0).toUpperCase()}
-        </div>
+        {avatarUrl ? (
+          <img
+            src={avatarUrl}
+            alt={`Foto de ${name}`}
+            className="h-full w-full rounded-full border border-white/20 object-cover"
+          />
+        ) : (
+          <div className="grid h-full w-full place-items-center rounded-full border border-white/20 bg-[#161225]/75 font-serif-g text-7xl font-semibold text-g-gold backdrop-blur-xl">
+            {name.charAt(0).toUpperCase()}
+          </div>
+        )}
       </div>
       <section className="journey-card glass-level-2 mx-6 mt-6 rounded-3xl p-5">
         <div className="flex items-center justify-between">

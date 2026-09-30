@@ -46,7 +46,6 @@ function LoginPage() {
       if (!gender) return;
       try {
         await registerUser({ name: name.trim(), email: cleanEmail, password, gender });
-        scheduleWelcomeNotification(name.trim(), cleanEmail);
         saveSettings({ ...loadSettings(), name: name.trim() });
         setMode("login");
         setName("");
@@ -63,9 +62,13 @@ function LoginPage() {
       return;
     }
     try {
-      await loginUser(cleanEmail, password);
+      const login = await loginUser(cleanEmail, password);
       clearAccountContentCache();
       clearNotifications();
+      if (login.showWelcome) {
+        const displayName = String(login.user.user_metadata["name"] || cleanEmail.split("@")[0]);
+        scheduleWelcomeNotification(displayName, cleanEmail);
+      }
     } catch {
       toast("Não foi possível entrar.", {
         description: "E-mail ou senha incorretos.",

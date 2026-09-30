@@ -654,20 +654,23 @@ h3 {
     max-width: 1120px;
     height: 230px;
     margin: 0 auto;
-    align-items: flex-start;
-    justify-content: flex-end;
-    padding: 34px 42px;
-    text-align: left;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 48px;
+    text-align: center;
     border-radius: 8px;
     overflow: hidden;
   }
 
-  .app-page > .home-hero:not(.home-main-hero) > img {
+  .app-page > .home-hero:not(.home-main-hero) > .app-shell-hero-logo {
     position: absolute;
-    top: 4px;
+    top: 50%;
     left: 28px;
     width: 210px;
     height: 110px;
+    max-width: none;
+    transform: translateY(-50%) scale(1.25);
+    transform-origin: left center;
   }
 
   .app-page > .home-hero:not(.home-main-hero) h1 {

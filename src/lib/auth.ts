@@ -42,7 +42,11 @@ export async function registerUser(user: LocalUser & { password: string }) {
     email: user.email,
     password: user.password,
     options: {
-      data: { name: user.name, gender: user.gender || "nao-informar" },
+      data: {
+        name: user.name,
+        gender: user.gender || "nao-informar",
+        welcome_pending: true,
+      },
       emailRedirectTo: `${window.location.origin}/login`,
     },
   });
@@ -63,6 +67,7 @@ export async function loginUser(email: string, password: string) {
   const { data, error } = await client.auth.signInWithPassword({ email, password });
   if (error) throw error;
   const metadata = data.user.user_metadata;
+  const showWelcome = metadata["welcome_pending"] === true;
   const { data: profile } = await client
     .from("profiles")
     .select("name, gender, avatar_url")
@@ -77,7 +82,14 @@ export async function loginUser(email: string, password: string) {
       "nao-informar",
     ...(profile?.avatar_url ? { avatarUrl: await loadPrivateAvatarUrl() } : {}),
   });
-  return data;
+  if (showWelcome) {
+    // Persist the one-time marker in Auth so account-cache cleanup cannot erase it
+    // before the first successful login (and so it also works on another device).
+    await client.auth.updateUser({
+      data: { ...metadata, welcome_pending: false },
+    });
+  }
+  return { ...data, showWelcome };
 }
 
 export async function refreshCachedUser() {
@@ -163,10 +175,40 @@ export async function uploadUserAvatar(file: File) {
 
 async function loadPrivateAvatarUrl() {
   const client = requireSupabase();
-  const { data, error, response } = await client.functions.invoke("avatar", { method: "GET" });
-  if (error) throw error;
-  const mediaType = response?.headers.get("x-avatar-content-type") || "image/jpeg";
-  const blob = new Blob([data instanceof Blob ? data : data], { type: mediaType });
+  const { data: sessionData, error: sessionError } = await client.auth.getSession();
+  if (sessionError || !sessionData.session) {
+    throw sessionError || new Error("Sessão expirada.");
+  }
+
+  const supabaseUrl = import.meta.env["VITE_SUPABASE_URL"] as string | undefined;
+  const publishableKey = (import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ||
+    import.meta.env["VITE_SUPABASE_ANON_KEY"]) as string | undefined;
+  if (!supabaseUrl || !publishableKey) throw new Error("Supabase não configurado.");
+
+  // functions.invoke parses image/* as text in the currently installed SDK.
+  // A direct authenticated fetch preserves the exact bytes returned by GCS.
+  const response = await fetch(`${supabaseUrl}/functions/v1/avatar`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${sessionData.session.access_token}`,
+      apikey: publishableKey,
+    },
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    let message = "Não foi possível carregar a foto.";
+    try {
+      const body = (await response.json()) as { error?: string };
+      if (body.error) message = body.error;
+    } catch {
+      // A resposta pode não ser JSON em erros gerados pelo gateway.
+    }
+    throw new Error(message);
+  }
+
+  const bytes = await response.blob();
+  const mediaType = response.headers.get("x-avatar-content-type") || "image/jpeg";
+  const blob = bytes.type === mediaType ? bytes : bytes.slice(0, bytes.size, mediaType);
   return URL.createObjectURL(blob);
 }
 

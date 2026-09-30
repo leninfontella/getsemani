@@ -112,14 +112,14 @@ export function AppShell({ title, children }: { title?: string; children: ReactN
       <AppNav />
       <div className="app-page page-enter relative w-full max-w-[430px] min-h-screen g-stars pb-32">
         {title && (
-          <header className="home-hero relative flex h-[240px] flex-col items-center px-6 pt-5 text-center">
+          <header className="home-hero relative flex h-[290px] flex-col items-center justify-center px-6 text-center">
             <div
               className="hero-landscape absolute inset-0"
               style={{ backgroundImage: `url(${homeHero})` }}
               aria-hidden="true"
             />
-            <BrandLogo className="relative z-10 h-[176px] w-[320px]" />
-            <h1 className="font-serif-g relative z-10 -mt-3 text-3xl font-semibold">{title}</h1>
+            <BrandLogo className="app-shell-hero-logo relative z-10 h-[220px] w-[400px] max-w-full" />
+            <h1 className="font-serif-g relative z-10 -mt-5 text-3xl font-semibold">{title}</h1>
           </header>
         )}
         {children}

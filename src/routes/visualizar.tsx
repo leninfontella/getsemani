@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Sparkles, Trash2 } from "lucide-react";
+import { Plus, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, GoalThumb } from "@/components/AppShell";
 import { LiquidConfirmDialog } from "@/components/LiquidConfirmDialog";
@@ -106,6 +106,16 @@ function VisualizePage() {
             </Link>
           </div>
         )}
+        <div className="flex justify-center py-8">
+          <Link
+            to="/manifestar"
+            aria-label="Adicionar nova manifestação"
+            title="Adicionar nova manifestação"
+            className="liquid-button grid h-14 w-14 place-items-center rounded-full border border-g-gold/50 text-g-gold shadow-[0_0_24px_rgba(246,204,111,0.28)] transition hover:scale-105 hover:shadow-[0_0_32px_rgba(246,204,111,0.45)]"
+          >
+            <Plus className="h-7 w-7" />
+          </Link>
+        </div>
       </main>
     </AppShell>
   );

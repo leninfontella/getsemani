@@ -79,6 +79,37 @@ export async function refreshCachedUser() {
   return user;
 }
 
+export async function updateUserName(name: string) {
+  const normalizedName = name.trim();
+  if (!normalizedName) throw new Error("Informe como devemos chamar você.");
+  if (normalizedName.length > 120) throw new Error("O nome deve ter no máximo 120 caracteres.");
+
+  const client = requireSupabase();
+  const { data: auth, error: authError } = await client.auth.getUser();
+  if (authError || !auth.user) throw authError || new Error("Sessão expirada.");
+
+  const { error: profileError } = await client
+    .from("profiles")
+    .update({ name: normalizedName })
+    .eq("id", auth.user.id);
+  if (profileError) throw profileError;
+
+  // Mantém o nome de fallback do Auth alinhado ao perfil principal.
+  const { error: metadataError } = await client.auth.updateUser({
+    data: { ...auth.user.user_metadata, name: normalizedName },
+  });
+  if (metadataError) throw metadataError;
+
+  const current = loadUser();
+  const user: LocalUser = {
+    name: normalizedName,
+    email: auth.user.email || current?.email || "",
+    ...(current?.gender ? { gender: current.gender } : {}),
+  };
+  cacheUser(user);
+  return user;
+}
+
 export async function isAuthenticated() {
   if (!supabase) return false;
   const { data, error } = await supabase.auth.getUser();

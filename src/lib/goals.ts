@@ -6,6 +6,9 @@ import universe from "@/assets/goal-universe.png";
 import love from "@/assets/goal-love.jpg";
 import money from "@/assets/goal-money.jpeg";
 import gratitude from "@/assets/goal-gratitude.jpg";
+import healthyFood from "@/assets/goal-healthy-food.jpg";
+import health from "@/assets/goal-health.jpg";
+import newCar from "@/assets/goal-new-car.jpg";
 import { requireSupabase } from "./supabase";
 
 export type Goal = { id: string; title: string; img?: string; prompt: string; example: string };
@@ -52,6 +55,27 @@ export const manifestGoals: Goal[] = [
     img: gratitude,
     prompt: "Escreva tudo aquilo que hoje enche seu coração de gratidão…",
     example: "Eu agradeço por todas as bênçãos que fazem parte da minha vida.",
+  },
+  {
+    id: "alimentacao-saudavel",
+    title: "Alimentação Saudável",
+    img: healthyFood,
+    prompt: "Descreva como uma alimentação saudável já transforma seu corpo e seu bem-estar…",
+    example: "Eu sou grata por nutrir meu corpo com alimentos saudáveis, saborosos e cheios de vida.",
+  },
+  {
+    id: "saude",
+    title: "Saúde",
+    img: health,
+    prompt: "Descreva a saúde, a vitalidade e o bem-estar que já fazem parte da sua vida…",
+    example: "Eu sou grata por ter um corpo saudável, forte e cheio de energia todos os dias.",
+  },
+  {
+    id: "carro-novo",
+    title: "Carro Novo",
+    img: newCar,
+    prompt: "Descreva seu carro novo e a sensação de já estar dirigindo-o…",
+    example: "Eu sou grata pelo meu carro novo, seguro, confortável e perfeito para mim.",
   },
   {
     id: "viagem",

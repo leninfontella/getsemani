@@ -59,6 +59,7 @@ function ManifestGoal() {
   const goal = allGoals().find((g) => g.id === goalId);
   const [text, setText] = useState("");
   const [entries, setEntries] = useState<Entry[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     setEntries(loadEntries()[goalId] || []);
@@ -74,11 +75,14 @@ function ManifestGoal() {
   );
 
   const submit = async () => {
+    if (isSubmitting) return;
     const t = text.trim();
     if (!t) {
       toast("Escreva sua manifestação primeiro.");
       return;
     }
+    setIsSubmitting(true);
+    const submittingStartedAt = Date.now();
     try {
       setEntries(await saveRemoteEntry(goal, t));
       setText("");
@@ -87,6 +91,12 @@ function ManifestGoal() {
       toast("Não foi possível salvar.", {
         description: error instanceof Error ? error.message : "Verifique sua conexão.",
       });
+    } finally {
+      const remainingTime = 5000 - (Date.now() - submittingStartedAt);
+      if (remainingTime > 0) {
+        await new Promise((resolve) => window.setTimeout(resolve, remainingTime));
+      }
+      setIsSubmitting(false);
     }
   };
 
@@ -160,10 +170,13 @@ function ManifestGoal() {
             />
           </div>
           <button
-            onClick={submit}
-            className="g-cta mt-6 w-full rounded-full py-4 text-lg font-extrabold tracking-wide text-g-bg flex items-center justify-center gap-2 active:scale-95 transition"
+            onClick={() => void submit()}
+            disabled={isSubmitting}
+            aria-busy={isSubmitting}
+            className="g-cta mt-6 w-full rounded-full py-4 text-lg font-extrabold tracking-wide text-g-bg flex items-center justify-center gap-2 active:scale-95 transition disabled:cursor-wait disabled:opacity-80"
           >
-            MANIFESTAR <Sparkles className="h-5 w-5" />
+            {isSubmitting ? "MANIFESTANDO..." : "MANIFESTAR"}
+            <Sparkles className={`h-5 w-5 ${isSubmitting ? "animate-pulse" : ""}`} />
           </button>
         </section>
 

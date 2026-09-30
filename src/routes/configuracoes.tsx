@@ -11,6 +11,7 @@ import {
   loadUser,
   logoutUser,
   refreshCachedUser,
+  updateUserName,
 } from "@/lib/auth";
 export const Route = createFileRoute("/configuracoes")({ component: SettingsPage });
 function SettingsPage() {
@@ -21,14 +22,18 @@ function SettingsPage() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [savedName, setSavedName] = useState("");
+  const [savingName, setSavingName] = useState(false);
   useEffect(() => {
     const local = loadSettings();
     const cachedName = loadUser()?.name;
     setSettings({ ...local, ...(cachedName ? { name: cachedName } : {}) });
+    setSavedName(cachedName || local.name);
     void refreshCachedUser()
       .then((user) => {
         const next = { ...loadSettings(), name: user.name };
         setSettings(next);
+        setSavedName(user.name);
         saveSettings(next);
       })
       .catch(() => undefined);
@@ -37,6 +42,28 @@ function SettingsPage() {
     const next = { ...settings, [key]: value };
     setSettings(next);
     saveSettings(next);
+  };
+  const saveName = async () => {
+    const name = settings.name.trim();
+    if (!name) {
+      toast("Digite um nome para continuar.");
+      return;
+    }
+    setSavingName(true);
+    try {
+      const user = await updateUserName(name);
+      const next = { ...settings, name: user.name };
+      setSettings(next);
+      setSavedName(user.name);
+      saveSettings(next);
+      toast("Nome atualizado!", { description: "A alteração foi salva no app e na sua conta." });
+    } catch (error) {
+      toast("Não foi possível salvar o nome.", {
+        description: error instanceof Error ? error.message : "Tente novamente.",
+      });
+    } finally {
+      setSavingName(false);
+    }
   };
   const logout = async () => {
     setConfirmLogout(false);
@@ -100,9 +127,21 @@ function SettingsPage() {
           <input
             id="name"
             value={settings.name}
-            onChange={(e) => update("name", e.target.value)}
+            maxLength={120}
+            onChange={(e) => setSettings((current) => ({ ...current, name: e.target.value }))}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && settings.name.trim() !== savedName) void saveName();
+            }}
             className="g-glass mt-2 w-full rounded-xl border border-g-muted/30 px-4 py-3 outline-none focus:border-g-gold"
           />
+          <button
+            type="button"
+            onClick={() => void saveName()}
+            disabled={savingName || !settings.name.trim() || settings.name.trim() === savedName}
+            className="liquid-button mt-3 w-full rounded-full border border-g-gold/40 py-3 font-semibold text-g-gold disabled:cursor-not-allowed disabled:opacity-45"
+          >
+            {savingName ? "Salvando..." : "Salvar nome"}
+          </button>
         </section>
         <section className="overflow-hidden rounded-2xl border border-g-muted/20 g-glass">
           <SettingRow

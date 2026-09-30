@@ -506,23 +506,19 @@ h3 {
     overflow-x: hidden;
   }
 
-  .g-space:has(> .app-page) {
-    justify-content: flex-start;
-  }
-
   .app-page {
-    width: calc(100% - 112px);
+    width: calc(100% - 176px);
     max-width: 1440px;
     min-height: 100vh;
-    margin-right: 24px;
-    margin-left: 88px;
+    margin-right: auto;
+    margin-left: auto;
     padding: 28px 40px 72px;
   }
 
   .app-nav-trigger {
     position: fixed;
     top: 24px;
-    left: 24px;
+    left: max(24px, calc((100vw - 1440px) / 2 - 64px));
     z-index: 19;
     display: grid;
     width: 48px;
@@ -539,7 +535,7 @@ h3 {
   .app-nav {
     top: 24px;
     bottom: 24px;
-    left: 24px;
+    left: max(24px, calc((100vw - 1440px) / 2 - 64px));
     width: 240px;
     max-width: none;
     padding: 18px 14px;
@@ -1140,7 +1136,7 @@ h3 {
     top: 24px;
     right: auto;
     bottom: 24px;
-    left: 24px;
+    left: max(24px, calc((100vw - 1440px) / 2 - 64px));
     width: 240px;
     max-width: none;
   }

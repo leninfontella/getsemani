@@ -126,10 +126,14 @@ function SettingsPage() {
     setConfirmLogout(false);
     setTransitionMessage("ATÉ A PRÓXIMA JORNADA");
     setExiting(true);
-    await logoutUser();
-    clearNotifications();
-    clearCachedUser();
-    setTimeout(() => navigate({ to: "/login", replace: true }), 2400);
+    try {
+      await logoutUser();
+    } finally {
+      clearAll();
+      clearNotifications();
+      clearCachedUser();
+      setTimeout(() => navigate({ to: "/login", replace: true }), 2400);
+    }
   };
   const deleteAccount = async () => {
     setDeleting(true);
@@ -178,7 +182,7 @@ function SettingsPage() {
         onCancel={() => setConfirmDelete(false)}
         onConfirm={deleteAccount}
       />
-      <main className="px-6 mt-6 space-y-5">
+      <main className="desktop-content settings-content px-6 mt-6 space-y-5">
         <section className="relative overflow-hidden rounded-2xl border border-g-muted/20 g-glass p-4 text-center">
           {avatarOpen && avatarUrl && (
             <div

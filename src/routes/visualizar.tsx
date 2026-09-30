@@ -59,7 +59,7 @@ function VisualizePage() {
         onCancel={() => setPendingDelete(null)}
         onConfirm={confirmDelete}
       />
-      <main className="px-6 mt-6">
+      <main className="desktop-content px-6 mt-6">
         <p className="text-sm text-g-muted">Releia, sinta e visualize como se tudo já fosse seu.</p>
         {items.length ? (
           <div className="mt-5 space-y-4">

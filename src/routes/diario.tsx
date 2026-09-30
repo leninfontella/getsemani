@@ -260,7 +260,7 @@ function DiaryPage() {
         onCancel={() => setConfirmDelete(false)}
         onConfirm={deleteSelectedDay}
       />
-      <main className="px-6 mt-5">
+      <main className="desktop-content px-6 mt-5">
         <section className="mb-4 rounded-2xl border border-g-violet/30 g-glass p-4">
           <div className="flex items-center gap-3">
             <CalendarDays className="h-5 w-5 shrink-0 text-g-gold" />

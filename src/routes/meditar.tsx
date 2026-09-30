@@ -138,7 +138,7 @@ function MeditatePage() {
         }}
       />
 
-      <main className="mt-6 px-6">
+      <main className="desktop-content mt-6 px-6">
         <div className="g-glass rounded-3xl border border-g-gold/40 p-6 text-center">
           <button
             type="button"

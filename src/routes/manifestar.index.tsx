@@ -36,8 +36,8 @@ function ChooseGoal() {
     navigate({ to: "/manifestar/$goal", params: { goal: goal.id }, search: { historico: false } });
   };
   return (
-    <div className="min-h-screen g-space font-sans-g text-g-text flex justify-center">
-      <div className="w-full max-w-[430px] min-h-screen g-stars pb-10">
+    <div className="manifest-picker min-h-screen g-space font-sans-g text-g-text flex justify-center">
+      <div className="manifest-picker-page w-full max-w-[430px] min-h-screen g-stars pb-10">
         <header className="home-hero relative flex h-[320px] flex-col items-center px-6 pt-5 text-center">
           <div
             className="hero-landscape absolute inset-0"
@@ -61,7 +61,7 @@ function ChooseGoal() {
             Escolha e escreva como se já fosse seu.
           </p>
         </header>
-        <div className="mt-6 space-y-4 px-6">
+        <div className="manifest-picker-grid mt-6 space-y-4 px-6">
           {manifestGoals.map((g) => (
             <Link
               key={g.id}

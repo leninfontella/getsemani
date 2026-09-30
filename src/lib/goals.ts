@@ -61,7 +61,8 @@ export const manifestGoals: Goal[] = [
     title: "Alimentação Saudável",
     img: healthyFood,
     prompt: "Descreva como uma alimentação saudável já transforma seu corpo e seu bem-estar…",
-    example: "Eu sou grata por nutrir meu corpo com alimentos saudáveis, saborosos e cheios de vida.",
+    example:
+      "Eu sou grata por nutrir meu corpo com alimentos saudáveis, saborosos e cheios de vida.",
   },
   {
     id: "saude",
@@ -196,6 +197,13 @@ export type Diary = { text: string; locked: boolean; pin: string; updated?: stri
 const DIARY = "getsemani-diary";
 export const loadDiary = () => read<Diary>(DIARY, { text: "", locked: false, pin: "" });
 export const saveDiary = (d: Diary) => write(DIARY, d);
+
+export function clearAccountContentCache() {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(DIARY);
+  localStorage.removeItem(ENTRIES);
+  localStorage.removeItem(CUSTOM);
+}
 
 /* Configurações */
 export type Settings = {

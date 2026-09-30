@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ChevronLeft, Sparkles } from "lucide-react";
+import { ChevronLeft, Home, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { addNotification } from "@/lib/notifications";
 import { Toaster } from "@/components/ui/sonner";
@@ -12,7 +12,6 @@ import {
   syncEntries,
   type Entry,
 } from "@/lib/goals";
-import { AppNav } from "@/components/AppShell";
 
 export const Route = createFileRoute("/manifestar/$goal")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -134,7 +133,7 @@ function ManifestGoal() {
   };
 
   return (
-    <div className="min-h-screen g-space font-sans-g text-g-text flex justify-center">
+    <div className="manifest-editor min-h-screen g-space font-sans-g text-g-text flex justify-center">
       <Toaster />
       {celebrating && (
         <div className="gold-confetti" aria-hidden="true">
@@ -143,8 +142,8 @@ function ManifestGoal() {
           ))}
         </div>
       )}
-      <div className="relative w-full max-w-[430px] min-h-screen g-stars pb-32">
-        <div className="relative">
+      <div className="manifest-editor-page relative w-full max-w-[430px] min-h-screen g-stars pb-32">
+        <div className="manifest-editor-hero relative">
           {goal.img ? (
             <img
               src={goal.img}
@@ -199,6 +198,14 @@ function ManifestGoal() {
             {isSubmitting ? "MANIFESTANDO..." : "MANIFESTAR"}
             <Sparkles className={`h-5 w-5 ${isSubmitting ? "animate-pulse" : ""}`} />
           </button>
+          <Link
+            to="/"
+            aria-label="Voltar para a tela inicial"
+            title="Voltar para o início"
+            className="g-glass mx-auto mt-4 grid h-10 w-10 place-items-center rounded-full border border-white/15 text-g-gold transition hover:border-g-gold/60 hover:bg-white/10 active:scale-95"
+          >
+            <Home className="h-4 w-4" />
+          </Link>
         </section>
 
         {historico && (
@@ -244,8 +251,6 @@ function ManifestGoal() {
             )}
           </section>
         )}
-
-        <AppNav />
       </div>
     </div>
   );

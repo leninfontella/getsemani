@@ -491,6 +491,320 @@ h3 {
   box-shadow: 0 0 8px rgb(239 205 119 / 0.4);
 }
 
+.app-nav-brand {
+  display: none;
+}
+
+.app-nav-trigger,
+.app-nav-close {
+  display: none;
+}
+
+/* Desktop site layout. The mobile app remains the default below this breakpoint. */
+@media (min-width: 1024px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .g-space:has(> .app-page) {
+    justify-content: flex-start;
+  }
+
+  .app-page {
+    width: calc(100% - 112px);
+    max-width: 1440px;
+    min-height: 100vh;
+    margin-right: 24px;
+    margin-left: 88px;
+    padding: 28px 40px 72px;
+  }
+
+  .app-nav-trigger {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    z-index: 19;
+    display: grid;
+    width: 48px;
+    height: 48px;
+    place-items: center;
+    border: 1px solid rgb(255 255 255 / 0.18);
+    border-radius: 8px;
+    color: var(--g-gold);
+    background: rgb(13 10 24 / 0.9);
+    box-shadow: 0 12px 30px rgb(0 0 0 / 0.35);
+    backdrop-filter: blur(20px);
+  }
+
+  .app-nav {
+    top: 24px;
+    bottom: 24px;
+    left: 24px;
+    width: 240px;
+    max-width: none;
+    padding: 18px 14px;
+    transform: none;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto repeat(5, 58px) 1fr;
+    align-content: start;
+    gap: 6px;
+    border-radius: 8px;
+    opacity: 0;
+    transform: translateX(calc(-100% - 40px));
+    visibility: hidden;
+    transition:
+      transform 0.28s ease,
+      opacity 0.2s ease,
+      visibility 0.28s;
+  }
+
+  .app-nav.is-open {
+    opacity: 1;
+    transform: none;
+    visibility: visible;
+  }
+
+  .app-nav-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+    display: grid;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    border: 1px solid rgb(255 255 255 / 0.14);
+    border-radius: 8px;
+    color: var(--g-muted);
+    background: rgb(255 255 255 / 0.04);
+  }
+
+  .app-nav-brand {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+    padding: 2px 10px 22px;
+    border-bottom: 1px solid rgb(255 255 255 / 0.1);
+    color: var(--g-muted);
+    font-size: 0.7rem;
+  }
+
+  .app-nav-brand img {
+    width: 176px;
+    max-width: none;
+    object-fit: contain;
+  }
+
+  .app-nav > a:not(.app-nav-brand) {
+    min-height: 52px;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 13px;
+    padding: 0 16px;
+    border-radius: 7px;
+    font-size: 0.9rem;
+  }
+
+  .app-nav > a:not(.app-nav-brand)[data-status="active"] {
+    background: linear-gradient(90deg, rgb(239 205 119 / 0.16), rgb(255 255 255 / 0.045));
+    box-shadow: inset 3px 0 var(--g-gold);
+  }
+
+  .app-page > .home-hero:not(.home-main-hero) {
+    width: 100%;
+    max-width: 1120px;
+    height: 230px;
+    margin: 0 auto;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 34px 42px;
+    text-align: left;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .app-page > .home-hero:not(.home-main-hero) > img {
+    position: absolute;
+    top: 4px;
+    left: 28px;
+    width: 210px;
+    height: 110px;
+  }
+
+  .app-page > .home-hero:not(.home-main-hero) h1 {
+    margin: 0;
+    font-size: 2.35rem;
+  }
+
+  .desktop-content {
+    width: 100%;
+    max-width: 1120px;
+    margin-right: auto;
+    margin-left: auto;
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .settings-content {
+    display: grid;
+    grid-template-columns: minmax(300px, 0.78fr) minmax(420px, 1.22fr);
+    align-items: start;
+    gap: 20px;
+  }
+
+  .settings-content > * {
+    margin-top: 0;
+  }
+
+  .settings-content > section:nth-of-type(3),
+  .settings-content > button,
+  .settings-content > p {
+    grid-column: 2;
+  }
+
+  .settings-content > section:first-of-type {
+    grid-row: 1 / span 5;
+  }
+
+  .home-main-hero {
+    height: 370px;
+    padding: 16px 42px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .home-main-hero .hero-landscape {
+    background-position: center 46%;
+  }
+
+  .home-main-hero > .relative,
+  .home-main-hero > .absolute {
+    max-width: none;
+  }
+
+  .home-main-hero > .absolute:last-child {
+    right: 42px;
+    left: 42px;
+    bottom: 38px;
+  }
+
+  .home-main-hero h2 {
+    max-width: 560px;
+    font-size: 3rem;
+  }
+
+  .app-page:has(.home-main-hero) {
+    display: grid;
+    grid-template-columns: minmax(340px, 0.8fr) minmax(480px, 1.2fr);
+    align-content: start;
+    gap: 24px;
+  }
+
+  .app-page:has(.home-main-hero) > .home-main-hero {
+    grid-column: 1 / -1;
+  }
+
+  .app-page:has(.home-main-hero) > .journey-card {
+    grid-column: 1;
+    margin: 0;
+    border-radius: 8px;
+  }
+
+  .app-page:has(.home-main-hero) > section:not(.journey-card) {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0;
+    min-width: 0;
+  }
+
+  .app-page:has(.home-main-hero) > .home-primary-action {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    width: min(100%, 520px);
+    margin: 8px auto 0;
+    padding: 0;
+    justify-self: center;
+  }
+
+  .app-page:has(.home-main-hero) .manifestation-carousel {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    overflow: visible;
+    padding-right: 24px;
+  }
+
+  .app-page:has(.home-main-hero) .manifestation-card {
+    width: 100%;
+  }
+
+  .manifest-picker-page {
+    max-width: 1180px;
+    padding: 28px 40px 64px;
+  }
+
+  .manifest-picker-page > .home-hero {
+    height: 300px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .manifest-picker-page > .home-hero h2 {
+    font-size: 2.6rem;
+  }
+
+  .manifest-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    padding: 0;
+  }
+
+  .manifest-picker-grid > * {
+    margin-top: 0;
+  }
+
+  .manifest-picker-grid > div:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .manifest-editor-page {
+    width: calc(100% - 48px);
+    max-width: 1180px;
+    margin-right: auto;
+    margin-left: auto;
+    padding: 28px 40px 80px;
+  }
+
+  .manifest-editor-hero {
+    height: 340px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .manifest-editor-hero > img,
+  .manifest-editor-hero > div:first-child {
+    height: 100%;
+  }
+
+  .manifest-editor-hero h1 {
+    right: 42px;
+    left: 42px;
+    bottom: 28px;
+    font-size: 2.8rem;
+  }
+
+  .manifest-editor-page > section {
+    max-width: 920px;
+    margin-right: auto;
+    margin-left: auto;
+    padding-right: 0;
+    padding-left: 0;
+  }
+}
+
 .liquid-overlay {
   background: rgb(3 2 8 / 0.84);
   -webkit-backdrop-filter: blur(64px) brightness(0.3) saturate(80%);
@@ -807,6 +1121,11 @@ h3 {
 }
 
 .app-nav {
+  bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  left: 50%;
+  width: calc(100% - 1.5rem);
+  max-width: 406px;
+  transform: translateX(-50%);
   border: 1px solid rgb(255 255 255 / 0.11);
   background: rgb(13 10 24 / 0.88);
   box-shadow:
@@ -814,6 +1133,21 @@ h3 {
     inset 0 1px 0 rgb(255 255 255 / 0.1);
   -webkit-backdrop-filter: blur(var(--g-glass-blur)) saturate(125%);
   backdrop-filter: blur(var(--g-glass-blur)) saturate(125%);
+}
+
+@media (min-width: 1024px) {
+  .app-nav {
+    top: 24px;
+    right: auto;
+    bottom: 24px;
+    left: 24px;
+    width: 240px;
+    max-width: none;
+  }
+
+  .app-nav.is-open {
+    transform: translateX(0);
+  }
 }
 
 /* The installed app has less usable vertical space because iOS overlays its safe areas. */

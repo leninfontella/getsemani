@@ -5,8 +5,8 @@ import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { BrandLogo } from "@/components/AppShell";
 import { isAuthenticated, loginUser, registerUser, type Gender } from "@/lib/auth";
-import { loadSettings, saveSettings } from "@/lib/goals";
-import { scheduleWelcomeNotification } from "@/lib/notifications";
+import { clearAccountContentCache, loadSettings, saveSettings } from "@/lib/goals";
+import { clearNotifications, scheduleWelcomeNotification } from "@/lib/notifications";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Getsêmani" }] }),
@@ -60,6 +60,8 @@ function LoginPage() {
     }
     try {
       await loginUser(cleanEmail, password);
+      clearAccountContentCache();
+      clearNotifications();
     } catch (error) {
       toast("Não foi possível entrar.", {
         description: error instanceof Error ? error.message : "E-mail ou senha incorretos.",

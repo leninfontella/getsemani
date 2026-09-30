@@ -1117,6 +1117,7 @@ h3 {
 }
 
 .app-nav {
+  position: fixed;
   bottom: calc(0.75rem + env(safe-area-inset-bottom));
   left: 50%;
   width: calc(100% - 1.5rem);
@@ -1132,6 +1133,11 @@ h3 {
 }
 
 @media (min-width: 1024px) {
+  .app-nav.is-mobile-only,
+  .app-nav-trigger.is-mobile-only {
+    display: none;
+  }
+
   .app-nav {
     top: 24px;
     right: auto;

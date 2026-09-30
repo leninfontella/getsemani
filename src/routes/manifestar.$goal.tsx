@@ -4,6 +4,7 @@ import { ChevronLeft, Home, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { addNotification } from "@/lib/notifications";
 import { Toaster } from "@/components/ui/sonner";
+import { AppNav } from "@/components/AppShell";
 import {
   allGoals,
   manifestGoals,
@@ -252,6 +253,7 @@ function ManifestGoal() {
           </section>
         )}
       </div>
+      <AppNav mobileOnly />
     </div>
   );
 }

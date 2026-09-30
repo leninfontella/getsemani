@@ -42,7 +42,7 @@ export function BrandLogo({ className = "" }: { className?: string }) {
   return <img src={logo} alt="Getsêmani" className={`object-contain ${className}`} />;
 }
 
-export function AppNav() {
+export function AppNav({ mobileOnly = false }: { mobileOnly?: boolean }) {
   const [desktopOpen, setDesktopOpen] = useState(false);
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export function AppNav() {
     <>
       <button
         type="button"
-        className="app-nav-trigger"
+        className={`app-nav-trigger ${mobileOnly ? "is-mobile-only" : ""}`}
         aria-label="Abrir menu principal"
         aria-expanded={desktopOpen}
         aria-controls="app-navigation"
@@ -68,7 +68,7 @@ export function AppNav() {
       </button>
       <nav
         id="app-navigation"
-        className={`app-nav ${desktopOpen ? "is-open" : ""} fixed z-20 grid grid-cols-5 rounded-[26px] p-2`}
+        className={`app-nav ${desktopOpen ? "is-open" : ""} ${mobileOnly ? "is-mobile-only" : ""} fixed z-20 grid grid-cols-5 rounded-[26px] p-2`}
         aria-label="Navegação principal"
       >
         <button

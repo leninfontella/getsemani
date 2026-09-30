@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, Plus, Sparkles } from "lucide-react";
 import { addCustomGoal, manifestGoals } from "@/lib/goals";
 import universe from "@/assets/goal-universe.png";
 import homeHero from "@/assets/home-hero.png";
-import { BrandLogo } from "@/components/AppShell";
+import { AppNav, BrandLogo } from "@/components/AppShell";
 
 export const Route = createFileRoute("/manifestar/")({
   head: () => ({
@@ -37,7 +37,7 @@ function ChooseGoal() {
   };
   return (
     <div className="manifest-picker min-h-screen g-space font-sans-g text-g-text flex justify-center">
-      <div className="manifest-picker-page w-full max-w-[430px] min-h-screen g-stars pb-10">
+      <div className="manifest-picker-page w-full max-w-[430px] min-h-screen g-stars pb-32">
         <header className="home-hero relative flex h-[320px] flex-col items-center px-6 pt-5 text-center">
           <div
             className="hero-landscape absolute inset-0"
@@ -120,6 +120,7 @@ function ChooseGoal() {
           )}
         </div>
       </div>
+      <AppNav mobileOnly />
     </div>
   );
 }

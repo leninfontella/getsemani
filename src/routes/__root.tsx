@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { clearCachedUser, isAuthenticated } from "../lib/auth";
 import { clearAll } from "../lib/goals";
+import { clearNotifications } from "../lib/notifications";
 import { clearLocalSupabaseSession } from "../lib/supabase";
 
 function NotFoundComponent() {
@@ -157,6 +158,7 @@ function RootComponent() {
       const authenticated = await isAuthenticated();
       if (!active || authenticated) return;
       clearAll();
+      clearNotifications();
       clearCachedUser();
       clearLocalSupabaseSession();
       window.location.replace("/login");

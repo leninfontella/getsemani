@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 type Props = {
   open: boolean;
@@ -25,9 +26,9 @@ export function LiquidConfirmDialog({
   onConfirm,
   onCancel,
 }: Props) {
-  if (!open) return null;
-  return (
-    <div className="liquid-overlay fixed inset-0 z-50 grid place-items-center px-6">
+  if (!open || typeof document === "undefined") return null;
+  return createPortal(
+    <div className="liquid-overlay fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-6">
       <div
         role="alertdialog"
         aria-modal="true"
@@ -58,6 +59,7 @@ export function LiquidConfirmDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

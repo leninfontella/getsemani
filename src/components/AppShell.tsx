@@ -50,7 +50,7 @@ export function AppNav() {
           key={to}
           to={to}
           activeOptions={{ exact: true }}
-          className="group flex min-h-14 min-w-11 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-xs text-g-muted transition-all duration-300 data-[status=active]:bg-g-gold/15 data-[status=active]:text-g-gold"
+          className="group flex min-h-14 min-w-11 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-xs text-g-muted transition-all duration-300 data-[status=active]:bg-white/[0.07] data-[status=active]:text-g-gold"
         >
           <Icon className="h-[22px] w-[22px] stroke-[1.8] transition-transform group-data-[status=active]:scale-105" />
           {label}

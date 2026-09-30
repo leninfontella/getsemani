@@ -126,6 +126,12 @@ export function deleteNotification(id: string) {
   saveNotifications(loadNotifications().filter((item) => item.id !== id));
 }
 
+export function clearNotifications() {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(STORAGE_KEY);
+  notifyChanged();
+}
+
 export function ensureAutomaticNotifications() {
   const settings = loadSettings();
   const now = new Date();

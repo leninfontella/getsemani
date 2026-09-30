@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Bell, Camera, LogOut, Sparkles, Trash2, Volume2 } from "lucide-react";
+import { Bell, Camera, LogOut, Sparkles, Trash2, Volume2, X } from "lucide-react";
 import { toast } from "sonner";
-import { addNotification } from "@/lib/notifications";
+import { addNotification, clearNotifications } from "@/lib/notifications";
 import { AppShell, BrandLogo } from "@/components/AppShell";
 import { LiquidConfirmDialog } from "@/components/LiquidConfirmDialog";
 import { clearAll, defaultSettings, loadSettings, saveSettings, type Settings } from "@/lib/goals";
@@ -28,6 +28,7 @@ function SettingsPage() {
   const [savedName, setSavedName] = useState("");
   const [savingName, setSavingName] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string>();
+  const [avatarOpen, setAvatarOpen] = useState(false);
   const [savingAvatar, setSavingAvatar] = useState(false);
   const avatarInput = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -46,6 +47,14 @@ function SettingsPage() {
       })
       .catch(() => undefined);
   }, []);
+  useEffect(() => {
+    if (!avatarOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setAvatarOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [avatarOpen]);
   const update = <K extends keyof Settings>(key: K, value: Settings[K]) => {
     const next = { ...settings, [key]: value };
     setSettings(next);
@@ -118,6 +127,8 @@ function SettingsPage() {
     setTransitionMessage("ATÉ A PRÓXIMA JORNADA");
     setExiting(true);
     await logoutUser();
+    clearNotifications();
+    clearCachedUser();
     setTimeout(() => navigate({ to: "/login", replace: true }), 2400);
   };
   const deleteAccount = async () => {
@@ -168,8 +179,38 @@ function SettingsPage() {
         onConfirm={deleteAccount}
       />
       <main className="px-6 mt-6 space-y-5">
-        <section className="rounded-2xl border border-g-muted/20 g-glass p-4 text-center">
-          <div className="mx-auto h-28 w-28 overflow-hidden rounded-full border border-g-gold/40 bg-[#161225]">
+        <section className="relative overflow-hidden rounded-2xl border border-g-muted/20 g-glass p-4 text-center">
+          {avatarOpen && avatarUrl && (
+            <div
+              className="absolute inset-0 z-20 grid place-items-center rounded-2xl border border-white/10 bg-[rgba(7,5,13,.64)] p-4 backdrop-blur-2xl"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Foto de perfil ampliada"
+              onClick={() => setAvatarOpen(false)}
+            >
+              <button
+                type="button"
+                className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full border border-white/25 bg-white/5 text-white shadow-lg backdrop-blur-xl"
+                aria-label="Fechar foto"
+                onClick={() => setAvatarOpen(false)}
+              >
+                <X className="h-4 w-4" />
+              </button>
+              <img
+                src={avatarUrl}
+                alt="Sua foto de perfil ampliada"
+                className="h-40 w-40 rounded-full border border-g-gold/70 object-cover shadow-[0_16px_50px_rgba(0,0,0,.6)]"
+                onClick={(event) => event.stopPropagation()}
+              />
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => avatarUrl && setAvatarOpen(true)}
+            disabled={!avatarUrl}
+            aria-label={avatarUrl ? "Ampliar foto de perfil" : "Foto de perfil não definida"}
+            className="mx-auto block h-28 w-28 overflow-hidden rounded-full border border-g-gold/40 bg-[#161225] transition active:scale-95 disabled:cursor-default"
+          >
             {avatarUrl ? (
               <img
                 src={avatarUrl}
@@ -181,7 +222,7 @@ function SettingsPage() {
                 {(settings.name || "U").charAt(0).toUpperCase()}
               </div>
             )}
-          </div>
+          </button>
           <input
             ref={avatarInput}
             type="file"

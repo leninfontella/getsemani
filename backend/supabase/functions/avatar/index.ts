@@ -14,8 +14,7 @@ function corsHeaders(request: Request) {
   return {
     "Access-Control-Allow-Origin": allowedOrigins.has(origin) ? origin : "null",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-    "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
-    "Access-Control-Expose-Headers": "X-Avatar-Content-Type",
+    "Access-Control-Allow-Methods": "POST, DELETE, OPTIONS",
     Vary: "Origin",
   };
 }
@@ -30,11 +29,6 @@ function json(request: Request, body: unknown, status = 200) {
       "X-Content-Type-Options": "nosniff",
     },
   });
-}
-
-function safeImageType(contentType: string | null) {
-  const mediaType = contentType?.split(";")[0].trim().toLowerCase() || "";
-  return ALLOWED_TYPES.has(mediaType) ? mediaType : "application/octet-stream";
 }
 
 function base64Url(value: Uint8Array | string) {
@@ -97,7 +91,7 @@ Deno.serve(async (request: Request) => {
   if (origin && !allowedOrigins.has(origin))
     return json(request, { error: "Origem não permitida." }, 403);
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders(request) });
-  if (!new Set(["GET", "POST", "DELETE"]).has(request.method)) {
+  if (request.method !== "POST" && request.method !== "DELETE") {
     return json(request, { error: "Método não permitido." }, 405);
   }
 
@@ -123,26 +117,6 @@ Deno.serve(async (request: Request) => {
     const accessToken = await googleAccessToken(clientEmail, privateKey);
     const objectName = `avatars/${data.user.id}/profile`;
     const encodedObject = encodeURIComponent(objectName);
-
-    if (request.method === "GET") {
-      const download = await fetch(
-        `https://storage.googleapis.com/storage/v1/b/${encodeURIComponent(bucket)}/o/${encodedObject}?alt=media`,
-        { headers: { Authorization: `Bearer ${accessToken}` } },
-      );
-      if (download.status === 404) return json(request, { error: "Foto não encontrada." }, 404);
-      if (!download.ok) throw new Error("Falha ao baixar do Cloud Storage.");
-      const mediaType = safeImageType(download.headers.get("content-type"));
-      return new Response(download.body, {
-        status: 200,
-        headers: {
-          ...corsHeaders(request),
-          "Content-Type": mediaType,
-          "X-Avatar-Content-Type": mediaType,
-          "Cache-Control": "private, no-store, max-age=0",
-          "X-Content-Type-Options": "nosniff",
-        },
-      });
-    }
 
     if (request.method === "DELETE") {
       const response = await fetch(
@@ -172,7 +146,8 @@ Deno.serve(async (request: Request) => {
       },
     );
     if (!upload.ok) throw new Error(`Cloud Storage recusou o envio (${upload.status}).`);
-    return json(request, { uploaded: true, userId: data.user.id });
+    const publicUrl = `https://storage.googleapis.com/${encodeURIComponent(bucket)}/${objectName}`;
+    return json(request, { url: `${publicUrl}?v=${Date.now()}`, userId: data.user.id });
   } catch (error) {
     console.error("avatar operation failed", error instanceof Error ? error.name : "unknown");
     return json(request, { error: "Não foi possível processar a foto." }, 500);

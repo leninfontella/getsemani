@@ -80,7 +80,7 @@ export async function loginUser(email: string, password: string) {
       (profile?.gender as Gender | undefined) ||
       (metadata["gender"] as Gender | undefined) ||
       "nao-informar",
-    ...(profile?.avatar_url ? { avatarUrl: await loadPrivateAvatarUrl() } : {}),
+    ...(profile?.avatar_url ? { avatarUrl: String(profile.avatar_url) } : {}),
   });
   if (showWelcome) {
     // Persist the one-time marker in Auth so account-cache cleanup cannot erase it
@@ -106,7 +106,7 @@ export async function refreshCachedUser() {
     name: profile.name,
     email: auth.user.email || "",
     gender: profile.gender as Gender,
-    ...(profile.avatar_url ? { avatarUrl: await loadPrivateAvatarUrl() } : {}),
+    ...(profile.avatar_url ? { avatarUrl: String(profile.avatar_url) } : {}),
   };
   cacheUser(user);
   return user;
@@ -158,65 +158,19 @@ export async function uploadUserAvatar(file: File) {
     body: file,
   });
   if (error) throw error;
-  if (!data?.uploaded) throw new Error(data?.error || "Não foi possível enviar a foto.");
+  if (!data?.url) throw new Error(data?.error || "Não foi possível enviar a foto.");
 
   const { error: profileError } = await client
     .from("profiles")
-    .update({ avatar_url: "private" })
+    .update({ avatar_url: data.url })
     .eq("id", data.userId);
   if (profileError) throw profileError;
 
   const current = loadUser();
   if (!current) throw new Error("Sessão expirada.");
-  const user = { ...current, avatarUrl: await loadPrivateAvatarUrl() };
+  const user = { ...current, avatarUrl: String(data.url) };
   cacheUser(user);
   return user;
-}
-
-async function loadPrivateAvatarUrl() {
-  const client = requireSupabase();
-  const { data: sessionData, error: sessionError } = await client.auth.getSession();
-  if (sessionError || !sessionData.session) {
-    throw sessionError || new Error("Sessão expirada.");
-  }
-
-  const supabaseUrl = import.meta.env["VITE_SUPABASE_URL"] as string | undefined;
-  const publishableKey = (import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ||
-    import.meta.env["VITE_SUPABASE_ANON_KEY"]) as string | undefined;
-  if (!supabaseUrl || !publishableKey) throw new Error("Supabase não configurado.");
-
-  // Use fetch directly so image responses remain binary from the Edge Function
-  // through to the object URL used by <img>.
-  const response = await fetch(`${supabaseUrl}/functions/v1/avatar`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${sessionData.session.access_token}`,
-      apikey: publishableKey,
-    },
-    cache: "no-store",
-  });
-  if (!response.ok) {
-    let message = "Não foi possível carregar a foto.";
-    try {
-      const body = (await response.json()) as { error?: string };
-      if (body.error) message = body.error;
-    } catch {
-      // A resposta pode não ser JSON em erros gerados pelo gateway.
-    }
-    throw new Error(message);
-  }
-
-  const bytes = await response.arrayBuffer();
-  const normalizeMediaType = (value: string | null) =>
-    value ? value.split(";")[0]?.trim().toLowerCase() : undefined;
-  const responseType = normalizeMediaType(response.headers.get("content-type"));
-  const exposedType = normalizeMediaType(response.headers.get("x-avatar-content-type"));
-  const mediaType = [responseType, exposedType].find((type) => type && AVATAR_TYPES.has(type));
-  if (!mediaType || bytes.byteLength === 0) {
-    throw new Error("A foto recebida está vazia ou em um formato inválido.");
-  }
-  const blob = new Blob([bytes], { type: mediaType });
-  return URL.createObjectURL(blob);
 }
 
 export async function removeUserAvatar() {

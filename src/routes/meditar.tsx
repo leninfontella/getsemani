@@ -1,56 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useRef, useState } from "react";
-import {
-  Headphones,
-  LoaderCircle,
-  Music2,
-  Pause,
-  Play,
-  Radio,
-  RotateCcw,
-  Volume2,
-  Waves,
-} from "lucide-react";
+import { LoaderCircle, Pause, Play, RotateCcw, Volume2, Waves } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import rainAudio from "@/assets/Chuva tranquila.mp3";
-import bowlsAudio from "@/assets/Tigelas Tibetanas.mp3";
-import frequency432Audio from "@/assets/432 Hz  Music.mp3";
-import frequency528Audio from "@/assets/528 Hz Music.mp3";
+import { meditationSounds, useAudioPlayer } from "@/components/AudioPlayerProvider";
 
 export const Route = createFileRoute("/meditar")({ component: MeditatePage });
-
-const sounds = [
-  {
-    id: "rain",
-    title: "Chuva tranquila",
-    detail: "Som da natureza",
-    src: rainAudio,
-    Icon: Headphones,
-  },
-  {
-    id: "bowls",
-    title: "Tigelas tibetanas",
-    detail: "Meditação profunda",
-    src: bowlsAudio,
-    Icon: Music2,
-  },
-  {
-    id: "432-hz",
-    title: "Frequência 432 Hz",
-    detail: "Harmonia e equilíbrio",
-    src: frequency432Audio,
-    Icon: Waves,
-  },
-  {
-    id: "528-hz",
-    title: "Frequência 528 Hz",
-    detail: "Transformação e amor",
-    src: frequency528Audio,
-    Icon: Radio,
-  },
-] as const;
-
-type Sound = (typeof sounds)[number];
 
 const formatTime = (seconds: number) => {
   if (!Number.isFinite(seconds)) return "0:00";
@@ -59,85 +12,21 @@ const formatTime = (seconds: number) => {
 };
 
 function MeditatePage() {
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [activeSound, setActiveSound] = useState<Sound>();
-  const [playing, setPlaying] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [error, setError] = useState("");
-
-  const toggleSound = async (sound: Sound) => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    setError("");
-
-    if (activeSound?.id !== sound.id) {
-      setActiveSound(sound);
-      setCurrentTime(0);
-      setDuration(0);
-      setLoading(true);
-      audio.src = sound.src;
-      audio.load();
-      try {
-        await audio.play();
-      } catch {
-        setLoading(false);
-        setError("Não foi possível reproduzir esta faixa.");
-      }
-      return;
-    }
-
-    if (audio.paused) {
-      setLoading(true);
-      try {
-        await audio.play();
-      } catch {
-        setLoading(false);
-        setError("Não foi possível continuar a reprodução.");
-      }
-    } else {
-      audio.pause();
-    }
-  };
-
-  const toggleActiveSound = () => {
-    if (activeSound) void toggleSound(activeSound);
-  };
-
-  const restart = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.currentTime = 0;
-    setCurrentTime(0);
-    void audio.play();
-  };
+  const {
+    activeSound,
+    playing,
+    loading,
+    currentTime,
+    duration,
+    error,
+    toggleSound,
+    toggleActiveSound,
+    restart,
+    seek,
+  } = useAudioPlayer();
 
   return (
     <AppShell title="Meditar">
-      <audio
-        ref={audioRef}
-        preload="metadata"
-        onLoadStart={() => setLoading(true)}
-        onCanPlay={() => setLoading(false)}
-        onPlaying={() => {
-          setPlaying(true);
-          setLoading(false);
-        }}
-        onPause={() => setPlaying(false)}
-        onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
-        onDurationChange={(event) => setDuration(event.currentTarget.duration || 0)}
-        onEnded={() => {
-          setPlaying(false);
-          setCurrentTime(0);
-        }}
-        onError={() => {
-          setPlaying(false);
-          setLoading(false);
-          setError("Não foi possível carregar esta faixa.");
-        }}
-      />
-
       <main className="desktop-content mt-6 px-6">
         <div className="g-glass rounded-3xl border border-g-gold/40 p-6 text-center">
           <button
@@ -185,11 +74,7 @@ function MeditatePage() {
               step={1}
               value={Math.min(currentTime, duration || 0)}
               disabled={!activeSound || !duration}
-              onChange={(event) => {
-                const nextTime = Number(event.target.value);
-                if (audioRef.current) audioRef.current.currentTime = nextTime;
-                setCurrentTime(nextTime);
-              }}
+              onChange={(event) => seek(Number(event.target.value))}
               aria-label="Progresso da faixa"
               className="h-1 min-w-0 flex-1 cursor-pointer accent-[var(--g-gold)] disabled:opacity-35"
             />
@@ -199,7 +84,7 @@ function MeditatePage() {
         </div>
 
         <div className="mt-6 space-y-3">
-          {sounds.map((sound) => {
+          {meditationSounds.map((sound) => {
             const { id, title, detail, Icon } = sound;
             const active = activeSound?.id === id;
             return (

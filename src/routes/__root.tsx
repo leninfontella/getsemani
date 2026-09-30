@@ -16,6 +16,7 @@ import { clearCachedUser, isAuthenticated } from "../lib/auth";
 import { clearAll } from "../lib/goals";
 import { clearNotifications } from "../lib/notifications";
 import { clearLocalSupabaseSession } from "../lib/supabase";
+import { AudioPlayerProvider } from "../components/AudioPlayerProvider";
 
 function NotFoundComponent() {
   return (
@@ -190,8 +191,10 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <AudioPlayerProvider>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+      </AudioPlayerProvider>
     </QueryClientProvider>
   );
 }

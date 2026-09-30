@@ -146,7 +146,7 @@
 
 html {
   min-height: 100%;
-  background-color: #000;
+  background-color: #030309;
   color-scheme: dark;
   scroll-behavior: smooth;
   scrollbar-width: thin;
@@ -157,7 +157,13 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   margin: 0;
-  background-color: #000;
+  background-color: #030309;
+  background-image:
+    linear-gradient(rgb(2 2 8 / 0.3), rgb(2 2 8 / 0.3)),
+    url("./assets/cosmic-app-background.png");
+  background-position: center top;
+  background-size: cover;
+  background-attachment: fixed;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
 }
@@ -165,7 +171,16 @@ body {
 body > div {
   min-height: 100vh;
   min-height: 100dvh;
-  background-color: #000;
+  background-color: transparent;
+}
+
+@media (min-width: 768px) {
+  body {
+    background-image:
+      linear-gradient(rgb(2 2 8 / 0.3), rgb(2 2 8 / 0.3)),
+      url("./assets/cosmic-app-background-desktop-4k.jpg");
+    background-position: center center;
+  }
 }
 
 html.is-scrolling {
@@ -212,7 +227,22 @@ html.is-scrolling::-webkit-scrollbar-thumb {
   --font-sans-g: "Inter", system-ui, sans-serif;
 }
 @utility g-space {
-  background: #000;
+  background-color: #030309;
+  background-image:
+    linear-gradient(rgb(2 2 8 / 0.3), rgb(2 2 8 / 0.3)),
+    url("./assets/cosmic-app-background.png");
+  background-position: center top;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+@media (min-width: 768px) {
+  .g-space {
+    background-image:
+      linear-gradient(rgb(2 2 8 / 0.3), rgb(2 2 8 / 0.3)),
+      url("./assets/cosmic-app-background-desktop-4k.jpg");
+    background-position: center center;
+  }
 }
 
 @utility g-stars {
@@ -236,7 +266,7 @@ html.is-scrolling::-webkit-scrollbar-thumb {
   background-size:
     118px 136px,
     173px 191px;
-  opacity: 0.28;
+  opacity: 0.16;
   animation: particle-drift 24s linear infinite;
 }
 

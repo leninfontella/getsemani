@@ -4,6 +4,7 @@ const allowedOrigins = new Set([
   "https://getsemani-two.vercel.app",
   "http://localhost:3000",
   "http://localhost:5173",
+  "http://localhost:8080",
 ]);
 
 function corsHeaders(request: Request) {

@@ -14,6 +14,7 @@ import {
   Unlock,
 } from "lucide-react";
 import { toast } from "sonner";
+import { addNotification } from "@/lib/notifications";
 import { AppShell } from "@/components/AppShell";
 import { LiquidConfirmDialog } from "@/components/LiquidConfirmDialog";
 import {
@@ -104,6 +105,11 @@ function DiaryPage() {
       }
       await refreshSavedDays();
       toast("Página salva no seu diário ✨", { description: "Sincronizada com sua conta." });
+      addNotification({
+        kind: "success",
+        title: "Diário atualizado ✨",
+        message: "Sua página foi salva e sincronizada com segurança.",
+      });
     } catch (error) {
       toast("Não foi possível salvar.", {
         description: error instanceof Error ? error.message : "Tente novamente.",

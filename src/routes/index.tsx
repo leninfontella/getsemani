@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { Check, ChevronRight, Shell, Sparkles } from "lucide-react";
+import { Check, ChevronRight, Shell, Sparkles, X } from "lucide-react";
 import { AppShell, BrandLogo, GoalThumb } from "@/components/AppShell";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import {
   loadEntries,
   loadSettings,
@@ -22,6 +23,7 @@ function HomePage() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [name, setName] = useState("Amelia");
   const [avatarUrl, setAvatarUrl] = useState<string>();
+  const [avatarOpen, setAvatarOpen] = useState(false);
   const [welcome, setWelcome] = useState("Bem-vindo(a)");
   const [days, setDays] = useState(0);
   const [practiceDates, setPracticeDates] = useState<Set<string>>(new Set());
@@ -90,9 +92,20 @@ function HomePage() {
       })
       .catch(() => undefined);
   }, []);
-  const today = new Date()
-    .toLocaleDateString("pt-BR", { day: "numeric", month: "short" })
-    .replace(".", "");
+  useEffect(() => {
+    if (!avatarOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setAvatarOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [avatarOpen]);
+  const today = new Date().toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+  });
   const dayLabel = days === 1 ? "dia" : "dias";
   const journeyProgress = days === 0 ? 0 : (((days - 1) % 7) + 1) / 7;
   const ringCircumference = 301.6;
@@ -145,42 +158,69 @@ function HomePage() {
 
   return (
     <AppShell>
-      <header className="home-hero relative flex h-[320px] flex-col items-center px-6 pt-5">
+      <header className="home-hero relative h-[340px] px-5 pt-3">
         <div
           className="hero-landscape absolute inset-0"
           style={{ backgroundImage: `url(${homeHero})` }}
           aria-hidden="true"
         />
-        <span className="absolute left-6 top-7 z-10 text-xs font-medium text-white/80">
-          Hoje, {today}
-        </span>
-        <BrandLogo className="relative z-10 mt-1 h-[176px] w-[320px]" />
-        <h2 className="font-serif-g relative z-10 mt-2 self-start text-left text-[2rem] font-semibold leading-[1.05]">
-          <span className="inline-flex items-center gap-2">
-            {welcome}, {name}
-            <Sparkles className="h-5 w-5 shrink-0 text-g-gold" aria-hidden="true" />
-          </span>
-          <br />
-          Sua realidade te aguarda.
-        </h2>
-      </header>
-      <div
-        className="hero-avatar mx-auto mt-4 grid aspect-square w-[50vw] max-w-[215px] place-items-center rounded-full p-1"
-        aria-label={`Avatar de ${name}`}
-      >
-        {avatarUrl ? (
-          <img
-            src={avatarUrl}
-            alt={`Foto de ${name}`}
-            className="h-full w-full rounded-full border border-white/20 object-cover"
-          />
-        ) : (
-          <div className="grid h-full w-full place-items-center rounded-full border border-white/20 bg-[#161225]/75 font-serif-g text-7xl font-semibold text-g-gold backdrop-blur-xl">
-            {name.charAt(0).toUpperCase()}
+        {avatarOpen && avatarUrl && (
+          <div
+            className="absolute inset-0 z-30 grid place-items-center bg-black/65 backdrop-blur-sm"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Foto de ${name}`}
+            onClick={() => setAvatarOpen(false)}
+          >
+            <button
+              type="button"
+              className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full border border-white/20 bg-black/40 text-white"
+              aria-label="Fechar foto"
+              onClick={() => setAvatarOpen(false)}
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <img
+              src={avatarUrl}
+              alt={`Foto de ${name}`}
+              className="h-52 w-52 rounded-full border-2 border-g-gold/60 object-cover shadow-2xl"
+              onClick={(event) => event.stopPropagation()}
+            />
           </div>
         )}
-      </div>
-      <section className="journey-card glass-level-2 mx-6 mt-6 rounded-3xl p-5">
+        <div className="relative z-20">
+          <div className="flex h-32 items-center justify-between">
+            <BrandLogo className="-ml-5 h-40 w-40 max-w-none" />
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                className="hero-profile grid h-11 w-11 place-items-center overflow-hidden rounded-full border border-g-gold/70 bg-[#181322]/80 font-serif-g text-lg font-semibold text-g-gold disabled:cursor-default"
+                aria-label={avatarUrl ? "Ampliar foto do perfil" : `Avatar de ${name}`}
+                disabled={!avatarUrl}
+                onClick={() => setAvatarOpen(true)}
+              >
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  name.charAt(0).toUpperCase()
+                )}
+              </button>
+              <NotificationCenter name={name} />
+            </div>
+          </div>
+        </div>
+        <div className="absolute inset-x-5 bottom-8 z-10 text-left drop-shadow-[0_2px_8px_rgba(0,0,0,.95)]">
+          <p className="mb-2 text-xs font-medium text-white/80">Hoje, {today}</p>
+          <h2 className="max-w-[330px] text-[2rem] font-semibold leading-[0.98] text-white">
+            {welcome},
+            <br />
+            {name} <Sparkles className="inline h-5 w-5 text-g-gold" aria-hidden="true" />
+          </h2>
+          <p className="mt-2 text-[1.05rem] font-medium text-white">Sua realidade te aguarda.</p>
+          <p className="mt-1 text-xs text-white/70">Disciplina hoje, resultados amanhã.</p>
+        </div>
+      </header>
+      <section className="journey-card glass-level-2 mx-6 mt-5 rounded-3xl p-5">
         <div className="flex items-center justify-between">
           <h3 className="font-serif-g text-2xl font-semibold">Sua Jornada</h3>
           <ChevronRight className="h-5 w-5 text-g-muted" />

@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ChevronLeft, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { addNotification } from "@/lib/notifications";
 import { Toaster } from "@/components/ui/sonner";
 import {
   allGoals,
@@ -93,6 +94,11 @@ function ManifestGoal() {
         window.setTimeout(() => setCelebrating(false), 1800);
       }
       toast("✨ Assim é, e já é seu.", { description: "Sua manifestação foi registrada." });
+      addNotification({
+        kind: "success",
+        title: "Manifestação registrada ✨",
+        message: `Sua manifestação “${goal.title}” foi salva com sucesso.`,
+      });
     } catch (error) {
       toast("Não foi possível salvar.", {
         description: error instanceof Error ? error.message : "Verifique sua conexão.",
@@ -132,7 +138,9 @@ function ManifestGoal() {
       <Toaster />
       {celebrating && (
         <div className="gold-confetti" aria-hidden="true">
-          {Array.from({ length: 18 }, (_, index) => <i key={index} />)}
+          {Array.from({ length: 18 }, (_, index) => (
+            <i key={index} />
+          ))}
         </div>
       )}
       <div className="relative w-full max-w-[430px] min-h-screen g-stars pb-32">
@@ -163,7 +171,9 @@ function ManifestGoal() {
           <div className="flex items-center justify-between gap-3 text-sm text-g-muted">
             <p>
               {writtenToday ? (
-                <span className="text-g-gold">Já manifestou hoje? Então, aproveite e escreva mais!</span>
+                <span className="text-g-gold">
+                  Já manifestou hoje? Então, aproveite e escreva mais!
+                </span>
               ) : (
                 "Sua manifestação de hoje"
               )}

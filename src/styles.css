@@ -145,15 +145,27 @@
 }
 
 html {
+  min-height: 100%;
+  background-color: #000;
+  color-scheme: dark;
   scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
 }
 
 body {
-  min-height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  background-color: #000;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
+}
+
+body > div {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: #000;
 }
 
 html.is-scrolling {
@@ -231,6 +243,7 @@ html.is-scrolling::-webkit-scrollbar-thumb {
 .home-hero {
   isolation: isolate;
   overflow: visible;
+  z-index: 10;
 }
 
 .hero-landscape {
@@ -280,6 +293,50 @@ html.is-scrolling::-webkit-scrollbar-thumb {
   box-shadow:
     0 8px 20px rgb(0 0 0 / 0.42),
     0 0 16px rgb(234 192 102 / 0.16);
+}
+
+.hero-profile {
+  box-shadow:
+    0 4px 14px rgb(0 0 0 / 0.45),
+    0 0 12px rgb(234 192 102 / 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.notification-glass {
+  border: 1px solid rgb(255 255 255 / 0.62);
+  background: transparent;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.78),
+    inset 0 -1px 0 rgb(255 255 255 / 0.18),
+    inset 14px 0 28px rgb(255 255 255 / 0.035),
+    0 22px 55px rgb(0 0 0 / 0.42),
+    0 0 28px rgb(199 158 255 / 0.14);
+  -webkit-backdrop-filter: blur(24px) saturate(145%);
+  backdrop-filter: blur(24px) saturate(145%);
+}
+
+.notification-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    115deg,
+    rgb(255 255 255 / 0.12),
+    transparent 24% 78%,
+    rgb(193 151 225 / 0.06)
+  );
+  pointer-events: none;
+}
+
+.notification-item-glass {
+  background: transparent;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.notification-item-glass:hover {
+  background: rgb(255 255 255 / 0.055);
 }
 
 .g-stars::after {
@@ -408,10 +465,9 @@ h3 {
 }
 
 .liquid-overlay {
-  background:
-    radial-gradient(circle at 50% 35%, oklch(0.7 0.2 310 / 0.18), transparent 45%),
-    oklch(0.07 0.025 275 / 0.72);
-  backdrop-filter: blur(18px) saturate(145%);
+  background: rgb(3 2 8 / 0.84);
+  -webkit-backdrop-filter: blur(64px) brightness(0.3) saturate(80%);
+  backdrop-filter: blur(64px) brightness(0.3) saturate(80%);
   animation: liquid-fade 0.2s ease-out;
 }
 
@@ -446,7 +502,31 @@ h3 {
 }
 
 .liquid-dialog {
+  border-color: rgb(255 255 255 / 0.62);
+  background: rgb(10 8 18 / 0.76);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.78),
+    inset 0 -1px 0 rgb(255 255 255 / 0.18),
+    inset 14px 0 28px rgb(255 255 255 / 0.035),
+    0 24px 65px rgb(0 0 0 / 0.58),
+    0 0 28px rgb(199 158 255 / 0.14);
+  -webkit-backdrop-filter: blur(80px) brightness(0.38) saturate(140%);
+  backdrop-filter: blur(80px) brightness(0.38) saturate(140%);
   animation: liquid-rise 0.28s cubic-bezier(0.2, 0.9, 0.25, 1.15);
+}
+
+.liquid-dialog::before {
+  background: linear-gradient(
+    115deg,
+    rgb(255 255 255 / 0.12),
+    transparent 24% 78%,
+    rgb(193 151 225 / 0.06)
+  );
+}
+
+.liquid-dialog > * {
+  position: relative;
+  z-index: 1;
 }
 
 .liquid-icon,

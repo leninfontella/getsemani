@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Bell, Camera, LogOut, Sparkles, Trash2, Volume2 } from "lucide-react";
 import { toast } from "sonner";
+import { addNotification } from "@/lib/notifications";
 import { AppShell, BrandLogo } from "@/components/AppShell";
 import { LiquidConfirmDialog } from "@/components/LiquidConfirmDialog";
 import { clearAll, defaultSettings, loadSettings, saveSettings, type Settings } from "@/lib/goals";
@@ -57,6 +58,11 @@ function SettingsPage() {
       const user = await uploadUserAvatar(file);
       setAvatarUrl(user.avatarUrl);
       toast("Foto atualizada!");
+      addNotification({
+        kind: "success",
+        title: "Foto atualizada",
+        message: "Sua nova foto de perfil já está aparecendo no Getsêmani.",
+      });
     } catch (error) {
       toast("Não foi possível salvar a foto.", {
         description: error instanceof Error ? error.message : "Tente novamente.",
@@ -94,6 +100,11 @@ function SettingsPage() {
       setSavedName(user.name);
       saveSettings(next);
       toast("Nome atualizado!", { description: "A alteração foi salva no app e na sua conta." });
+      addNotification({
+        kind: "success",
+        title: "Perfil atualizado",
+        message: `Seu nome foi alterado para ${user.name}.`,
+      });
     } catch (error) {
       toast("Não foi possível salvar o nome.", {
         description: error instanceof Error ? error.message : "Tente novamente.",

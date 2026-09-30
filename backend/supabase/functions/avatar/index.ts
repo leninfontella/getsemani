@@ -15,6 +15,7 @@ function corsHeaders(request: Request) {
     "Access-Control-Allow-Origin": allowedOrigins.has(origin) ? origin : "null",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+    "Access-Control-Expose-Headers": "X-Avatar-Content-Type",
     Vary: "Origin",
   };
 }
@@ -129,7 +130,10 @@ Deno.serve(async (request: Request) => {
         status: 200,
         headers: {
           ...corsHeaders(request),
-          "Content-Type": download.headers.get("content-type") || "application/octet-stream",
+          // functions-js parses arbitrary image/* responses as text. Transport the
+          // bytes as a Blob and expose the original media type separately.
+          "Content-Type": "application/octet-stream",
+          "X-Avatar-Content-Type": download.headers.get("content-type") || "image/jpeg",
           "Cache-Control": "private, no-store, max-age=0",
           "X-Content-Type-Options": "nosniff",
         },

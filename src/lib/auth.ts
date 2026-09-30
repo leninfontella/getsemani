@@ -14,14 +14,26 @@ export function loadUser(): LocalUser | null {
   if (typeof window === "undefined") return null;
   try {
     const value = localStorage.getItem(USER_KEY);
-    return value ? JSON.parse(value) : null;
+    if (!value) return null;
+    const user = JSON.parse(value) as LocalUser;
+    // Object URLs belong to one document only and are invalid after a reload.
+    if (user.avatarUrl?.startsWith("blob:")) {
+      const { avatarUrl: _avatarUrl, ...withoutEphemeralAvatar } = user;
+      localStorage.setItem(USER_KEY, JSON.stringify(withoutEphemeralAvatar));
+      return withoutEphemeralAvatar;
+    }
+    return user;
   } catch {
     return null;
   }
 }
 
 function cacheUser(user: LocalUser) {
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
+  const { avatarUrl, ...persistentUser } = user;
+  localStorage.setItem(
+    USER_KEY,
+    JSON.stringify(avatarUrl?.startsWith("blob:") ? persistentUser : user),
+  );
 }
 
 export async function registerUser(user: LocalUser & { password: string }) {
@@ -151,9 +163,10 @@ export async function uploadUserAvatar(file: File) {
 
 async function loadPrivateAvatarUrl() {
   const client = requireSupabase();
-  const { data, error } = await client.functions.invoke("avatar", { method: "GET" });
+  const { data, error, response } = await client.functions.invoke("avatar", { method: "GET" });
   if (error) throw error;
-  const blob = data instanceof Blob ? data : new Blob([data]);
+  const mediaType = response?.headers.get("x-avatar-content-type") || "image/jpeg";
+  const blob = new Blob([data instanceof Blob ? data : data], { type: mediaType });
   return URL.createObjectURL(blob);
 }
 

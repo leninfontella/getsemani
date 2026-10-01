@@ -12,6 +12,7 @@ import {
   X,
   Plus,
   LogOut,
+  ChevronLeft,
 } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { LiquidConfirmDialog } from "@/components/LiquidConfirmDialog";
@@ -65,6 +66,28 @@ export function GoalThumb({
 
 export function BrandLogo({ className = "" }: { className?: string }) {
   return <img src={logo} alt="Getsêmani" className={`object-contain ${className}`} />;
+}
+
+export function BackButton({ className = "" }: { className?: string }) {
+  const goBack = () => {
+    if (window.history.length > 1) {
+      window.history.back();
+      return;
+    }
+    window.location.assign("/");
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={goBack}
+      aria-label="Voltar para a página anterior"
+      title="Voltar"
+      className={`liquid-back-button grid h-11 w-11 place-items-center rounded-full text-g-text transition active:scale-95 ${className}`}
+    >
+      <ChevronLeft className="h-5 w-5" />
+    </button>
+  );
 }
 
 export function AppNav({ mobileOnly = false }: { mobileOnly?: boolean }) {
@@ -282,6 +305,7 @@ export function AppShell({ title, children }: { title?: string; children: ReactN
               style={{ backgroundImage: `url(${homeHero})` }}
               aria-hidden="true"
             />
+            <BackButton className="absolute left-6 top-7 z-20" />
             <BrandLogo className="app-shell-hero-logo relative z-10 h-[220px] w-[400px] max-w-full" />
             <h1 className="font-serif-g relative z-10 -mt-5 text-3xl font-semibold">{title}</h1>
           </header>

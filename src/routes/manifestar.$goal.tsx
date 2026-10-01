@@ -1,10 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ChevronLeft, Home } from "lucide-react";
+import { Home } from "lucide-react";
 import { toast } from "sonner";
 import { addNotification } from "@/lib/notifications";
 import { Toaster } from "@/components/ui/sonner";
-import { AppNav } from "@/components/AppShell";
+import { AppNav, BackButton } from "@/components/AppShell";
 import {
   allGoals,
   manifestGoals,
@@ -158,13 +158,7 @@ function ManifestGoal() {
             <div className="h-60 w-full g-cta opacity-40" />
           )}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-g-bg" />
-          <Link
-            to="/manifestar"
-            aria-label="Voltar"
-            className="absolute left-5 top-6 h-10 w-10 grid place-items-center rounded-full g-glass"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Link>
+          <BackButton className="absolute left-5 top-6 z-10" />
           <h1 className="absolute bottom-3 left-6 right-6 text-3xl font-semibold">{goal.title}</h1>
         </div>
 

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
+import { createPortal } from "react-dom";
 import {
   CalendarDays,
   ChevronLeft,
@@ -378,6 +379,91 @@ function DiaryPage() {
         onCancel={() => setConfirmDelete(false)}
         onConfirm={deleteSelectedDay}
       />
+      {passwordMode === "create" &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div className="liquid-overlay fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-6">
+            <form
+              onSubmit={handlePassword}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="create-diary-password-title"
+              className="liquid-dialog w-full max-w-sm rounded-[32px] p-6 text-center text-g-text"
+            >
+              <span className="liquid-icon mx-auto grid h-16 w-16 place-items-center rounded-full text-g-gold">
+                <KeyRound className="h-7 w-7" />
+              </span>
+              <h2 id="create-diary-password-title" className="mt-5 text-xl font-semibold">
+                Criar senha do diário
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-g-muted">
+                Crie um PIN de 4 números. Esta senha não poderá ser recuperada.
+              </p>
+              <div className="relative mt-5">
+                <input
+                  autoFocus
+                  required
+                  type={showPassword ? "text" : "password"}
+                  inputMode="numeric"
+                  pattern="[0-9]{4}"
+                  minLength={4}
+                  maxLength={4}
+                  value={password}
+                  onChange={(event) =>
+                    setPassword(event.target.value.replace(/\D/g, "").slice(0, 4))
+                  }
+                  placeholder="4 números"
+                  aria-label="Senha de 4 números"
+                  className="diary-password-input w-full rounded-xl px-4 py-3 pr-11 outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-g-muted"
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
+              <input
+                required
+                type={showPassword ? "text" : "password"}
+                inputMode="numeric"
+                pattern="[0-9]{4}"
+                minLength={4}
+                maxLength={4}
+                value={passwordConfirmation}
+                onChange={(event) =>
+                  setPasswordConfirmation(event.target.value.replace(/\D/g, "").slice(0, 4))
+                }
+                placeholder="Confirme os 4 números"
+                aria-label="Confirmação da senha de 4 números"
+                className="diary-password-input mt-3 w-full rounded-xl px-4 py-3 outline-none"
+              />
+              <div className="mt-7 grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={() => {
+                    setPasswordMode(null);
+                    resetPasswordFields();
+                  }}
+                  className="liquid-button rounded-full py-3 font-semibold disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="g-cta rounded-full py-3 font-semibold text-g-bg shadow-lg transition active:scale-95 disabled:opacity-50"
+                >
+                  {saving ? "Aguarde…" : "Ativar"}
+                </button>
+              </div>
+            </form>
+          </div>,
+          document.body,
+        )}
       <main className="desktop-content mt-5 px-6">
         <section className="diary-week" aria-label="Calendário semanal">
           <button
@@ -459,26 +545,18 @@ function DiaryPage() {
             <span>{unlocked ? `${text.length} caracteres` : "Conteúdo protegido"}</span>
           </div>
 
-          {passwordMode && (
+          {passwordMode === "unlock" && (
             <div className="diary-password-overlay absolute inset-0 z-10 grid place-items-center p-6 backdrop-blur-2xl">
               <form
                 onSubmit={handlePassword}
                 className="diary-password-card w-full max-w-xs text-center"
               >
                 <span className="diary-password-icon mx-auto grid h-14 w-14 place-items-center rounded-full">
-                  {passwordMode === "unlock" ? (
-                    <Lock className="h-6 w-6" />
-                  ) : (
-                    <KeyRound className="h-6 w-6" />
-                  )}
+                  <Lock className="h-6 w-6" />
                 </span>
-                <h2 className="mt-4 text-xl font-bold">
-                  {passwordMode === "unlock" ? "Diário protegido" : "Criar senha do diário"}
-                </h2>
+                <h2 className="mt-4 text-xl font-bold">Diário protegido</h2>
                 <p className="mt-2 text-sm opacity-65">
-                  {passwordMode === "unlock"
-                    ? "Digite sua senha para acessar seus pensamentos."
-                    : "Crie um PIN de 4 números. Esta senha não poderá ser recuperada."}
+                  Digite sua senha para acessar seus pensamentos.
                 </p>
                 <div className="relative mt-5">
                   <input
@@ -505,45 +583,13 @@ function DiaryPage() {
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
-                {passwordMode === "create" && (
-                  <input
-                    required
-                    type={showPassword ? "text" : "password"}
-                    inputMode="numeric"
-                    pattern="[0-9]{4}"
-                    minLength={4}
-                    maxLength={4}
-                    value={passwordConfirmation}
-                    onChange={(event) =>
-                      setPasswordConfirmation(event.target.value.replace(/\D/g, "").slice(0, 4))
-                    }
-                    placeholder="Confirme os 4 números"
-                    className="diary-password-input mt-3 w-full rounded-xl px-4 py-3 outline-none"
-                  />
-                )}
                 <button
                   type="submit"
                   disabled={saving}
                   className="diary-password-submit mt-4 w-full rounded-full py-3 font-bold disabled:opacity-50"
                 >
-                  {saving
-                    ? "Aguarde…"
-                    : passwordMode === "unlock"
-                      ? "DESBLOQUEAR"
-                      : "ATIVAR PROTEÇÃO"}
+                  {saving ? "Aguarde…" : "DESBLOQUEAR"}
                 </button>
-                {passwordMode === "create" && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPasswordMode(null);
-                      resetPasswordFields();
-                    }}
-                    className="mt-3 text-sm underline opacity-60"
-                  >
-                    Cancelar
-                  </button>
-                )}
               </form>
             </div>
           )}
@@ -624,7 +670,7 @@ function DiaryPage() {
             disabled={!unlocked || loading || saving}
             aria-label={saving ? "Salvando no diário" : "Salvar no diário"}
             title={saving ? "Salvando…" : "Salvar no diário"}
-            className="g-cta grid h-12 w-12 place-items-center rounded-full text-g-bg transition active:scale-95 disabled:opacity-40"
+            className="liquid-button grid h-12 w-12 place-items-center rounded-full text-g-gold transition hover:bg-white/10 active:scale-95 disabled:opacity-40"
           >
             {saving ? (
               <LoaderCircle className="h-5 w-5 animate-spin" />
@@ -639,7 +685,7 @@ function DiaryPage() {
               disabled={saving}
               aria-label="Excluir registro deste dia"
               title="Excluir registro deste dia"
-              className="grid h-12 w-12 place-items-center rounded-full border border-red-400/30 bg-red-950/20 text-red-300 transition active:scale-95 disabled:opacity-40"
+              className="liquid-button grid h-12 w-12 place-items-center rounded-full text-red-300 transition hover:bg-white/10 active:scale-95 disabled:opacity-40"
             >
               <Trash2 className="h-5 w-5" />
             </button>

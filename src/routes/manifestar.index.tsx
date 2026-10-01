@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { ChevronLeft, ChevronRight, Plus, Search, Sparkles } from "lucide-react";
+import { ChevronRight, Plus, Search, Sparkles } from "lucide-react";
 import { addCustomGoal, manifestGoals } from "@/lib/goals";
 import otherManifestations from "@/assets/goal-other-manifestations.jpg";
 import homeHero from "@/assets/home-hero.png";
-import { AppNav, BrandLogo } from "@/components/AppShell";
+import { AppNav, BackButton, BrandLogo } from "@/components/AppShell";
 
 const goalGroups = [
   {
@@ -113,13 +113,7 @@ function ChooseGoal() {
             style={{ backgroundImage: `url(${homeHero})` }}
             aria-hidden="true"
           />
-          <Link
-            to="/"
-            aria-label="Voltar"
-            className="g-glass absolute left-6 top-7 z-10 grid h-11 w-11 place-items-center rounded-full"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Link>
+          <BackButton className="absolute left-6 top-7 z-10" />
           <BrandLogo className="relative z-10 h-[176px] w-[320px]" />
           <h2 className="font-serif-g relative z-10 mt-1 text-[2rem] font-semibold leading-[1.05]">
             O que você deseja

@@ -1,5 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import {
   ArrowLeft,
   Check,
@@ -41,6 +48,11 @@ function LoginPage() {
   const [loginStatus, setLoginStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [exiting, setExiting] = useState(false);
   const [showJourneyLogo, setShowJourneyLogo] = useState(false);
+  const [slideProgress, setSlideProgress] = useState(0);
+  const loginFormRef = useRef<HTMLFormElement>(null);
+  const loginSlideRef = useRef<HTMLDivElement>(null);
+  const slideProgressRef = useRef(0);
+  const slideDragRef = useRef({ active: false, startX: 0 });
 
   useEffect(() => {
     void isAuthenticated().then((authenticated) => {
@@ -98,6 +110,8 @@ function LoginPage() {
       return;
     }
     if (!cleanEmail || password.length < 6) {
+      slideProgressRef.current = 0;
+      setSlideProgress(0);
       setLoginStatus("error");
       window.setTimeout(() => setLoginStatus("idle"), 450);
       toast("Preencha os dados corretamente.", {
@@ -106,6 +120,7 @@ function LoginPage() {
       return;
     }
     setLoginStatus("loading");
+    const minimumLoadingDelay = new Promise<void>((resolve) => window.setTimeout(resolve, 2000));
     try {
       const login = await loginUser(cleanEmail, password);
       clearAccountContentCache();
@@ -114,7 +129,11 @@ function LoginPage() {
         const displayName = String(login.user.user_metadata["name"] || cleanEmail.split("@")[0]);
         scheduleWelcomeNotification(displayName, cleanEmail);
       }
+      await minimumLoadingDelay;
     } catch {
+      await minimumLoadingDelay;
+      slideProgressRef.current = 0;
+      setSlideProgress(0);
       setLoginStatus("error");
       window.setTimeout(() => setLoginStatus("idle"), 450);
       toast("Não foi possível entrar.", {
@@ -123,7 +142,7 @@ function LoginPage() {
       return;
     }
     setLoginStatus("success");
-    await new Promise((resolve) => window.setTimeout(resolve, 600));
+    await new Promise((resolve) => window.setTimeout(resolve, 2000));
     setExiting(true);
     setShowJourneyLogo(true);
     await new Promise((resolve) => window.setTimeout(resolve, 1200));
@@ -132,6 +151,58 @@ function LoginPage() {
 
   const futureLogin = (provider: string) =>
     toast(`Entrar com ${provider}`, { description: "Esta opção estará disponível futuramente." });
+
+  const updateSlideProgress = (progress: number) => {
+    const nextProgress = Math.max(0, Math.min(100, progress));
+    slideProgressRef.current = nextProgress;
+    setSlideProgress(nextProgress);
+  };
+
+  const resetLoginSlide = () => updateSlideProgress(0);
+
+  const completeLoginSlide = () => {
+    if (loginStatus === "loading" || loginStatus === "success") return;
+    if (!loginFormRef.current?.reportValidity()) {
+      resetLoginSlide();
+      return;
+    }
+    updateSlideProgress(100);
+    loginFormRef.current.requestSubmit();
+  };
+
+  const startLoginSlide = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (loginStatus !== "idle") return;
+    const slide = loginSlideRef.current;
+    if (!slide) return;
+    const maxX = Math.max(slide.clientWidth - 51.2, 1);
+    slideDragRef.current = {
+      active: true,
+      startX: event.clientX - (slideProgressRef.current / 100) * maxX,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const moveLoginSlide = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!slideDragRef.current.active) return;
+    const slide = loginSlideRef.current;
+    if (!slide) return;
+    const maxX = Math.max(slide.clientWidth - 51.2, 1);
+    updateSlideProgress(((event.clientX - slideDragRef.current.startX) / maxX) * 100);
+  };
+
+  const stopLoginSlide = () => {
+    if (!slideDragRef.current.active) return;
+    slideDragRef.current.active = false;
+    if (slideProgressRef.current >= 90) completeLoginSlide();
+    else resetLoginSlide();
+  };
+
+  const handleLoginSlideKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    if (slideProgressRef.current === 100) resetLoginSlide();
+    else completeLoginSlide();
+  };
 
   return (
     <div className="min-h-screen g-space px-5 py-8 font-sans-g text-g-text grid place-items-center">
@@ -155,8 +226,9 @@ function LoginPage() {
             onClick={() => {
               setMode("login");
               setRegisterStep(1);
+              resetLoginSlide();
             }}
-            className={`rounded-full py-2.5 text-sm font-semibold transition ${mode === "login" ? "bg-g-gold text-g-bg" : "text-g-muted"}`}
+            className={`auth-mode-button rounded-full py-2.5 text-sm font-semibold transition ${mode === "login" ? "is-active" : ""}`}
           >
             Entrar
           </button>
@@ -164,8 +236,9 @@ function LoginPage() {
             onClick={() => {
               setMode("register");
               setRegisterStep(1);
+              resetLoginSlide();
             }}
-            className={`rounded-full py-2.5 text-sm font-semibold transition ${mode === "register" ? "bg-g-gold text-g-bg" : "text-g-muted"}`}
+            className={`auth-mode-button rounded-full py-2.5 text-sm font-semibold transition ${mode === "register" ? "is-active" : ""}`}
           >
             Criar conta
           </button>
@@ -192,7 +265,7 @@ function LoginPage() {
             </div>
           )}
         </div>
-        <form onSubmit={submit} className="mt-6 space-y-3">
+        <form ref={loginFormRef} onSubmit={submit} className="mt-6 space-y-3">
           {mode === "register" ? (
             <div key={registerStep} className="register-step-panel min-h-36">
               {registerStep === 1 && (
@@ -322,14 +395,14 @@ function LoginPage() {
               <ArrowLeft className="h-4 w-4" /> Voltar
             </button>
           )}
-          <button
-            type="submit"
-            disabled={loginStatus === "loading" || loginStatus === "success"}
-            aria-busy={loginStatus === "loading"}
-            className={`g-cta auth-submit mt-2 flex w-full items-center justify-center gap-2 rounded-full py-4 text-base font-extrabold text-g-bg ${loginStatus === "loading" ? "is-loading" : ""} ${loginStatus === "success" ? "is-success" : ""} ${loginStatus === "error" ? "is-error" : ""}`}
-          >
-            {mode === "register" ? (
-              registerStep === 4 ? (
+          {mode === "register" ? (
+            <button
+              type="submit"
+              disabled={loginStatus === "loading" || loginStatus === "success"}
+              aria-busy={loginStatus === "loading"}
+              className={`g-cta auth-submit auth-register-submit mt-2 flex items-center justify-center gap-2 rounded-full text-base font-extrabold text-g-bg ${loginStatus === "loading" ? "is-loading" : ""} ${loginStatus === "success" ? "is-success" : ""} ${loginStatus === "error" ? "is-error" : ""}`}
+            >
+              {registerStep === 4 ? (
                 loginStatus === "loading" ? (
                   <>
                     <LoaderCircle className="h-5 w-5 animate-spin" /> Criando conta...
@@ -339,19 +412,54 @@ function LoginPage() {
                 )
               ) : (
                 "CONTINUAR"
-              )
-            ) : loginStatus === "loading" ? (
-              <>
-                <LoaderCircle className="h-5 w-5 animate-spin" /> Entrando...
-              </>
-            ) : loginStatus === "success" ? (
-              <>
-                <Check className="h-5 w-5 stroke-[3]" /> Bem-vindo(a)!
-              </>
-            ) : (
-              "ENTRAR"
-            )}
-          </button>
+              )}
+            </button>
+          ) : (
+            <>
+              <button type="submit" className="sr-only" tabIndex={-1} aria-hidden="true" />
+              <div
+                ref={loginSlideRef}
+                role="slider"
+                tabIndex={loginStatus === "loading" ? -1 : 0}
+                aria-label="Deslize para manifestar"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(slideProgress)}
+                aria-busy={loginStatus === "loading"}
+                className={`auth-login-slide mt-2 ${slideDragRef.current.active ? "is-dragging" : "is-snapping"} ${loginStatus === "loading" ? "is-loading" : ""} ${loginStatus === "success" ? "is-done" : ""}`}
+                onPointerDown={startLoginSlide}
+                onPointerMove={moveLoginSlide}
+                onPointerUp={stopLoginSlide}
+                onPointerCancel={stopLoginSlide}
+                onKeyDown={handleLoginSlideKeyDown}
+              >
+                <span
+                  className="auth-login-slide-fill"
+                  style={{ width: `calc(${slideProgress}% + ${47.2 - slideProgress * 0.472}px)` }}
+                />
+                <span className="auth-login-slide-label">
+                  {loginStatus === "loading"
+                    ? "Entrando..."
+                    : loginStatus === "success"
+                      ? "Bem-vindo(a)!"
+                      : "Deslize para manifestar"}
+                </span>
+                <span
+                  className="auth-login-slide-knob"
+                  style={{ left: `calc(4px + ${slideProgress}% - ${slideProgress * 0.512}px)` }}
+                  aria-hidden="true"
+                >
+                  {loginStatus === "loading" ? (
+                    <LoaderCircle className="h-5 w-5 animate-spin" />
+                  ) : loginStatus === "success" ? (
+                    <Check className="h-5 w-5 stroke-[3]" />
+                  ) : (
+                    "❯"
+                  )}
+                </span>
+              </div>
+            </>
+          )}
         </form>
         <div className="my-6 flex items-center gap-3 text-xs text-g-muted">
           <span className="h-px flex-1 bg-white/10" />

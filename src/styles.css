@@ -522,11 +522,122 @@ h3 {
   color: var(--g-muted);
 }
 
+.auth-input:-webkit-autofill,
+.auth-input:-webkit-autofill:hover,
+.auth-input:-webkit-autofill:focus,
+.auth-input:-webkit-autofill:active {
+  border-radius: inherit;
+  -webkit-text-fill-color: var(--g-text);
+  caret-color: var(--g-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  box-shadow: 0 0 0 1000px transparent inset;
+  transition: background-color 9999s ease-out 0s;
+}
+
+.auth-input:autofill {
+  border-radius: inherit;
+  background: transparent;
+  box-shadow: 0 0 0 1000px transparent inset;
+  color: var(--g-text);
+}
+
+.auth-mode-button {
+  color: var(--g-gold);
+}
+
+.auth-mode-button.is-active {
+  background: var(--g-gold);
+  color: var(--g-bg);
+  box-shadow: 0 0 20px oklch(0.85 0.12 85 / 0.28);
+}
+
+.auth-login-slide {
+  position: relative;
+  width: 90%;
+  height: 52.2px;
+  margin-inline: auto;
+  overflow: hidden;
+  border: 1px solid oklch(0.85 0.12 85 / 0.4);
+  border-radius: 999px;
+  background: oklch(0.85 0.12 85 / 0.12);
+  touch-action: none;
+  user-select: none;
+}
+
+.auth-login-slide:focus-visible {
+  outline: 2px solid var(--g-gold);
+  outline-offset: 3px;
+}
+
+.auth-login-slide-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--g-gold);
+}
+
+.auth-login-slide-label {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-left: 40px;
+  color: var(--g-gold);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  pointer-events: none;
+  transition: color 0.3s ease;
+}
+
+.auth-login-slide-knob {
+  position: absolute;
+  top: 4px;
+  display: grid;
+  width: 43.2px;
+  height: 43.2px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--g-gold);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.4);
+  color: var(--g-bg);
+  font-size: 20px;
+  cursor: grab;
+}
+
+.auth-login-slide.is-dragging .auth-login-slide-knob {
+  cursor: grabbing;
+}
+
+.auth-login-slide.is-snapping .auth-login-slide-knob,
+.auth-login-slide.is-snapping .auth-login-slide-fill {
+  transition: 0.35s ease;
+}
+
+.auth-login-slide.is-loading .auth-login-slide-label,
+.auth-login-slide.is-done .auth-login-slide-label {
+  padding-left: 0;
+  color: var(--g-bg);
+}
+
 .auth-submit {
   transition:
     transform 220ms ease,
     filter 220ms ease,
     opacity 220ms ease;
+}
+
+.auth-submit.auth-register-submit {
+  width: 90%;
+  height: 52.2px;
+  margin-inline: auto;
+  padding-block: 0;
+  background: var(--g-gold);
+  box-shadow: none;
+  color: var(--g-bg);
 }
 
 .auth-submit.is-loading {
@@ -626,6 +737,11 @@ h3 {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .auth-login-slide.is-snapping .auth-login-slide-knob,
+  .auth-login-slide.is-snapping .auth-login-slide-fill {
+    transition: none;
+  }
+
   .card-brilho {
     transition: none;
   }

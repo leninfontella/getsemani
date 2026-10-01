@@ -1,17 +1,30 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { Home, Eye, PersonStanding, BookOpen, Settings, Sparkles, Menu, X } from "lucide-react";
+import { Home, Eye, PersonStanding, BookOpen, Settings, Sparkles, Menu, X, Plus, LogOut } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
+import { LiquidConfirmDialog } from "@/components/LiquidConfirmDialog";
+import { logoutUser, clearCachedUser } from "@/lib/auth";
+import { clearAll } from "@/lib/goals";
+import { clearNotifications } from "@/lib/notifications";
 import logo from "@/assets/getsemani-logo.png";
 import homeHero from "@/assets/home-hero.png";
 
-const nav = [
+interface NavItem {
+  to: string;
+  label: string;
+  Icon: typeof Home;
+  isAction?: boolean;
+  desktopOnly?: boolean;
+}
+
+const nav: readonly NavItem[] = [
   { to: "/", label: "Início", Icon: Home },
   { to: "/visualizar", label: "Visualizar", Icon: Eye },
+  { to: "/manifestar", label: "Manifestar", Icon: Plus, isAction: true },
   { to: "/meditar", label: "Meditar", Icon: PersonStanding },
   { to: "/diario", label: "Diário", Icon: BookOpen },
-  { to: "/configuracoes", label: "Ajustes", Icon: Settings },
-] as const;
+  { to: "/configuracoes", label: "Ajustes", Icon: Settings, desktopOnly: true },
+];
 
 export function GoalThumb({
   img,
@@ -45,9 +58,23 @@ export function BrandLogo({ className = "" }: { className?: string }) {
 export function AppNav({ mobileOnly = false }: { mobileOnly?: boolean }) {
   const [desktopOpen, setDesktopOpen] = useState(false);
   const [isCompact, setIsCompact] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const pathname = useRouterState({
     select: (s) => s.location.pathname,
   });
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await logoutUser();
+    } finally {
+      clearAll();
+      clearNotifications();
+      clearCachedUser();
+      window.location.replace("/login");
+    }
+  };
 
   // Volta ao tamanho normal ao navegar entre rotas
   useEffect(() => {
@@ -158,7 +185,7 @@ export function AppNav({ mobileOnly = false }: { mobileOnly?: boolean }) {
           <BrandLogo className="h-24 w-full" />
           <span>Seu espaço de intenção</span>
         </Link>
-        {nav.map(({ to, label, Icon }) => (
+        {nav.map(({ to, label, Icon, isAction, desktopOnly }) => (
           <Link
             key={to}
             to={to}
@@ -166,13 +193,43 @@ export function AppNav({ mobileOnly = false }: { mobileOnly?: boolean }) {
             aria-label={label}
             activeOptions={{ exact: true }}
             onClick={() => setDesktopOpen(false)}
-            className="app-nav-item group flex min-h-14 min-w-11 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-xs text-g-muted transition-all duration-300 data-[status=active]:bg-white/[0.07] data-[status=active]:text-g-gold"
+            className={`app-nav-item ${desktopOnly ? "app-nav-desktop-only" : ""} ${isAction ? "app-nav-action" : ""} group flex min-h-14 min-w-11 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-xs text-g-muted transition-all duration-300 data-[status=active]:bg-white/[0.07] data-[status=active]:text-g-gold`}
           >
-            <Icon className="app-nav-icon h-[22px] w-[22px] stroke-[1.8] transition-transform group-data-[status=active]:scale-105" />
+            {isAction ? (
+              <span className="app-nav-action-btn" aria-hidden="true">
+                <Icon className="h-4 w-4 stroke-[2.5]" />
+              </span>
+            ) : (
+              <Icon className="app-nav-icon h-[22px] w-[22px] stroke-[1.8] transition-transform group-data-[status=active]:scale-105" />
+            )}
             <span className="app-nav-label">{label}</span>
           </Link>
         ))}
+        <button
+          type="button"
+          onClick={() => {
+            setDesktopOpen(false);
+            setConfirmLogout(true);
+          }}
+          className="app-nav-logout"
+          aria-label="Sair da conta"
+          title="Sair da conta"
+        >
+          <LogOut className="h-4 w-4 stroke-[1.8]" />
+          <span>Sair</span>
+        </button>
       </nav>
+      <LiquidConfirmDialog
+        open={confirmLogout}
+        icon={<LogOut className="h-7 w-7" />}
+        title="Deseja realmente sair?"
+        description="Você precisará entrar novamente para acessar seus registros e metas."
+        confirmLabel="Sair da conta"
+        loading={loggingOut}
+        destructive
+        onCancel={() => setConfirmLogout(false)}
+        onConfirm={handleLogout}
+      />
     </>
   );
 }

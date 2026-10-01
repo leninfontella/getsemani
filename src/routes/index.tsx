@@ -5,6 +5,7 @@ import {
   ChevronRight,
   Flame,
   MoonStar,
+  Settings,
   Shell,
   Sparkles,
   Sprout,
@@ -239,6 +240,14 @@ function HomePage() {
                 )}
               </button>
               <NotificationCenter name={name} />
+              <Link
+                to="/configuracoes"
+                className="relative grid h-11 w-11 place-items-center rounded-full text-white/90 transition hover:bg-white/10 hover:text-g-gold"
+                aria-label="Ajustes e configurações"
+                title="Ajustes"
+              >
+                <Settings className="h-6 w-6 stroke-[1.8]" />
+              </Link>
             </div>
           </div>
         </div>

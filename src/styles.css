@@ -906,7 +906,7 @@ h3 {
     padding: 18px 14px;
     transform: none;
     grid-template-columns: 1fr;
-    grid-template-rows: auto repeat(5, 58px) 1fr;
+    grid-template-rows: auto repeat(6, 52px) 1fr auto;
     align-content: start;
     gap: 6px;
     border-radius: 8px;
@@ -972,6 +972,39 @@ h3 {
   .app-nav > a:not(.app-nav-brand)[data-status="active"] {
     background: linear-gradient(90deg, rgb(239 205 119 / 0.16), rgb(255 255 255 / 0.045));
     box-shadow: inset 3px 0 var(--g-gold);
+  }
+
+  .app-nav-logout {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    align-self: stretch;
+    justify-content: flex-start;
+    min-height: 44px;
+    margin-top: auto;
+    padding: 0 16px;
+    border-radius: 7px;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    background: rgb(255 255 255 / 0.02);
+    color: var(--g-muted);
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .app-nav-logout:hover {
+    color: #ff7878;
+    border-color: rgb(255 120 120 / 0.35);
+    background: rgb(255 120 120 / 0.08);
+  }
+
+  .app-nav-logout:active {
+    transform: scale(0.98);
   }
 
   .app-page > .home-hero:not(.home-main-hero) {
@@ -1540,7 +1573,38 @@ h3 {
   backdrop-filter: blur(var(--g-glass-blur)) saturate(125%);
 }
 
+.app-nav-action .app-nav-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, rgb(239 205 119 / 0.28), rgb(239 205 119 / 0.1));
+  border: 1px solid rgb(239 205 119 / 0.65);
+  color: var(--g-gold);
+  box-shadow:
+    0 0 12px rgb(239 205 119 / 0.35),
+    inset 0 1px 0 rgb(255 255 255 / 0.25);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app-nav-action:hover .app-nav-action-btn,
+.app-nav-action[data-status="active"] .app-nav-action-btn {
+  background: linear-gradient(135deg, rgb(239 205 119 / 0.45), rgb(239 205 119 / 0.22));
+  border-color: var(--g-gold);
+  box-shadow:
+    0 0 18px rgb(239 205 119 / 0.6),
+    inset 0 1px 0 rgb(255 255 255 / 0.45);
+  transform: scale(1.08);
+}
+
 @media (max-width: 1023px) {
+  .app-nav-desktop-only,
+  .app-nav-logout {
+    display: none !important;
+  }
+
   .app-nav {
     transition:
       max-width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
@@ -1574,6 +1638,17 @@ h3 {
   .app-nav.is-compact .app-nav-icon {
     width: 20px;
     height: 20px;
+  }
+
+  .app-nav.is-compact .app-nav-action .app-nav-action-btn {
+    width: 26px;
+    height: 26px;
+    box-shadow: 0 0 8px rgb(239 205 119 / 0.3);
+  }
+
+  .app-nav.is-compact .app-nav-action .app-nav-action-btn svg {
+    width: 14px;
+    height: 14px;
   }
 
   .app-nav-item {
@@ -1611,6 +1686,16 @@ h3 {
 }
 
 @media (min-width: 1024px) {
+  .app-nav-desktop-only {
+    display: flex !important;
+  }
+
+  .app-nav-action .app-nav-action-btn {
+    width: 24px;
+    height: 24px;
+    box-shadow: 0 0 8px rgb(239 205 119 / 0.25);
+  }
+
   .app-nav.is-mobile-only,
   .app-nav-trigger.is-mobile-only {
     display: none;
@@ -1818,13 +1903,17 @@ h3 {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 9px 14px;
-  margin-top: 20px;
-  padding: 9px 10px;
-  border: 1px solid rgb(255 255 255 / 0.13);
-  border-radius: 14px;
-  background: rgb(255 255 255 / 0.07);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.4);
+  gap: 10px 14px;
+  margin-top: 18px;
+  padding: 11px 14px;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 20px;
+  background: rgb(20 15 34 / 0.88);
+  box-shadow:
+    0 14px 34px rgb(0 0 0 / 0.3),
+    inset 0 1px 0 rgb(255 255 255 / 0.12);
+  backdrop-filter: blur(18px);
+  color: var(--g-text);
 }
 
 .diary-tool-group {
@@ -1870,17 +1959,24 @@ h3 {
 .diary-font-option {
   min-width: 31px;
   height: 28px;
-  padding: 0 5px;
+  padding: 0 6px;
   border-radius: 7px;
-  color: inherit;
+  color: var(--g-text);
   font-size: 0.85rem;
-  opacity: 0.58;
+  opacity: 0.65;
+  transition: all 150ms ease;
+}
+
+.diary-font-option:hover {
+  opacity: 0.95;
+  background: rgb(255 255 255 / 0.08);
 }
 
 .diary-font-option.is-selected {
-  background: rgb(255 255 255 / 0.12);
+  background: rgb(255 255 255 / 0.14);
+  color: var(--g-gold);
   opacity: 1;
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18);
+  box-shadow: inset 0 0 0 1px rgb(239 205 119 / 0.5);
 }
 
 .diary-handwriting {

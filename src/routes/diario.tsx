@@ -440,73 +440,6 @@ function DiaryPage() {
           </div>
           <p className="font-serif-g text-2xl font-bold">Pensamentos de hoje</p>
           <p className="mt-1 text-xs opacity-60">{formattedSelectedDate}</p>
-          <div className="diary-writing-tools" aria-label="Aparência da escrita">
-            <div className="diary-tool-group">
-              <Palette className="h-4 w-4 opacity-55" aria-hidden="true" />
-              {diaryColors.map((color) => (
-                <button
-                  type="button"
-                  key={color.value}
-                  onClick={() => setInkColor(color.value)}
-                  className={`diary-color-option ${inkColor === color.value ? "is-selected" : ""}`}
-                  style={{ backgroundColor: color.value }}
-                  aria-label={`Cor ${color.label}`}
-                  aria-pressed={inkColor === color.value}
-                />
-              ))}
-            </div>
-            <div className="diary-tool-group">
-              <PaintBucket className="h-4 w-4 opacity-55" aria-hidden="true" />
-              {diaryPapers.map((paper) => (
-                <button
-                  type="button"
-                  key={paper.value}
-                  onClick={() => setDiaryPaper(paper.value)}
-                  className={`diary-paper-option ${diaryPaper === paper.value ? "is-selected" : ""}`}
-                  style={{ backgroundColor: paper.color }}
-                  aria-label={`Fundo ${paper.label}`}
-                  aria-pressed={diaryPaper === paper.value}
-                />
-              ))}
-            </div>
-            <div className="diary-tool-group">
-              <Type className="h-4 w-4 opacity-55" aria-hidden="true" />
-              {diaryFonts.map((font) => (
-                <button
-                  type="button"
-                  key={font.value}
-                  onClick={() => setDiaryFont(font.value)}
-                  className={`diary-font-option ${font.className} ${diaryFont === font.value ? "is-selected" : ""}`}
-                  aria-label={`Fonte ${font.value}`}
-                  aria-pressed={diaryFont === font.value}
-                >
-                  {font.label}
-                </button>
-              ))}
-            </div>
-            <label className="diary-date-picker" aria-label="Escolher outra data">
-              <CalendarDays className="h-4 w-4" />
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(event) => setSelectedDate(event.target.value)}
-              />
-            </label>
-            <button
-              type="button"
-              onClick={saveAppearance}
-              disabled={appearanceSaving}
-              className="diary-appearance-save"
-              aria-label="Salvar aparência na minha conta"
-              title="Salvar aparência na conta"
-            >
-              {appearanceSaving ? (
-                <LoaderCircle className="h-4 w-4 animate-spin" />
-              ) : (
-                <Save className="h-4 w-4" />
-              )}
-            </button>
-          </div>
           {loading ? (
             <div className="grid min-h-[360px] place-items-center">
               <LoaderCircle className="h-8 w-8 animate-spin opacity-50" />
@@ -615,6 +548,75 @@ function DiaryPage() {
             </div>
           )}
         </div>
+
+        <div className="diary-writing-tools mt-4" aria-label="Aparência da escrita">
+          <div className="diary-tool-group">
+            <Palette className="h-4 w-4 opacity-55" aria-hidden="true" />
+            {diaryColors.map((color) => (
+              <button
+                type="button"
+                key={color.value}
+                onClick={() => setInkColor(color.value)}
+                className={`diary-color-option ${inkColor === color.value ? "is-selected" : ""}`}
+                style={{ backgroundColor: color.value }}
+                aria-label={`Cor ${color.label}`}
+                aria-pressed={inkColor === color.value}
+              />
+            ))}
+          </div>
+          <div className="diary-tool-group">
+            <PaintBucket className="h-4 w-4 opacity-55" aria-hidden="true" />
+            {diaryPapers.map((paper) => (
+              <button
+                type="button"
+                key={paper.value}
+                onClick={() => setDiaryPaper(paper.value)}
+                className={`diary-paper-option ${diaryPaper === paper.value ? "is-selected" : ""}`}
+                style={{ backgroundColor: paper.color }}
+                aria-label={`Fundo ${paper.label}`}
+                aria-pressed={diaryPaper === paper.value}
+              />
+            ))}
+          </div>
+          <div className="diary-tool-group">
+            <Type className="h-4 w-4 opacity-55" aria-hidden="true" />
+            {diaryFonts.map((font) => (
+              <button
+                type="button"
+                key={font.value}
+                onClick={() => setDiaryFont(font.value)}
+                className={`diary-font-option ${font.className} ${diaryFont === font.value ? "is-selected" : ""}`}
+                aria-label={`Fonte ${font.value}`}
+                aria-pressed={diaryFont === font.value}
+              >
+                {font.label}
+              </button>
+            ))}
+          </div>
+          <label className="diary-date-picker" aria-label="Escolher outra data">
+            <CalendarDays className="h-4 w-4" />
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(event) => setSelectedDate(event.target.value)}
+            />
+          </label>
+          <button
+            type="button"
+            onClick={saveAppearance}
+            disabled={appearanceSaving}
+            className="diary-appearance-save"
+            aria-label="Salvar aparência na minha conta"
+            title="Salvar aparência na conta"
+          >
+            {appearanceSaving ? (
+              <LoaderCircle className="h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4" />
+            )}
+          </button>
+        </div>
+
         <div className="mt-5 flex items-center justify-center gap-4">
           <button
             type="button"

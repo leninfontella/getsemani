@@ -549,6 +549,7 @@ h3 {
 }
 
 .login-card {
+  min-height: 800px;
   transition:
     opacity 400ms ease,
     transform 400ms ease,

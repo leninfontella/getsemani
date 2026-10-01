@@ -145,7 +145,7 @@ function LoginPage() {
         </div>
       )}
       <main
-        className={`glass-panel login-card w-full max-w-[430px] rounded-[32px] px-6 py-7 ${exiting ? "is-exiting" : ""}`}
+        className={`glass-panel login-card mx-auto w-full max-w-[430px] rounded-[32px] px-6 py-7 ${exiting ? "is-exiting" : ""}`}
       >
         <BrandLogo
           className={`mx-auto h-[200px] w-[360px] max-w-full ${loginStatus === "loading" || loginStatus === "success" ? "auth-logo-blink" : ""}`}

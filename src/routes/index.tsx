@@ -6,7 +6,6 @@ import {
   Flame,
   MoonStar,
   Settings,
-  Shell,
   Sparkles,
   Sprout,
   Sun,
@@ -532,9 +531,9 @@ function HomePage() {
       <div className="home-primary-action mt-8 px-8">
         <Link
           to="/manifestar"
-          className="manifest-now flex min-h-14 w-full items-center justify-center gap-3 rounded-full px-5 py-3.5 text-lg font-extrabold tracking-wide text-[#251536] transition active:scale-95"
+          className="manifest-gold-button flex min-h-14 w-full items-center justify-center gap-3 px-5 py-3.5"
         >
-          MANIFESTAR AGORA <Shell className="h-7 w-7 stroke-[2.4]" />
+          MANIFESTAR AGORA
         </Link>
       </div>
     </AppShell>

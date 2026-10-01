@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ChevronLeft, Home, Sparkles } from "lucide-react";
+import { ChevronLeft, Home } from "lucide-react";
 import { toast } from "sonner";
 import { addNotification } from "@/lib/notifications";
 import { Toaster } from "@/components/ui/sonner";
@@ -198,16 +198,13 @@ function ManifestGoal() {
             onClick={() => void submit()}
             disabled={submitStatus !== "idle"}
             aria-busy={submitStatus === "submitting"}
-            className="g-cta mt-6 w-full rounded-full py-4 text-lg font-extrabold tracking-wide text-g-bg flex items-center justify-center gap-2 active:scale-95 transition disabled:cursor-wait disabled:opacity-80"
+            className="manifest-gold-button mx-auto mt-6 w-[70%] py-4 flex items-center justify-center gap-2 disabled:cursor-wait disabled:opacity-80"
           >
             {submitStatus === "idle"
               ? "MANIFESTAR"
               : submitStatus === "submitting"
                 ? "MANIFESTANDO..."
                 : "MANIFESTADO!"}
-            <Sparkles
-              className={`h-5 w-5 ${submitStatus === "submitting" ? "animate-pulse" : ""}`}
-            />
           </button>
           <Link
             to="/"

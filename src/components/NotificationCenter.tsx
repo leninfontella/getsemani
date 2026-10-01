@@ -36,9 +36,16 @@ export function NotificationCenter({ name }: { name: string }) {
       const trigger = triggerRef.current;
       if (!trigger) return;
       const rect = trigger.getBoundingClientRect();
+      const isMobile = window.matchMedia("(max-width: 640px)").matches;
       setPanelStyle({
         top: Math.min(rect.bottom + 12, window.innerHeight - 120),
-        right: Math.max(20, window.innerWidth - rect.right),
+        ...(isMobile
+          ? { left: "50%", right: "auto", transform: "translateX(-50%)" }
+          : {
+              left: "auto",
+              right: Math.max(20, window.innerWidth - rect.right),
+              transform: "none",
+            }),
       });
     };
     positionPanel();

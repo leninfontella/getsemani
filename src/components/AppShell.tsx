@@ -1,6 +1,18 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { Home, Eye, PersonStanding, BookOpen, Settings, Sparkles, Menu, X, Plus, LogOut } from "lucide-react";
+import { createPortal } from "react-dom";
+import {
+  Home,
+  Eye,
+  PersonStanding,
+  BookOpen,
+  Settings,
+  Sparkles,
+  Menu,
+  X,
+  Plus,
+  LogOut,
+} from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { LiquidConfirmDialog } from "@/components/LiquidConfirmDialog";
 import { logoutUser, clearCachedUser } from "@/lib/auth";
@@ -60,12 +72,15 @@ export function AppNav({ mobileOnly = false }: { mobileOnly?: boolean }) {
   const [isCompact, setIsCompact] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [exiting, setExiting] = useState(false);
   const pathname = useRouterState({
     select: (s) => s.location.pathname,
   });
 
   const handleLogout = async () => {
+    setConfirmLogout(false);
     setLoggingOut(true);
+    setExiting(true);
     try {
       await logoutUser();
     } finally {
@@ -222,14 +237,24 @@ export function AppNav({ mobileOnly = false }: { mobileOnly?: boolean }) {
       <LiquidConfirmDialog
         open={confirmLogout}
         icon={<LogOut className="h-7 w-7" />}
-        title="Deseja realmente sair?"
-        description="Você precisará entrar novamente para acessar seus registros e metas."
-        confirmLabel="Sair da conta"
+        title="Sair do Getsêmani?"
+        description="Sua jornada continuará salva e estará esperando por você no próximo acesso."
+        confirmLabel="Sair"
         loading={loggingOut}
-        destructive
         onCancel={() => setConfirmLogout(false)}
         onConfirm={handleLogout}
       />
+      {exiting &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div className="fixed inset-0 z-[100] grid min-h-[100dvh] w-screen place-items-center bg-[#0b0c12]/95 backdrop-blur-md">
+            <div className="text-center">
+              <BrandLogo className="auth-logo-blink mx-auto h-[280px] w-[400px] max-w-[95vw]" />
+              <p className="mt-4 text-sm tracking-[0.2em] text-g-gold">ATÉ A PRÓXIMA JORNADA</p>
+            </div>
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

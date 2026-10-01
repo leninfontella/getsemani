@@ -60,10 +60,11 @@ function ManifestGoal() {
   const goal = allGoals().find((g) => g.id === goalId);
   const [text, setText] = useState("");
   const [entries, setEntries] = useState<Entry[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "submitting" | "submitted">("idle");
   const [celebrating, setCelebrating] = useState(false);
 
   useEffect(() => {
+    setSubmitStatus("idle");
     setEntries(loadEntries()[goalId] || []);
     void syncEntries()
       .then((all) => setEntries(all[goalId] || []))
@@ -77,13 +78,13 @@ function ManifestGoal() {
   );
 
   const submit = async () => {
-    if (isSubmitting) return;
+    if (submitStatus !== "idle") return;
     const t = text.trim();
     if (!t) {
       toast("Escreva sua manifestação primeiro.");
       return;
     }
-    setIsSubmitting(true);
+    setSubmitStatus("submitting");
     const submittingStartedAt = Date.now();
     try {
       setEntries(await saveRemoteEntry(goal, t));
@@ -99,16 +100,16 @@ function ManifestGoal() {
         title: "Manifestação registrada ✨",
         message: `Sua manifestação “${goal.title}” foi salva com sucesso.`,
       });
+      const remainingTime = 2500 - (Date.now() - submittingStartedAt);
+      if (remainingTime > 0) {
+        await new Promise((resolve) => window.setTimeout(resolve, remainingTime));
+      }
+      setSubmitStatus("submitted");
     } catch (error) {
       toast("Não foi possível salvar.", {
         description: error instanceof Error ? error.message : "Verifique sua conexão.",
       });
-    } finally {
-      const remainingTime = 5000 - (Date.now() - submittingStartedAt);
-      if (remainingTime > 0) {
-        await new Promise((resolve) => window.setTimeout(resolve, remainingTime));
-      }
-      setIsSubmitting(false);
+      setSubmitStatus("idle");
     }
   };
 
@@ -183,7 +184,10 @@ function ManifestGoal() {
           <div className="mt-3 rounded-3xl border border-g-violet/70 g-glass p-4">
             <textarea
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) => {
+                setText(e.target.value);
+                if (submitStatus === "submitted") setSubmitStatus("idle");
+              }}
               onKeyDown={formatOnEnter}
               placeholder={`${goal.prompt}\n\nEx.: "${goal.example}"`}
               rows={7}
@@ -192,12 +196,18 @@ function ManifestGoal() {
           </div>
           <button
             onClick={() => void submit()}
-            disabled={isSubmitting}
-            aria-busy={isSubmitting}
+            disabled={submitStatus !== "idle"}
+            aria-busy={submitStatus === "submitting"}
             className="g-cta mt-6 w-full rounded-full py-4 text-lg font-extrabold tracking-wide text-g-bg flex items-center justify-center gap-2 active:scale-95 transition disabled:cursor-wait disabled:opacity-80"
           >
-            {isSubmitting ? "MANIFESTANDO..." : "MANIFESTAR"}
-            <Sparkles className={`h-5 w-5 ${isSubmitting ? "animate-pulse" : ""}`} />
+            {submitStatus === "idle"
+              ? "MANIFESTAR"
+              : submitStatus === "submitting"
+                ? "MANIFESTANDO..."
+                : "MANIFESTADO!"}
+            <Sparkles
+              className={`h-5 w-5 ${submitStatus === "submitting" ? "animate-pulse" : ""}`}
+            />
           </button>
           <Link
             to="/"

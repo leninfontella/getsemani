@@ -40,7 +40,7 @@ export const meditationSounds = [
 export type MeditationSound = (typeof meditationSounds)[number];
 
 type AudioPlayerValue = {
-  activeSound?: MeditationSound;
+  activeSound: MeditationSound | undefined;
   playing: boolean;
   loading: boolean;
   currentTime: number;

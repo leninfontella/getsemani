@@ -49,7 +49,7 @@ function HomePage() {
     const cachedUser = loadUser();
     const cachedEntries = loadEntries();
     setEntries(cachedEntries);
-    setGoals(manifestedGoals());
+    setGoals(manifestedGoals(cachedEntries));
     setName(cachedUser?.name || loadSettings().name);
     setAvatarUrl(cachedUser?.avatarUrl);
     const gender = cachedUser?.gender;
@@ -82,7 +82,7 @@ function HomePage() {
     void syncEntries()
       .then((remote) => {
         setEntries(remote);
-        setGoals(manifestedGoals());
+        setGoals(manifestedGoals(remote));
         const remoteDates = new Set(
           Object.values(remote)
             .flat()

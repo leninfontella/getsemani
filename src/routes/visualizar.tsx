@@ -15,17 +15,26 @@ import {
 
 export const Route = createFileRoute("/visualizar")({ component: VisualizePage });
 type Item = { goal: Goal; entries: Entry[] };
+
+function itemsByLatestEntry(entriesByGoal: Record<string, Entry[]>): Item[] {
+  return manifestedGoals(entriesByGoal)
+    .map((goal) => ({ goal, entries: entriesByGoal[goal.id] || [] }))
+    .sort((a, b) => {
+      const latestA = Math.max(...a.entries.map((entry) => Date.parse(entry.date)), 0);
+      const latestB = Math.max(...b.entries.map((entry) => Date.parse(entry.date)), 0);
+      return latestB - latestA;
+    });
+}
+
 function VisualizePage() {
   const [items, setItems] = useState<Item[]>([]);
   const [pendingDelete, setPendingDelete] = useState<Goal | null>(null);
   const [deleting, setDeleting] = useState(false);
   useEffect(() => {
     const entries = loadEntries();
-    setItems(manifestedGoals().map((goal) => ({ goal, entries: entries[goal.id] || [] })));
+    setItems(itemsByLatestEntry(entries));
     void syncEntries()
-      .then((remote) =>
-        setItems(manifestedGoals().map((goal) => ({ goal, entries: remote[goal.id] || [] }))),
-      )
+      .then((remote) => setItems(itemsByLatestEntry(remote)))
       .catch(() => undefined);
   }, []);
   const confirmDelete = async () => {

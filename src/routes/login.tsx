@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { Eye, EyeOff, LockKeyhole, Mail, UserRound } from "lucide-react";
+import { Check, Eye, EyeOff, LoaderCircle, LockKeyhole, Mail, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { BrandLogo } from "@/components/AppShell";
@@ -21,7 +21,9 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [gender, setGender] = useState<Gender | "">("");
   const [showPassword, setShowPassword] = useState(false);
-  const [entering, setEntering] = useState(false);
+  const [loginStatus, setLoginStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [exiting, setExiting] = useState(false);
+  const [showJourneyLogo, setShowJourneyLogo] = useState(false);
 
   useEffect(() => {
     void isAuthenticated().then((authenticated) => {
@@ -34,6 +36,10 @@ function LoginPage() {
     const cleanEmail = email.trim().toLocaleLowerCase();
     const invalidPassword = mode === "register" ? password.length < 12 : password.length < 6;
     if (!cleanEmail || invalidPassword || (mode === "register" && (!name.trim() || !gender))) {
+      if (mode === "login") {
+        setLoginStatus("error");
+        window.setTimeout(() => setLoginStatus("idle"), 450);
+      }
       toast("Preencha os dados corretamente.", {
         description:
           mode === "register"
@@ -61,6 +67,7 @@ function LoginPage() {
       }
       return;
     }
+    setLoginStatus("loading");
     try {
       const login = await loginUser(cleanEmail, password);
       clearAccountContentCache();
@@ -70,13 +77,19 @@ function LoginPage() {
         scheduleWelcomeNotification(displayName, cleanEmail);
       }
     } catch {
+      setLoginStatus("error");
+      window.setTimeout(() => setLoginStatus("idle"), 450);
       toast("Não foi possível entrar.", {
         description: "E-mail ou senha incorretos.",
       });
       return;
     }
-    setEntering(true);
-    setTimeout(() => navigate({ to: "/", replace: true }), 2400);
+    setLoginStatus("success");
+    await new Promise((resolve) => window.setTimeout(resolve, 600));
+    setExiting(true);
+    setShowJourneyLogo(true);
+    await new Promise((resolve) => window.setTimeout(resolve, 1200));
+    await navigate({ to: "/", replace: true });
   };
 
   const futureLogin = (provider: string) =>
@@ -85,16 +98,20 @@ function LoginPage() {
   return (
     <div className="min-h-screen g-space px-5 py-8 font-sans-g text-g-text grid place-items-center">
       <Toaster />
-      {entering && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-[#0b0c12]/95 backdrop-blur-md">
+      {showJourneyLogo && (
+        <div className="login-journey-logo fixed inset-0 z-50 grid place-items-center bg-[#0b0c12]/90 backdrop-blur-md">
           <div className="text-center">
-            <BrandLogo className="auth-logo-blink mx-auto h-[280px] w-[400px] max-w-[95vw]" />
-            <p className="mt-4 text-sm tracking-[0.2em] text-g-gold">PREPARANDO SUA JORNADA</p>
+            <BrandLogo className="auth-logo-blink h-[280px] w-[400px] max-w-[95vw]" />
+            <p className="-mt-5 text-sm tracking-[0.2em] text-g-gold">PREPARANDO A SUA JORNADA</p>
           </div>
         </div>
       )}
-      <main className="glass-panel w-full max-w-[430px] rounded-[32px] px-6 py-7">
-        <BrandLogo className="mx-auto h-[200px] w-[360px] max-w-full" />
+      <main
+        className={`glass-panel login-card w-full max-w-[430px] rounded-[32px] px-6 py-7 ${exiting ? "is-exiting" : ""}`}
+      >
+        <BrandLogo
+          className={`mx-auto h-[200px] w-[360px] max-w-full ${loginStatus === "loading" || loginStatus === "success" ? "auth-logo-blink" : ""}`}
+        />
         <div className="g-glass mt-3 grid grid-cols-2 rounded-full border border-white/10 p-1">
           <button
             onClick={() => setMode("login")}
@@ -195,10 +212,23 @@ function LoginPage() {
           </Field>
           <button
             type="submit"
-            disabled={entering}
-            className="g-cta mt-2 w-full rounded-full py-4 text-base font-extrabold text-g-bg"
+            disabled={loginStatus === "loading" || loginStatus === "success"}
+            aria-busy={loginStatus === "loading"}
+            className={`g-cta auth-submit mt-2 flex w-full items-center justify-center gap-2 rounded-full py-4 text-base font-extrabold text-g-bg ${loginStatus === "loading" ? "is-loading" : ""} ${loginStatus === "success" ? "is-success" : ""} ${loginStatus === "error" ? "is-error" : ""}`}
           >
-            {mode === "login" ? "ENTRAR" : "CRIAR MINHA CONTA"}
+            {mode === "register" ? (
+              "CRIAR MINHA CONTA"
+            ) : loginStatus === "loading" ? (
+              <>
+                <LoaderCircle className="h-5 w-5 animate-spin" /> Entrando...
+              </>
+            ) : loginStatus === "success" ? (
+              <>
+                <Check className="h-5 w-5 stroke-[3]" /> Bem-vindo(a)!
+              </>
+            ) : (
+              "ENTRAR"
+            )}
           </button>
         </form>
         <div className="my-6 flex items-center gap-3 text-xs text-g-muted">

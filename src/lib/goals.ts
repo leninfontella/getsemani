@@ -364,9 +364,13 @@ export function addCustomGoal(title: string): Goal {
 export function allGoals(): Goal[] {
   return [...manifestGoals, ...loadCustomGoals()];
 }
-export function manifestedGoals(): Goal[] {
-  const entries = loadEntries();
-  return allGoals().filter((goal) => (entries[goal.id]?.length || 0) > 0);
+export function manifestedGoals(entries: Record<string, Entry[]> = loadEntries()): Goal[] {
+  const latestEntry = (goalId: string) =>
+    Math.max(...(entries[goalId] || []).map((entry) => Date.parse(entry.date)), 0);
+
+  return allGoals()
+    .filter((goal) => (entries[goal.id]?.length || 0) > 0)
+    .sort((a, b) => latestEntry(b.id) - latestEntry(a.id));
 }
 
 /* Diário */

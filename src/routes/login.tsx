@@ -400,7 +400,7 @@ function LoginPage() {
               type="submit"
               disabled={loginStatus === "loading" || loginStatus === "success"}
               aria-busy={loginStatus === "loading"}
-              className={`g-cta auth-submit auth-register-submit mt-2 flex items-center justify-center gap-2 rounded-full text-base font-extrabold text-g-bg ${loginStatus === "loading" ? "is-loading" : ""} ${loginStatus === "success" ? "is-success" : ""} ${loginStatus === "error" ? "is-error" : ""}`}
+              className={`g-cta auth-submit auth-register-submit mt-2 flex items-center justify-center gap-2 rounded-full text-base font-extrabold text-g-bg ${registerStep < 4 ? "is-continue" : ""} ${loginStatus === "loading" ? "is-loading" : ""} ${loginStatus === "success" ? "is-success" : ""} ${loginStatus === "error" ? "is-error" : ""}`}
             >
               {registerStep === 4 ? (
                 loginStatus === "loading" ? (

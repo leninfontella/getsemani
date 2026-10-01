@@ -1,0 +1,6 @@
+# Padroniza arquivos de texto como LF no repositório
+* text=auto eol=lf
+
+# Scripts nativos do Windows permanecem em CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf

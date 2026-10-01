@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { useRouterState } from "@tanstack/react-router";
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { Headphones, Music2, Pause, Play, Radio, Square, Waves } from "lucide-react";
 import rainAudio from "@/assets/Chuva tranquila.mp3";
@@ -172,12 +172,12 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
       {children}
       {activeSound && pathname !== "/meditar" && pathname !== "/login" && (
         <aside className="global-audio-player" aria-label={`Reproduzindo ${activeSound.title}`}>
-          <Link to="/meditar" className="min-w-0 flex-1">
-            <strong className="block truncate text-sm text-white">{activeSound.title}</strong>
-            <span className="block truncate text-xs text-g-muted">
-              {playing ? "Reproduzindo" : "Pausado"}
-            </span>
-          </Link>
+          <div className="global-audio-banner" aria-label={activeSound.title}>
+            <div className="global-audio-banner-track" aria-hidden="true">
+              <span>{activeSound.title}</span>
+              <span>{activeSound.title}</span>
+            </div>
+          </div>
           <button
             type="button"
             onClick={() => void toggleSound(activeSound)}

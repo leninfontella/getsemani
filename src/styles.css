@@ -367,6 +367,18 @@ html.is-scrolling::-webkit-scrollbar-thumb {
   background: rgb(255 255 255 / 0.055);
 }
 
+[data-sonner-toast].notification-toast {
+  border-color: rgb(255 255 255 / 0.14) !important;
+  background: rgb(255 255 255 / 0.03) !important;
+  box-shadow:
+    0 10px 30px rgb(0 0 0 / 0.35),
+    inset 0 1px 1px rgb(255 255 255 / 0.35),
+    inset 0 -1px 1px rgb(255 255 255 / 0.08),
+    inset 0 0 18px rgb(255 255 255 / 0.05) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(150%) brightness(0.85) !important;
+  backdrop-filter: blur(8px) saturate(150%) brightness(0.85) !important;
+}
+
 .g-stars::after {
   transform: scale(1.2);
   opacity: 0.14;

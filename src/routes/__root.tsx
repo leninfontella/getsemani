@@ -12,8 +12,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { clearCachedUser, isAuthenticated } from "../lib/auth";
-import { clearAll } from "../lib/goals";
-import { clearNotifications } from "../lib/notifications";
+import { clearAll, loadSettings, SETTINGS_CHANGED } from "../lib/goals";
+import { clearNotifications, ensureAutomaticNotifications } from "../lib/notifications";
 import { clearBrowserSessionData, supabase } from "../lib/supabase";
 import { AudioPlayerProvider } from "../components/AudioPlayerProvider";
 
@@ -190,6 +190,42 @@ function RootComponent() {
       window.removeEventListener("pageshow", rejectRestoredPrivatePage);
     };
   }, [queryClient]);
+
+  useEffect(() => {
+    if (pathname === "/login") return;
+    const refreshAutomaticNotifications = () => ensureAutomaticNotifications();
+    refreshAutomaticNotifications();
+    const interval = window.setInterval(refreshAutomaticNotifications, 30_000);
+    window.addEventListener("focus", refreshAutomaticNotifications);
+    window.addEventListener("visibilitychange", refreshAutomaticNotifications);
+    window.addEventListener(SETTINGS_CHANGED, refreshAutomaticNotifications);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refreshAutomaticNotifications);
+      window.removeEventListener("visibilitychange", refreshAutomaticNotifications);
+      window.removeEventListener(SETTINGS_CHANGED, refreshAutomaticNotifications);
+    };
+  }, [pathname]);
+
+  useEffect(() => {
+    if (pathname === "/login") return;
+    const respondToInteraction = (event: MouseEvent) => {
+      if (!loadSettings().sounds || !navigator.vibrate) return;
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const control = target.closest<HTMLElement>("button, a, [role='switch']");
+      if (
+        !control ||
+        control.matches(":disabled") ||
+        control.getAttribute("aria-disabled") === "true"
+      ) {
+        return;
+      }
+      navigator.vibrate(10);
+    };
+    window.addEventListener("click", respondToInteraction);
+    return () => window.removeEventListener("click", respondToInteraction);
+  }, [pathname]);
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;

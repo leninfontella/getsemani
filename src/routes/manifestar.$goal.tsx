@@ -9,6 +9,7 @@ import {
   allGoals,
   manifestGoals,
   loadEntries,
+  loadSettings,
   saveRemoteEntry,
   syncEntries,
   type Entry,
@@ -90,7 +91,7 @@ function ManifestGoal() {
       setEntries(await saveRemoteEntry(goal, t));
       setText("");
       if (!writtenToday) {
-        navigator.vibrate?.(35);
+        if (loadSettings().sounds) navigator.vibrate?.(35);
         setCelebrating(true);
         window.setTimeout(() => setCelebrating(false), 1800);
       }

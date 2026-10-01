@@ -395,6 +395,7 @@ export type Settings = {
   affirmations: boolean;
 };
 const SETTINGS = "getsemani-settings";
+export const SETTINGS_CHANGED = "getsemani:settings-changed";
 export const defaultSettings: Settings = {
   name: "Amelia",
   reminder: true,
@@ -406,7 +407,10 @@ export const loadSettings = () => ({
   ...defaultSettings,
   ...read<Partial<Settings>>(SETTINGS, {}),
 });
-export const saveSettings = (s: Settings) => write(SETTINGS, s);
+export const saveSettings = (s: Settings) => {
+  write(SETTINGS, s);
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(SETTINGS_CHANGED));
+};
 export function clearAll() {
   if (typeof window === "undefined") return;
   for (let index = localStorage.length - 1; index >= 0; index -= 1) {

@@ -61,6 +61,14 @@ function SettingsPage() {
     setSettings(next);
     saveSettings(next);
   };
+  const toggleSetting = (
+    key: "reminder" | "sounds" | "affirmations",
+    value: boolean,
+    label: string,
+  ) => {
+    update(key, value);
+    toast(`${label} ${value ? "ativado" : "desativado"}.`);
+  };
   const uploadAvatar = async (file?: File) => {
     if (!file) return;
     setSavingAvatar(true);
@@ -290,7 +298,10 @@ function SettingsPage() {
             title="Lembrete diário"
             detail="Receber lembrete para manifestar"
           >
-            <Switch checked={settings.reminder} onChange={(v) => update("reminder", v)} />
+            <Switch
+              checked={settings.reminder}
+              onChange={(value) => toggleSetting("reminder", value, "Lembrete diário")}
+            />
           </SettingRow>
           {settings.reminder && (
             <div className="border-t border-g-muted/10 px-4 py-3 flex justify-between items-center">
@@ -303,15 +314,25 @@ function SettingsPage() {
               />
             </div>
           )}
-          <SettingRow icon={<Volume2 />} title="Sons do app" detail="Efeitos suaves nas práticas">
-            <Switch checked={settings.sounds} onChange={(v) => update("sounds", v)} />
+          <SettingRow
+            icon={<Volume2 />}
+            title="Sons do app"
+            detail="Resposta tátil nos controles e práticas"
+          >
+            <Switch
+              checked={settings.sounds}
+              onChange={(value) => toggleSetting("sounds", value, "Sons do app")}
+            />
           </SettingRow>
           <SettingRow
             icon={<Sparkles />}
             title="Afirmações"
             detail="Mostrar mensagens inspiradoras"
           >
-            <Switch checked={settings.affirmations} onChange={(v) => update("affirmations", v)} />
+            <Switch
+              checked={settings.affirmations}
+              onChange={(value) => toggleSetting("affirmations", value, "Afirmações")}
+            />
           </SettingRow>
         </section>
         <button

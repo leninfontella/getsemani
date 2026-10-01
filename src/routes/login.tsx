@@ -1,6 +1,15 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { Check, Eye, EyeOff, LoaderCircle, LockKeyhole, Mail, UserRound } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  Eye,
+  EyeOff,
+  LoaderCircle,
+  LockKeyhole,
+  Mail,
+  UserRound,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { BrandLogo } from "@/components/AppShell";
@@ -13,9 +22,17 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
+const registrationSteps = {
+  1: { title: "Seu nome", description: "Como devemos chamar você?" },
+  2: { title: "Como você se identifica", description: "Escolha a opção que representa você." },
+  3: { title: "Seu e-mail", description: "Ele será usado para acessar a sua conta." },
+  4: { title: "Crie uma senha", description: "Proteja seu espaço de manifestações." },
+} as const;
+
 function LoginPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"login" | "register">("login");
+  const [registerStep, setRegisterStep] = useState<1 | 2 | 3 | 4>(1);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,37 +51,58 @@ function LoginPage() {
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     const cleanEmail = email.trim().toLocaleLowerCase();
-    const invalidPassword = mode === "register" ? password.length < 12 : password.length < 6;
-    if (!cleanEmail || invalidPassword || (mode === "register" && (!name.trim() || !gender))) {
-      if (mode === "login") {
-        setLoginStatus("error");
-        window.setTimeout(() => setLoginStatus("idle"), 450);
-      }
-      toast("Preencha os dados corretamente.", {
-        description:
-          mode === "register"
-            ? "Use uma senha com pelo menos 12 caracteres."
-            : "Confira o e-mail e a senha.",
-      });
-      return;
-    }
     if (mode === "register") {
-      if (!gender) return;
+      if (registerStep === 1 && !name.trim()) {
+        toast("Digite seu nome para continuar.");
+        return;
+      }
+      if (registerStep === 2 && !gender) {
+        toast("Escolha como você se identifica para continuar.");
+        return;
+      }
+      if (registerStep === 3 && !/^\S+@\S+\.\S+$/.test(cleanEmail)) {
+        toast("Digite um e-mail válido para continuar.");
+        return;
+      }
+      if (registerStep < 4) {
+        setRegisterStep((registerStep + 1) as 2 | 3 | 4);
+        return;
+      }
+      const validPassword =
+        password.length >= 8 && /[A-Za-z]/.test(password) && /\d/.test(password);
+      if (!validPassword || !name.trim() || !gender || !cleanEmail) {
+        toast("Preencha os dados corretamente.", {
+          description: "Use pelo menos 08 caracteres, incluindo letras e números.",
+        });
+        return;
+      }
+      setLoginStatus("loading");
       try {
         await registerUser({ name: name.trim(), email: cleanEmail, password, gender });
         saveSettings({ ...loadSettings(), name: name.trim() });
         setMode("login");
+        setRegisterStep(1);
         setName("");
         setPassword("");
         setGender("");
+        setLoginStatus("idle");
         toast("Conta criada com sucesso ✨", {
           description: "Entre com o seu e-mail e senha.",
         });
       } catch {
+        setLoginStatus("idle");
         toast("Não foi possível criar a conta.", {
           description: "Confira os dados ou tente novamente em alguns minutos.",
         });
       }
+      return;
+    }
+    if (!cleanEmail || password.length < 6) {
+      setLoginStatus("error");
+      window.setTimeout(() => setLoginStatus("idle"), 450);
+      toast("Preencha os dados corretamente.", {
+        description: "Confira o e-mail e a senha.",
+      });
       return;
     }
     setLoginStatus("loading");
@@ -114,13 +152,19 @@ function LoginPage() {
         />
         <div className="g-glass mt-3 grid grid-cols-2 rounded-full border border-white/10 p-1">
           <button
-            onClick={() => setMode("login")}
+            onClick={() => {
+              setMode("login");
+              setRegisterStep(1);
+            }}
             className={`rounded-full py-2.5 text-sm font-semibold transition ${mode === "login" ? "bg-g-gold text-g-bg" : "text-g-muted"}`}
           >
             Entrar
           </button>
           <button
-            onClick={() => setMode("register")}
+            onClick={() => {
+              setMode("register");
+              setRegisterStep(1);
+            }}
             className={`rounded-full py-2.5 text-sm font-semibold transition ${mode === "register" ? "bg-g-gold text-g-bg" : "text-g-muted"}`}
           >
             Criar conta
@@ -128,88 +172,156 @@ function LoginPage() {
         </div>
         <div className="mt-6 text-center">
           <h1 className="text-2xl font-semibold">
-            {mode === "login" ? "Bem-vindo(a) de volta!" : "Comece sua jornada"}
+            {mode === "login" ? "Bem-vindo(a) de volta!" : registrationSteps[registerStep].title}
           </h1>
           <p className="mt-1 text-sm text-g-muted">
             {mode === "login"
               ? "Entre para continuar manifestando."
-              : "Crie seu espaço de manifestações."}
+              : registrationSteps[registerStep].description}
           </p>
+          {mode === "register" && (
+            <div className="mt-4" aria-label={`Passo ${registerStep} de 4`}>
+              <div className="mx-auto flex max-w-48 gap-2" aria-hidden="true">
+                {[1, 2, 3, 4].map((step) => (
+                  <span
+                    key={step}
+                    className={`h-1 flex-1 rounded-full transition-colors ${step <= registerStep ? "bg-g-gold" : "bg-white/15"}`}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         <form onSubmit={submit} className="mt-6 space-y-3">
-          {mode === "register" && (
+          {mode === "register" ? (
+            <div key={registerStep} className="register-step-panel min-h-36">
+              {registerStep === 1 && (
+                <Field icon={<UserRound />}>
+                  <input
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    autoComplete="name"
+                    placeholder="Seu nome"
+                    className="auth-input"
+                  />
+                </Field>
+              )}
+              {registerStep === 2 && (
+                <fieldset className="g-glass rounded-xl border border-white/15 p-3">
+                  <p className="px-1 text-xs text-g-muted">Como você se identifica?</p>
+                  <div className="mt-2 grid gap-2">
+                    {(
+                      [
+                        ["masculino", "Masculino"],
+                        ["feminino", "Feminino"],
+                        ["nao-informar", "Prefiro não informar"],
+                      ] as const
+                    ).map(([value, label]) => (
+                      <label
+                        key={value}
+                        className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm"
+                      >
+                        <input
+                          required
+                          type="radio"
+                          name="gender"
+                          value={value}
+                          checked={gender === value}
+                          onChange={() => setGender(value)}
+                          className="accent-[var(--g-gold)]"
+                        />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              )}
+              {registerStep === 3 && (
+                <Field icon={<Mail />}>
+                  <input
+                    required
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
+                    placeholder="E-mail"
+                    className="auth-input"
+                  />
+                </Field>
+              )}
+              {registerStep === 4 && (
+                <>
+                  <Field icon={<LockKeyhole />}>
+                    <input
+                      required
+                      type={showPassword ? "text" : "password"}
+                      minLength={8}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="new-password"
+                      placeholder="Senha"
+                      className="auth-input pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((value) => !value)}
+                      aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                      className="absolute right-3 text-g-muted"
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </Field>
+                  <p className="mt-2 px-1 text-xs text-g-muted">
+                    Use pelo menos 08 caracteres, incluindo letras e números.
+                  </p>
+                </>
+              )}
+            </div>
+          ) : (
             <>
-              <Field icon={<UserRound />}>
+              <Field icon={<Mail />}>
                 <input
                   required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  autoComplete="name"
-                  placeholder="Seu nome"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                  placeholder="E-mail"
                   className="auth-input"
                 />
               </Field>
-              <fieldset className="g-glass rounded-xl border border-white/15 p-3">
-                <p className="px-1 text-xs text-g-muted">Como você se identifica?</p>
-                <div className="mt-2 grid gap-2">
-                  {(
-                    [
-                      ["masculino", "Masculino"],
-                      ["feminino", "Feminino"],
-                      ["nao-informar", "Prefiro não informar"],
-                    ] as const
-                  ).map(([value, label]) => (
-                    <label
-                      key={value}
-                      className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm"
-                    >
-                      <input
-                        required
-                        type="radio"
-                        name="gender"
-                        value={value}
-                        checked={gender === value}
-                        onChange={() => setGender(value)}
-                        className="accent-[var(--g-gold)]"
-                      />
-                      {label}
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
+              <Field icon={<LockKeyhole />}>
+                <input
+                  required
+                  type={showPassword ? "text" : "password"}
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  placeholder="Senha"
+                  className="auth-input pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((value) => !value)}
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                  className="absolute right-3 text-g-muted"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </Field>
             </>
           )}
-          <Field icon={<Mail />}>
-            <input
-              required
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              placeholder="E-mail"
-              className="auth-input"
-            />
-          </Field>
-          <Field icon={<LockKeyhole />}>
-            <input
-              required
-              type={showPassword ? "text" : "password"}
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete={mode === "login" ? "current-password" : "new-password"}
-              placeholder="Senha"
-              className="auth-input pr-10"
-            />
+          {mode === "register" && registerStep > 1 && (
             <button
               type="button"
-              onClick={() => setShowPassword((value) => !value)}
-              aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-              className="absolute right-3 text-g-muted"
+              onClick={() => setRegisterStep((registerStep - 1) as 1 | 2 | 3)}
+              className="flex items-center gap-1 px-1 py-1 text-sm text-g-muted transition hover:text-g-text"
             >
-              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              <ArrowLeft className="h-4 w-4" /> Voltar
             </button>
-          </Field>
+          )}
           <button
             type="submit"
             disabled={loginStatus === "loading" || loginStatus === "success"}
@@ -217,7 +329,17 @@ function LoginPage() {
             className={`g-cta auth-submit mt-2 flex w-full items-center justify-center gap-2 rounded-full py-4 text-base font-extrabold text-g-bg ${loginStatus === "loading" ? "is-loading" : ""} ${loginStatus === "success" ? "is-success" : ""} ${loginStatus === "error" ? "is-error" : ""}`}
           >
             {mode === "register" ? (
-              "CRIAR MINHA CONTA"
+              registerStep === 4 ? (
+                loginStatus === "loading" ? (
+                  <>
+                    <LoaderCircle className="h-5 w-5 animate-spin" /> Criando conta...
+                  </>
+                ) : (
+                  "CRIAR MINHA CONTA"
+                )
+              ) : (
+                "CONTINUAR"
+              )
             ) : loginStatus === "loading" ? (
               <>
                 <LoaderCircle className="h-5 w-5 animate-spin" /> Entrando...

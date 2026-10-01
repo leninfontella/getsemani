@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import {
   Check,
+  ChevronLeft,
   ChevronRight,
   Flame,
   MoonStar,
@@ -40,6 +41,10 @@ function HomePage() {
   const [days, setDays] = useState(0);
   const [practiceDates, setPracticeDates] = useState<Set<string>>(new Set());
   const [week, setWeek] = useState<{ label: string; key: string; today: boolean }[]>([]);
+  const [calendarView, setCalendarView] = useState(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  });
   const [isSyncing, setIsSyncing] = useState(true);
   const [activeManifestation, setActiveManifestation] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -127,9 +132,16 @@ function HomePage() {
   const daysUntilNextAchievement = nextAchievement ? nextAchievement - days : 0;
   const achievementIcons = [Sprout, Flame, MoonStar, Sun];
   const calendarNow = new Date();
-  const calendarYear = calendarNow.getFullYear();
-  const calendarMonth = calendarNow.getMonth();
-  const calendarMonthLabel = calendarNow.toLocaleDateString("pt-BR", { month: "long" });
+  const calendarYear = calendarView.getFullYear();
+  const calendarMonth = calendarView.getMonth();
+  const calendarMonthLabelRaw = calendarView.toLocaleDateString("pt-BR", {
+    month: "long",
+    year: "numeric",
+  });
+  const calendarMonthLabel =
+    calendarMonthLabelRaw.charAt(0).toUpperCase() + calendarMonthLabelRaw.slice(1);
+  const viewingCurrentMonth =
+    calendarYear === calendarNow.getFullYear() && calendarMonth === calendarNow.getMonth();
   const calendarDays = new Date(calendarYear, calendarMonth + 1, 0).getDate();
   const calendarOffset = new Date(calendarYear, calendarMonth, 1).getDay();
   const calendarCells = [
@@ -140,6 +152,9 @@ function HomePage() {
     (day) =>
       practiceDates.has(new Date(calendarYear, calendarMonth, day).toLocaleDateString("pt-BR")),
   ).length;
+  const moveCalendarMonth = (amount: number) => {
+    setCalendarView((current) => new Date(current.getFullYear(), current.getMonth() + amount, 1));
+  };
   const journeyProgress = days === 0 ? 0 : (((days - 1) % 7) + 1) / 7;
   const ringCircumference = 301.6;
   const ringEndAngle = Math.PI * 2 * journeyProgress;
@@ -264,7 +279,6 @@ function HomePage() {
       <section className="journey-card glass-level-2 mx-6 mt-5 rounded-3xl p-5">
         <div className="flex items-center justify-between">
           <h3 className="font-serif-g text-2xl font-semibold">Sua Jornada</h3>
-          <ChevronRight className="h-5 w-5 text-g-muted" />
         </div>
         <div className="mt-4 flex items-center gap-5">
           <div className="relative grid h-28 w-28 shrink-0 place-items-center">
@@ -370,7 +384,28 @@ function HomePage() {
 
         <div className="journey-detail-card glass-level-2 rounded-3xl p-4">
           <div className="flex items-center justify-between gap-3">
-            <h3 className="font-serif-g text-xl font-semibold capitalize">{calendarMonthLabel}</h3>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => moveCalendarMonth(-1)}
+                className="liquid-button grid h-8 w-8 shrink-0 place-items-center rounded-full text-g-text transition hover:bg-white/10 active:scale-95"
+                aria-label="Ver mês anterior"
+                title="Mês anterior"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <h3 className="font-serif-g text-xl font-semibold">{calendarMonthLabel}</h3>
+              <button
+                type="button"
+                onClick={() => moveCalendarMonth(1)}
+                disabled={viewingCurrentMonth}
+                className="liquid-button grid h-8 w-8 shrink-0 place-items-center rounded-full text-g-text transition hover:bg-white/10 active:scale-95 disabled:cursor-not-allowed disabled:opacity-30"
+                aria-label="Ver próximo mês"
+                title="Próximo mês"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
             <span className="text-xs font-medium text-[#b9a5ff]">
               {activeDaysThisMonth} {activeDaysThisMonth === 1 ? "dia ativo" : "dias ativos"}
             </span>
@@ -382,7 +417,7 @@ function HomePage() {
                     new Date(calendarYear, calendarMonth, day).toLocaleDateString("pt-BR"),
                   )
                 : false;
-              const todayCell = day === calendarNow.getDate();
+              const todayCell = viewingCurrentMonth && day === calendarNow.getDate();
               return day ? (
                 <span
                   key={day}

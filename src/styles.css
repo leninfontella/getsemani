@@ -556,7 +556,7 @@ h3 {
 }
 
 .manifestation-carousel {
-  touch-action: pan-x;
+  touch-action: pan-x pan-y pinch-zoom;
   overscroll-behavior-inline: contain;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;

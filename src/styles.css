@@ -594,6 +594,42 @@ h3 {
   display: none;
 }
 
+.manifest-picker-card {
+  width: 90%;
+  margin-inline: auto;
+  gap: 0.9rem;
+  padding: 0.675rem;
+}
+
+.manifest-picker-card-thumb {
+  width: 4.5rem;
+  height: 4.5rem;
+}
+
+.card-brilho {
+  position: relative;
+  border: 1px solid rgb(232 196 106 / 0.35);
+  box-shadow: 0 0 0 rgb(124 92 214 / 0);
+  cursor: pointer;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.card-brilho:hover,
+.card-brilho:focus-visible,
+.card-brilho:focus-within {
+  border-color: rgb(232 196 106 / 0.8);
+  box-shadow: 0 8px 28px rgb(124 92 214 / 0.45);
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-brilho {
+    transition: none;
+  }
+}
+
 .manifestation-dot {
   width: 6px;
   height: 6px;
@@ -1220,7 +1256,9 @@ h3 {
   }
 
   .app-page:has(.home-main-hero) .manifestation-card {
-    width: 100%;
+    width: 90%;
+    height: 10.8rem;
+    justify-self: center;
   }
 
   .manifest-picker-page {

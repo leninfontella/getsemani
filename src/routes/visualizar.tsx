@@ -73,10 +73,7 @@ function VisualizePage() {
         {items.length ? (
           <div className="mt-5 space-y-4">
             {items.map(({ goal, entries }) => (
-              <article
-                key={goal.id}
-                className="relative rounded-2xl border border-g-violet/40 g-glass"
-              >
+              <article key={goal.id} className="card-brilho relative rounded-2xl g-glass">
                 <Link
                   to="/manifestar/$goal"
                   params={{ goal: goal.id }}

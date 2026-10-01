@@ -172,7 +172,7 @@ function ChooseGoal() {
                     to="/manifestar/$goal"
                     params={{ goal: goal!.id }}
                     search={{ historico: false }}
-                    className="flex items-center gap-4 rounded-2xl border border-g-violet/50 g-glass p-3 transition hover:border-g-gold active:scale-[0.98]"
+                    className="card-brilho manifest-picker-card flex items-center rounded-2xl g-glass active:scale-[0.98]"
                   >
                     <img
                       src={goal!.img}
@@ -180,9 +180,11 @@ function ChooseGoal() {
                       loading="lazy"
                       width={816}
                       height={816}
-                      className="h-20 w-20 shrink-0 rounded-xl object-cover"
+                      className="manifest-picker-card-thumb shrink-0 rounded-xl object-cover"
                     />
-                    <span className="min-w-0 flex-1 text-lg font-semibold">{goal!.title}</span>
+                    <span className="min-w-0 flex-1 text-xs font-semibold leading-tight text-white">
+                      {goal!.title}
+                    </span>
                     <ChevronRight className="h-5 w-5 shrink-0 text-g-gold" />
                   </Link>
                 ))}
@@ -195,9 +197,9 @@ function ChooseGoal() {
                 <button
                   type="button"
                   onClick={() => setShowCustom((value) => !value)}
-                  className="flex w-full items-center gap-4 rounded-2xl border border-dashed border-g-gold/60 g-glass p-3 text-left transition hover:border-g-gold active:scale-[0.98]"
+                  className="card-brilho manifest-picker-card flex items-center rounded-2xl g-glass text-left active:scale-[0.98]"
                 >
-                  <span className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl">
+                  <span className="manifest-picker-card-thumb relative shrink-0 overflow-hidden rounded-xl">
                     <img
                       src={otherManifestations}
                       alt="Portal cósmico de novas possibilidades"
@@ -207,7 +209,9 @@ function ChooseGoal() {
                       <Plus className="h-8 w-8 text-white drop-shadow-lg" />
                     </span>
                   </span>
-                  <span className="min-w-0 flex-1 text-lg font-semibold">Outras Manifestações</span>
+                  <span className="min-w-0 flex-1 text-xs font-semibold leading-tight text-white">
+                    Outras Manifestações
+                  </span>
                   <ChevronRight className="h-5 w-5 shrink-0 text-g-gold" />
                 </button>
               </div>

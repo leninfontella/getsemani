@@ -523,7 +523,7 @@ function HomePage() {
                     className="absolute inset-0 h-full w-full"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#080711] via-[#080711]/25 to-transparent" />
-                  <p className="absolute inset-x-0 bottom-0 p-4 text-base font-semibold leading-tight text-white">
+                  <p className="absolute inset-x-0 bottom-0 p-4 text-xs font-semibold leading-tight text-white">
                     {goal.title}
                   </p>
                 </Link>

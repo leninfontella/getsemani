@@ -200,7 +200,7 @@ function HomePage() {
         />
         {avatarOpen && avatarUrl && (
           <div
-            className="absolute inset-0 z-30 grid place-items-center bg-black/65 backdrop-blur-sm"
+            className="profile-photo-modal absolute inset-0 z-30 grid place-items-center"
             role="dialog"
             aria-modal="true"
             aria-label={`Foto de ${name}`}

@@ -192,7 +192,7 @@ function SettingsPage() {
         <section className="relative overflow-hidden rounded-2xl border border-g-muted/20 g-glass p-4 text-center">
           {avatarOpen && avatarUrl && (
             <div
-              className="absolute inset-0 z-20 grid place-items-center rounded-2xl border border-white/10 bg-[rgba(7,5,13,.64)] p-4 backdrop-blur-2xl"
+              className="profile-photo-modal absolute inset-0 z-20 grid place-items-center rounded-2xl p-4"
               role="dialog"
               aria-modal="true"
               aria-label="Foto de perfil ampliada"

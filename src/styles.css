@@ -1885,6 +1885,26 @@ h3 {
   .diary-week-day span {
     font-size: 0.56rem;
   }
+
+  .diary-writing-tools {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .diary-tool-group {
+    flex: 1 0 100%;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .diary-tool-group + .diary-tool-group {
+    padding-top: 8px;
+    border-top: 1px solid rgb(255 255 255 / 0.1);
+  }
+
+  .diary-date-picker {
+    margin-left: auto;
+  }
 }
 
 .diary-paper {

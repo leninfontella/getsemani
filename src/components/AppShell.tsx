@@ -76,6 +76,11 @@ export function AppNav({ mobileOnly = false }: { mobileOnly?: boolean }) {
   const pathname = useRouterState({
     select: (s) => s.location.pathname,
   });
+  const mobileNav = nav.filter(({ desktopOnly }) => !desktopOnly);
+  const mobileActiveIndex = Math.max(
+    0,
+    mobileNav.findIndex(({ to }) => (to === "/" ? pathname === to : pathname.startsWith(to))),
+  );
 
   const handleLogout = async () => {
     setConfirmLogout(false);
@@ -183,6 +188,11 @@ export function AppNav({ mobileOnly = false }: { mobileOnly?: boolean }) {
         className={`app-nav ${isCompact ? "is-compact" : ""} ${desktopOpen ? "is-open" : ""} ${mobileOnly ? "is-mobile-only" : ""} fixed z-20 grid grid-cols-5 rounded-[26px] p-2`}
         aria-label="Navegação principal"
       >
+        <span
+          className="app-nav-bubble"
+          aria-hidden="true"
+          style={{ transform: `translateX(${mobileActiveIndex * 100}%)` }}
+        />
         <button
           type="button"
           className="app-nav-close"

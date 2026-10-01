@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { Home, Eye, PersonStanding, BookOpen, Settings, Sparkles, Menu, X } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
@@ -44,6 +44,15 @@ export function BrandLogo({ className = "" }: { className?: string }) {
 
 export function AppNav({ mobileOnly = false }: { mobileOnly?: boolean }) {
   const [desktopOpen, setDesktopOpen] = useState(false);
+  const [isCompact, setIsCompact] = useState(false);
+  const pathname = useRouterState({
+    select: (s) => s.location.pathname,
+  });
+
+  // Volta ao tamanho normal ao navegar entre rotas
+  useEffect(() => {
+    setIsCompact(false);
+  }, [pathname]);
 
   useEffect(() => {
     if (!desktopOpen) return;
@@ -53,6 +62,67 @@ export function AppNav({ mobileOnly = false }: { mobileOnly?: boolean }) {
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [desktopOpen]);
+
+  // Redução de tamanho da navbar mobile ao rolar para baixo, expansão ao rolar para cima
+  useEffect(() => {
+    let lastScrollY = typeof window !== "undefined" ? window.scrollY : 0;
+    let ticking = false;
+
+    const handleScroll = () => {
+      if (typeof window === "undefined" || window.innerWidth >= 1024) {
+        setIsCompact((prev) => (prev ? false : prev));
+        return;
+      }
+
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = Math.max(0, window.scrollY);
+
+          // Próximo ao topo da página: sempre tamanho normal
+          if (currentScrollY <= 24) {
+            setIsCompact(false);
+            lastScrollY = currentScrollY;
+            ticking = false;
+            return;
+          }
+
+          // Previne falso positivo no bounce/rubber-banding inferior do iOS
+          const maxScrollY = document.documentElement.scrollHeight - window.innerHeight;
+          if (maxScrollY > 0 && currentScrollY >= maxScrollY - 10) {
+            ticking = false;
+            return;
+          }
+
+          const diff = currentScrollY - lastScrollY;
+
+          // Limiar para suavizar micro-movimentos
+          if (diff > 10) {
+            setIsCompact(true);
+          } else if (diff < -10) {
+            setIsCompact(false);
+          }
+
+          lastScrollY = currentScrollY;
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setIsCompact(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleResize, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   return (
     <>
@@ -68,7 +138,7 @@ export function AppNav({ mobileOnly = false }: { mobileOnly?: boolean }) {
       </button>
       <nav
         id="app-navigation"
-        className={`app-nav ${desktopOpen ? "is-open" : ""} ${mobileOnly ? "is-mobile-only" : ""} fixed z-20 grid grid-cols-5 rounded-[26px] p-2`}
+        className={`app-nav ${isCompact ? "is-compact" : ""} ${desktopOpen ? "is-open" : ""} ${mobileOnly ? "is-mobile-only" : ""} fixed z-20 grid grid-cols-5 rounded-[26px] p-2`}
         aria-label="Navegação principal"
       >
         <button
@@ -92,12 +162,14 @@ export function AppNav({ mobileOnly = false }: { mobileOnly?: boolean }) {
           <Link
             key={to}
             to={to}
+            title={label}
+            aria-label={label}
             activeOptions={{ exact: true }}
             onClick={() => setDesktopOpen(false)}
-            className="group flex min-h-14 min-w-11 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-xs text-g-muted transition-all duration-300 data-[status=active]:bg-white/[0.07] data-[status=active]:text-g-gold"
+            className="app-nav-item group flex min-h-14 min-w-11 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-xs text-g-muted transition-all duration-300 data-[status=active]:bg-white/[0.07] data-[status=active]:text-g-gold"
           >
-            <Icon className="h-[22px] w-[22px] stroke-[1.8] transition-transform group-data-[status=active]:scale-105" />
-            {label}
+            <Icon className="app-nav-icon h-[22px] w-[22px] stroke-[1.8] transition-transform group-data-[status=active]:scale-105" />
+            <span className="app-nav-label">{label}</span>
           </Link>
         ))}
       </nav>

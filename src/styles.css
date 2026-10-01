@@ -1,7 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap");
-@import "tailwindcss" source(none);
-@source "../src";
+@import "tailwindcss";
 @import "tw-animate-css";
+
+@source "../src";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -1537,6 +1538,76 @@ h3 {
     inset 0 1px 0 rgb(255 255 255 / 0.1);
   -webkit-backdrop-filter: blur(var(--g-glass-blur)) saturate(125%);
   backdrop-filter: blur(var(--g-glass-blur)) saturate(125%);
+}
+
+@media (max-width: 1023px) {
+  .app-nav {
+    transition:
+      max-width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      padding 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      border-radius 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 0.35s ease,
+      box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, max-width, padding;
+  }
+
+  .app-nav.is-compact {
+    max-width: 310px;
+    padding: 5px 8px;
+    border-radius: 9999px;
+    background: rgb(13 10 24 / 0.94);
+    box-shadow:
+      0 14px 40px rgb(0 0 0 / 0.65),
+      inset 0 1px 0 rgb(255 255 255 / 0.15);
+  }
+
+  .app-nav.is-compact .app-nav-item {
+    min-height: 40px;
+    height: 40px;
+    min-width: 38px;
+    border-radius: 9999px;
+    gap: 0;
+    padding: 0 4px;
+  }
+
+  .app-nav.is-compact .app-nav-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .app-nav-item {
+    transition:
+      min-height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      padding 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      gap 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      border-radius 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+
+  .app-nav-label {
+    display: block;
+    max-height: 16px;
+    opacity: 1;
+    line-height: 1.1;
+    transform: scale(1);
+    transition:
+      opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+      max-height 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+      margin 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .app-nav.is-compact .app-nav-label {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+    transform: scale(0.6);
+    pointer-events: none;
+    overflow: hidden;
+  }
 }
 
 @media (min-width: 1024px) {

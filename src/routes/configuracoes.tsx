@@ -6,6 +6,13 @@ import { toast } from "sonner";
 import { addNotification, clearNotifications } from "@/lib/notifications";
 import { AppShell, BrandLogo } from "@/components/AppShell";
 import { LiquidConfirmDialog } from "@/components/LiquidConfirmDialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { clearAll, defaultSettings, loadSettings, saveSettings, type Settings } from "@/lib/goals";
 import {
   clearCachedUser,
@@ -25,6 +32,7 @@ function SettingsPage() {
   const [transitionMessage, setTransitionMessage] = useState("ATÉ A PRÓXIMA JORNADA");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
+  const [installGuide, setInstallGuide] = useState<"ios" | "android" | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [savedName, setSavedName] = useState("");
   const [savingName, setSavingName] = useState(false);
@@ -196,6 +204,10 @@ function SettingsPage() {
         onCancel={() => setConfirmDelete(false)}
         onConfirm={deleteAccount}
       />
+      <InstallGuideDialog
+        platform={installGuide}
+        onOpenChange={(open) => !open && setInstallGuide(null)}
+      />
       <main className="desktop-content settings-content px-6 mt-6 space-y-5">
         <section className="relative overflow-hidden rounded-2xl border border-g-muted/20 g-glass p-4 text-center">
           {avatarOpen && avatarUrl && (
@@ -342,6 +354,24 @@ function SettingsPage() {
         >
           <LogOut className="h-4 w-4" /> Sair
         </button>
+        <section className="mx-auto grid w-fit gap-2" aria-label="Instalar o aplicativo">
+          <button
+            type="button"
+            onClick={() => setInstallGuide("ios")}
+            className="flex w-fit items-center gap-2 border-0 bg-transparent px-3 py-1 text-sm font-medium text-white transition-opacity hover:opacity-75"
+          >
+            <AppleIcon className="h-3.5 w-3.5 shrink-0 text-white" />
+            <span>Baixar versão para iOS</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setInstallGuide("android")}
+            className="flex w-fit items-center gap-2 border-0 bg-transparent px-3 py-1 text-sm font-medium text-white transition-opacity hover:opacity-75"
+          >
+            <AndroidIcon className="h-3.5 w-3.5 shrink-0 text-[#3DDC84]" />
+            <span>Baixar versão para Android</span>
+          </button>
+        </section>
         <button
           onClick={() => setConfirmDelete(true)}
           className="settings-delete mx-auto flex w-fit items-center justify-center gap-2 px-3 py-1 text-sm font-medium"
@@ -351,6 +381,165 @@ function SettingsPage() {
         <p className="text-center text-xs text-g-muted">Getsêmani · versão 1.0</p>
       </main>
     </AppShell>
+  );
+}
+
+const installationSteps = {
+  ios: {
+    title: "Instalar no iPhone ou iPad",
+    subtitle: "Use o Safari para adicionar o Getsêmani à sua Tela de Início.",
+    icon: <AppleIcon className="h-8 w-8 text-white" />,
+    steps: [
+      {
+        title: "Acesse o site",
+        text: "Abra o navegador Safari e acesse o endereço do Getsêmani.",
+        image: "/install-guide/ios-access-site.png?v=2",
+      },
+      {
+        title: "Abra o menu Compartilhar",
+        text: "Na barra inferior do Safari, toque no ícone de Compartilhamento.",
+        image: "/install-guide/ios-share.png?v=2",
+      },
+      {
+        title: "Adicione à Tela de Início",
+        text: "Role as opções para baixo e toque em “Adicionar à Tela de Início”.",
+        image: "/install-guide/ios-add-home.png?v=2",
+      },
+      {
+        title: "Configure e salve",
+        text: "Ative “Abrir como App da Web”, se essa opção aparecer, e toque em “Adicionar”.",
+        image: "/install-guide/ios-confirm.png?v=2",
+      },
+    ],
+    done: "Pronto! O aplicativo será adicionado à sua tela inicial e abrirá em tela cheia, sem as barras do navegador.",
+  },
+  android: {
+    title: "Instalar no Android",
+    subtitle: "Use o Google Chrome para instalar o Getsêmani como aplicativo.",
+    icon: <AndroidIcon className="h-8 w-8 text-[#A4C639]" />,
+    steps: [
+      {
+        title: "Acesse no Chrome",
+        text: "Abra o Google Chrome e acesse o endereço do Getsêmani.",
+        image: "/install-guide/android-access-site.png?v=2",
+      },
+      {
+        title: "Abra o menu",
+        text: "Toque no ícone dos três pontos verticais (⋮), no canto superior direito.",
+        image: "/install-guide/android-menu.png?v=2",
+      },
+      {
+        title: "Instale o aplicativo",
+        text: "Selecione “Instalar aplicativo” ou “Adicionar à tela inicial”.",
+        image: "/install-guide/android-install-app.png?v=2",
+      },
+      {
+        title: "Confirme a instalação",
+        text: "No alerta de confirmação, toque no botão “Instalar”.",
+        image: "/install-guide/android-confirm.png?v=2",
+      },
+    ],
+    done: "Depois de instalado, abra o Getsêmani diretamente pela tela inicial com um toque.",
+  },
+} as const;
+
+function InstallGuideDialog({
+  platform,
+  onOpenChange,
+}: {
+  platform: "ios" | "android" | null;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const guide = platform ? installationSteps[platform] : null;
+  return (
+    <Dialog open={platform !== null} onOpenChange={onOpenChange}>
+      {guide && (
+        <DialogContent className="max-h-[90dvh] w-[calc(100%-1.5rem)] max-w-2xl overflow-y-auto rounded-3xl border-g-gold/25 p-0 text-g-text [&>button]:z-20 [&>button]:grid [&>button]:h-10 [&>button]:w-10 [&>button]:place-items-center [&>button]:rounded-full [&>button]:border [&>button]:border-white/20 [&>button]:bg-white/10 [&>button]:text-white [&>button]:opacity-100 [&>button]:backdrop-blur-md [&>button:hover]:bg-white/20">
+          <DialogHeader className="sticky top-0 z-10 border-b border-white/10 bg-[#171326]/95 px-5 pb-4 pt-5 pr-14 text-left backdrop-blur-xl sm:px-7 sm:pt-7">
+            <div className="mb-2 flex items-center gap-3">
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/15 bg-white/5">
+                {guide.icon}
+              </span>
+              <div>
+                <DialogTitle className="font-serif-g text-xl text-g-gold sm:text-2xl">
+                  {guide.title}
+                </DialogTitle>
+                <DialogDescription className="mt-1 text-sm text-g-muted">
+                  {guide.subtitle}
+                </DialogDescription>
+              </div>
+            </div>
+            <a
+              href="https://getsemani-two.vercel.app/"
+              target="_blank"
+              rel="noreferrer"
+              className="block truncate rounded-xl border border-white/10 bg-white/5 px-3 py-2 font-mono text-xs text-[#cbbcff] underline decoration-[#a786ff]/50 underline-offset-2"
+            >
+              https://getsemani-two.vercel.app/
+            </a>
+          </DialogHeader>
+          <div className="space-y-4 px-5 pb-6 sm:px-7">
+            {guide.steps.map((step, index) => (
+              <article
+                key={step.title}
+                className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045]"
+              >
+                <div className="flex gap-3 p-4">
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-g-violet text-sm font-bold text-white">
+                    {index + 1}
+                  </span>
+                  <div>
+                    <h3 className="font-semibold text-g-text">{step.title}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-g-muted">{step.text}</p>
+                  </div>
+                </div>
+                <img
+                  src={step.image}
+                  alt={`Ilustração do passo ${index + 1}: ${step.title}`}
+                  className="w-full border-t border-white/10 bg-[#f8fafc] object-contain"
+                />
+              </article>
+            ))}
+            <p className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4 text-sm leading-relaxed text-emerald-100">
+              <strong>Pronto!</strong> {guide.done.replace(/^Pronto!\s*/, "")}
+            </p>
+            <section className="rounded-2xl border border-g-violet/25 bg-g-violet/10 p-4">
+              <h3 className="font-semibold text-[#d8cbff]">Vantagens de usar como Web App</h3>
+              <ul className="mt-2 space-y-1 text-sm leading-relaxed text-g-muted">
+                <li>
+                  <strong className="text-g-text">Sem barras de navegação:</strong> mais espaço útil
+                  em tela.
+                </li>
+                <li>
+                  <strong className="text-g-text">Acesso rápido:</strong> abra direto da tela
+                  inicial com um toque.
+                </li>
+                <li>
+                  <strong className="text-g-text">Experiência nativa:</strong> transições fluidas,
+                  como em um app baixado pela loja.
+                </li>
+              </ul>
+            </section>
+          </div>
+        </DialogContent>
+      )}
+    </Dialog>
+  );
+}
+
+function AppleIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M17.05 12.54c-.02-2.18 1.78-3.24 1.86-3.29a4 4 0 0 0-3.16-1.71c-1.33-.14-2.62.8-3.3.8-.7 0-1.75-.78-2.88-.76a4.19 4.19 0 0 0-3.53 2.15c-1.53 2.65-.39 6.55 1.08 8.7.74 1.05 1.6 2.23 2.73 2.19 1.1-.05 1.52-.7 2.85-.7 1.32 0 1.72.7 2.87.67 1.19-.02 1.94-1.05 2.65-2.11a8.65 8.65 0 0 0 1.22-2.48 3.76 3.76 0 0 1-2.39-3.46ZM14.88 6.13a3.82 3.82 0 0 0 .88-2.74 3.9 3.9 0 0 0-2.53 1.3 3.64 3.64 0 0 0-.9 2.64 3.23 3.23 0 0 0 2.55-1.2Z" />
+    </svg>
+  );
+}
+
+function AndroidIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="m17.6 9.48 1.84-3.18a.45.45 0 0 0-.78-.45l-1.86 3.22A11.13 11.13 0 0 0 12 8c-1.72 0-3.35.38-4.8 1.07L5.34 5.85a.45.45 0 0 0-.78.45L6.4 9.48A8.94 8.94 0 0 0 2 16h20a8.94 8.94 0 0 0-4.4-6.52ZM7.5 13.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm9 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z" />
+    </svg>
   );
 }
 function SettingRow({

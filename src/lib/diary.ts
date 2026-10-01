@@ -9,6 +9,12 @@ export type CloudDiary = {
   updated_at: string;
 };
 
+export type DiaryAppearance = {
+  inkColor: string;
+  font: string;
+  paper: string;
+};
+
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
@@ -40,6 +46,24 @@ async function currentUserId() {
   const { data, error } = await client.auth.getUser();
   if (error || !data.user) throw error || new Error("Sessão expirada.");
   return { client, userId: data.user.id };
+}
+
+export async function loadDiaryAppearance(): Promise<DiaryAppearance | null> {
+  const client = requireSupabase();
+  const { data, error } = await client.auth.getUser();
+  if (error || !data.user) throw error || new Error("Sessão expirada.");
+  const appearance = data.user.user_metadata["diary_appearance"];
+  return appearance && typeof appearance === "object" ? (appearance as DiaryAppearance) : null;
+}
+
+export async function saveDiaryAppearance(appearance: DiaryAppearance) {
+  const client = requireSupabase();
+  const { data, error } = await client.auth.getUser();
+  if (error || !data.user) throw error || new Error("Sessão expirada.");
+  const { error: updateError } = await client.auth.updateUser({
+    data: { ...data.user.user_metadata, diary_appearance: appearance },
+  });
+  if (updateError) throw updateError;
 }
 
 export async function loadCloudDiary(entryDate: string): Promise<CloudDiary | null> {

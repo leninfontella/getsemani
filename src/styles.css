@@ -1649,15 +1649,353 @@ h3 {
   }
 }
 
+.diary-week {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) 38px;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 18px;
+  background: rgb(13 10 29 / 0.9);
+  box-shadow: 0 15px 42px rgb(0 0 0 / 0.2);
+}
+
+.diary-week-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.diary-week-arrow {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 0.2);
+  border-radius: 50%;
+  color: var(--g-muted);
+  transition:
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.diary-week-arrow:hover {
+  border-color: rgb(239 205 119 / 0.55);
+  color: var(--g-gold);
+}
+
+.diary-week-arrow:active {
+  transform: scale(0.93);
+}
+
+.diary-week-day {
+  display: flex;
+  min-width: 0;
+  height: 58px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  color: var(--g-muted);
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.diary-week-day span {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-overflow: clip;
+  text-transform: uppercase;
+}
+
+.diary-week-day strong {
+  margin-top: 2px;
+  color: var(--g-text);
+  font-size: 0.86rem;
+}
+
+.diary-week-day i {
+  width: 5px;
+  height: 5px;
+  margin-top: 4px;
+  border-radius: 50%;
+}
+
+.diary-week-day i.is-saved {
+  background: var(--g-gold);
+}
+
+.diary-week-day.is-selected {
+  border-color: var(--g-gold);
+  color: var(--g-muted);
+  background: rgb(239 205 119 / 0.1);
+}
+
+.diary-week-day.is-selected strong {
+  color: var(--g-gold);
+}
+
+.diary-writing-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px 14px;
+  margin-top: 20px;
+  padding: 9px 10px;
+  border: 1px solid rgb(255 255 255 / 0.13);
+  border-radius: 14px;
+  background: rgb(255 255 255 / 0.07);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.4);
+}
+
+.diary-tool-group {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.diary-color-option {
+  width: 19px;
+  height: 19px;
+  border: 2px solid rgb(255 255 255 / 0.7);
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.18);
+  transition:
+    transform 150ms ease,
+    outline-color 150ms ease;
+}
+
+.diary-color-option.is-selected {
+  outline: 2px solid rgb(255 255 255 / 0.75);
+  outline-offset: 2px;
+  transform: scale(1.08);
+}
+
+.diary-paper-option {
+  width: 22px;
+  height: 17px;
+  border: 1px solid rgb(255 255 255 / 0.25);
+  border-radius: 5px;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.12);
+  transition:
+    transform 150ms ease,
+    outline-color 150ms ease;
+}
+
+.diary-paper-option.is-selected {
+  outline: 2px solid rgb(255 255 255 / 0.75);
+  outline-offset: 2px;
+  transform: scale(1.06);
+}
+
+.diary-font-option {
+  min-width: 31px;
+  height: 28px;
+  padding: 0 5px;
+  border-radius: 7px;
+  color: inherit;
+  font-size: 0.85rem;
+  opacity: 0.58;
+}
+
+.diary-font-option.is-selected {
+  background: rgb(255 255 255 / 0.12);
+  opacity: 1;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18);
+}
+
+.diary-handwriting {
+  font-family: "Segoe Print", "Bradley Hand", cursive;
+}
+
+.diary-date-picker {
+  position: relative;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  margin-left: auto;
+  place-items: center;
+  border-radius: 8px;
+  color: inherit;
+  background: rgb(255 255 255 / 0.1);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.diary-appearance-save {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid rgb(239 205 119 / 0.38);
+  border-radius: 8px;
+  color: var(--g-gold);
+  background: rgb(239 205 119 / 0.09);
+  transition:
+    transform 150ms ease,
+    background 150ms ease;
+}
+
+.diary-appearance-save:hover {
+  background: rgb(239 205 119 / 0.16);
+}
+
+.diary-appearance-save:active {
+  transform: scale(0.93);
+}
+
+.diary-date-picker input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+@media (max-width: 430px) {
+  .diary-week {
+    grid-template-columns: 30px minmax(0, 1fr) 30px;
+    gap: 4px;
+    padding: 9px 6px;
+  }
+
+  .diary-week-arrow {
+    width: 30px;
+    height: 30px;
+  }
+
+  .diary-week-days {
+    gap: 1px;
+  }
+
+  .diary-week-day {
+    height: 55px;
+    border-radius: 11px;
+  }
+
+  .diary-week-day span {
+    font-size: 0.56rem;
+  }
+}
+
 .diary-paper {
   background:
-    linear-gradient(145deg, oklch(1 0 0 / 0.46), transparent 42%),
-    radial-gradient(circle at 85% 12%, oklch(0.83 0.12 305 / 0.3), transparent 28%),
-    radial-gradient(circle at 10% 88%, oklch(0.85 0.12 85 / 0.25), transparent 32%),
-    repeating-linear-gradient(transparent 0 31px, oklch(0.55 0.06 285 / 0.13) 31px 32px),
-    oklch(0.94 0.025 85 / 0.72);
+    linear-gradient(145deg, rgb(255 255 255 / 0.08), transparent 42%),
+    radial-gradient(circle at 85% 12%, rgb(155 104 210 / 0.17), transparent 30%),
+    radial-gradient(circle at 10% 88%, rgb(239 205 119 / 0.1), transparent 34%),
+    repeating-linear-gradient(transparent 0 31px, rgb(255 255 255 / 0.075) 31px 32px), #2c2338;
   box-shadow:
-    inset 0 1px 0 oklch(1 0 0 / 0.7),
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
     0 22px 65px oklch(0.05 0.03 280 / 0.45);
   backdrop-filter: blur(22px) saturate(145%);
+}
+
+.diary-paper-parchment {
+  background-color: #2c2338;
+}
+
+.diary-paper-rose {
+  background-color: #3a202c;
+  background-blend-mode: soft-light, normal, normal, multiply, normal;
+}
+
+.diary-paper-lavender {
+  background-color: #27233e;
+  background-blend-mode: soft-light, normal, normal, multiply, normal;
+}
+
+.diary-paper-sage {
+  background-color: #1f3330;
+  background-blend-mode: soft-light, normal, normal, multiply, normal;
+}
+
+.diary-paper-blue {
+  background-color: #1d3040;
+  background-blend-mode: soft-light, normal, normal, multiply, normal;
+}
+
+.diary-paper-cream-light,
+.diary-paper-rose-light,
+.diary-paper-lavender-light,
+.diary-paper-sage-light,
+.diary-paper-blue-light {
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 0.42), transparent 42%),
+    radial-gradient(circle at 85% 12%, rgb(155 104 210 / 0.1), transparent 30%),
+    radial-gradient(circle at 10% 88%, rgb(239 205 119 / 0.1), transparent 34%),
+    repeating-linear-gradient(transparent 0 31px, rgb(59 45 78 / 0.1) 31px 32px),
+    var(--diary-light-paper);
+}
+
+.diary-paper-cream-light {
+  --diary-light-paper: #f1e8d3;
+}
+
+.diary-paper-rose-light {
+  --diary-light-paper: #efdde3;
+}
+
+.diary-paper-lavender-light {
+  --diary-light-paper: #e3def0;
+}
+
+.diary-paper-sage-light {
+  --diary-light-paper: #dee8dd;
+}
+
+.diary-paper-blue-light {
+  --diary-light-paper: #dce8ef;
+}
+
+.diary-password-overlay {
+  color: var(--g-text);
+  background: rgb(13 10 29 / 0.82);
+}
+
+.diary-password-card {
+  padding: 28px 22px;
+  border: 1px solid rgb(239 205 119 / 0.32);
+  border-radius: 20px;
+  background: linear-gradient(145deg, rgb(31 25 48 / 0.98), rgb(15 12 31 / 0.98));
+  box-shadow:
+    0 24px 70px rgb(0 0 0 / 0.38),
+    inset 0 1px 0 rgb(255 255 255 / 0.06);
+}
+
+.diary-password-icon {
+  border: 1px solid rgb(239 205 119 / 0.52);
+  color: var(--g-gold);
+  background: rgb(239 205 119 / 0.09);
+  box-shadow: 0 0 24px rgb(239 205 119 / 0.08);
+}
+
+.diary-password-input {
+  border: 1px solid rgb(255 255 255 / 0.16);
+  color: var(--g-text);
+  background: rgb(255 255 255 / 0.06);
+  box-shadow: inset 0 1px 4px rgb(0 0 0 / 0.18);
+}
+
+.diary-password-input::placeholder {
+  color: rgb(255 255 255 / 0.42);
+}
+
+.diary-password-input:focus {
+  border-color: var(--g-gold);
+  box-shadow: 0 0 0 3px rgb(239 205 119 / 0.09);
+}
+
+.diary-password-submit {
+  color: #171123;
+  background: var(--g-gold);
+  box-shadow: 0 8px 24px rgb(239 205 119 / 0.16);
 }

@@ -9,8 +9,11 @@ import {
   KeyRound,
   LoaderCircle,
   Lock,
+  PaintBucket,
+  Palette,
   Save,
   Trash2,
+  Type,
   Unlock,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -21,7 +24,9 @@ import {
   decryptDiary,
   deleteCloudDiary,
   listDiaryDays,
+  loadDiaryAppearance,
   loadCloudDiary,
+  saveDiaryAppearance,
   saveOpenDiary,
   saveProtectedDiary,
   type CloudDiary,
@@ -31,6 +36,51 @@ import { loadDiary, saveDiary } from "@/lib/goals";
 export const Route = createFileRoute("/diario")({ component: DiaryPage });
 
 type PasswordMode = "unlock" | "create" | null;
+
+type DiaryFont = "sans" | "serif" | "handwriting";
+type DiaryPaper =
+  | "parchment"
+  | "rose"
+  | "lavender"
+  | "sage"
+  | "blue"
+  | "cream-light"
+  | "rose-light"
+  | "lavender-light"
+  | "sage-light"
+  | "blue-light";
+
+const diaryColors = [
+  { value: "#f7f0df", label: "Marfim" },
+  { value: "#e6d3ff", label: "Lavanda" },
+  { value: "#ffcbd8", label: "Rosa" },
+  { value: "#ccebd9", label: "Verde" },
+  { value: "#cce5ff", label: "Azul" },
+  { value: "#30263f", label: "Ameixa escuro" },
+  { value: "#6b3f76", label: "Violeta escuro" },
+  { value: "#8b4358", label: "Rosa escuro" },
+  { value: "#355e55", label: "Verde escuro" },
+  { value: "#294f70", label: "Azul escuro" },
+] as const;
+
+const diaryFonts: { value: DiaryFont; label: string; className: string }[] = [
+  { value: "sans", label: "Aa", className: "font-sans-g" },
+  { value: "serif", label: "Aa", className: "font-serif-g" },
+  { value: "handwriting", label: "Abc", className: "diary-handwriting" },
+];
+
+const diaryPapers: { value: DiaryPaper; label: string; color: string }[] = [
+  { value: "parchment", label: "Ameixa", color: "#2c2338" },
+  { value: "rose", label: "Vinho", color: "#3a202c" },
+  { value: "lavender", label: "Violeta", color: "#27233e" },
+  { value: "sage", label: "Floresta", color: "#1f3330" },
+  { value: "blue", label: "Azul-noturno", color: "#1d3040" },
+  { value: "cream-light", label: "Creme claro", color: "#f1e8d3" },
+  { value: "rose-light", label: "Rosa claro", color: "#efdde3" },
+  { value: "lavender-light", label: "Lavanda clara", color: "#e3def0" },
+  { value: "sage-light", label: "Sálvia clara", color: "#dee8dd" },
+  { value: "blue-light", label: "Azul claro", color: "#dce8ef" },
+];
 
 const localDateKey = (date = new Date()) => {
   const offset = date.getTimezoneOffset() * 60_000;
@@ -53,6 +103,58 @@ function DiaryPage() {
   const [selectedDate, setSelectedDate] = useState(localDateKey());
   const [savedDays, setSavedDays] = useState<{ entry_date: string; locked: boolean }[]>([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [inkColor, setInkColor] = useState<(typeof diaryColors)[number]["value"]>("#f7f0df");
+  const [diaryFont, setDiaryFont] = useState<DiaryFont>("sans");
+  const [diaryPaper, setDiaryPaper] = useState<DiaryPaper>("parchment");
+  const [appearanceSaving, setAppearanceSaving] = useState(false);
+
+  useEffect(() => {
+    const color = window.localStorage.getItem("getsemani-diary-ink");
+    const font = window.localStorage.getItem("getsemani-diary-font") as DiaryFont | null;
+    const paper = window.localStorage.getItem("getsemani-diary-paper") as DiaryPaper | null;
+    if (diaryColors.some((option) => option.value === color)) {
+      setInkColor(color as (typeof diaryColors)[number]["value"]);
+    }
+    if (font && diaryFonts.some((option) => option.value === font)) setDiaryFont(font);
+    if (paper && diaryPapers.some((option) => option.value === paper)) setDiaryPaper(paper);
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem("getsemani-diary-ink", inkColor);
+    window.localStorage.setItem("getsemani-diary-font", diaryFont);
+    window.localStorage.setItem("getsemani-diary-paper", diaryPaper);
+  }, [inkColor, diaryFont, diaryPaper]);
+
+  useEffect(() => {
+    void loadDiaryAppearance()
+      .then((appearance) => {
+        if (!appearance) return;
+        if (diaryColors.some((option) => option.value === appearance.inkColor)) {
+          setInkColor(appearance.inkColor as (typeof diaryColors)[number]["value"]);
+        }
+        if (diaryFonts.some((option) => option.value === appearance.font)) {
+          setDiaryFont(appearance.font as DiaryFont);
+        }
+        if (diaryPapers.some((option) => option.value === appearance.paper)) {
+          setDiaryPaper(appearance.paper as DiaryPaper);
+        }
+      })
+      .catch(() => undefined);
+  }, []);
+
+  const saveAppearance = async () => {
+    setAppearanceSaving(true);
+    try {
+      await saveDiaryAppearance({ inkColor, font: diaryFont, paper: diaryPaper });
+      toast("Aparência salva na sua conta ✨");
+    } catch (error) {
+      toast("Não foi possível salvar a aparência.", {
+        description: error instanceof Error ? error.message : "Tente novamente.",
+      });
+    } finally {
+      setAppearanceSaving(false);
+    }
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -221,6 +323,22 @@ function DiaryPage() {
     year: "numeric",
   });
 
+  const selectedDay = new Date(`${selectedDate}T12:00:00`);
+  const monday = new Date(selectedDay);
+  const weekday = selectedDay.getDay();
+  monday.setDate(selectedDay.getDate() - (weekday === 0 ? 6 : weekday - 1));
+  const weekDays = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + index);
+    return {
+      key: localDateKey(date),
+      weekday: date.toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", ""),
+      day: date.getDate(),
+    };
+  });
+
+  const activeFontClass = diaryFonts.find((option) => option.value === diaryFont)?.className ?? "";
+
   const deleteSelectedDay = async () => {
     setSaving(true);
     try {
@@ -260,53 +378,48 @@ function DiaryPage() {
         onCancel={() => setConfirmDelete(false)}
         onConfirm={deleteSelectedDay}
       />
-      <main className="desktop-content px-6 mt-5">
-        <section className="mb-4 rounded-2xl border border-g-violet/30 g-glass p-4">
-          <div className="flex items-center gap-3">
-            <CalendarDays className="h-5 w-5 shrink-0 text-g-gold" />
-            <label className="min-w-0 flex-1">
-              <span className="block text-xs text-g-muted">Pesquisar o que escrevi por dia</span>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(event) => setSelectedDate(event.target.value)}
-                className="mt-1 w-full bg-transparent font-semibold text-g-text outline-none [color-scheme:dark]"
-              />
-            </label>
-            <button
-              onClick={() => moveDay(-1)}
-              aria-label="Dia anterior"
-              className="g-glass grid h-9 w-9 place-items-center rounded-full border border-white/15"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => moveDay(1)}
-              aria-label="Próximo dia"
-              className="g-glass grid h-9 w-9 place-items-center rounded-full border border-white/15"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-          {savedDays.length > 0 && (
-            <div className="mt-4 flex snap-x gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
-              {savedDays.map((day) => (
+      <main className="desktop-content mt-5 px-6">
+        <section className="diary-week" aria-label="Calendário semanal">
+          <button
+            onClick={() => moveDay(-7)}
+            aria-label="Semana anterior"
+            className="diary-week-arrow"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <div className="diary-week-days">
+            {weekDays.map((day) => {
+              const selected = selectedDate === day.key;
+              const saved = savedDays.find((savedDay) => savedDay.entry_date === day.key);
+              return (
                 <button
-                  key={day.entry_date}
-                  onClick={() => setSelectedDate(day.entry_date)}
-                  className={`shrink-0 snap-start rounded-full border px-3 py-2 text-xs transition ${selectedDate === day.entry_date ? "border-g-gold bg-g-gold/15 text-g-gold" : "border-white/10 text-g-muted"}`}
+                  type="button"
+                  key={day.key}
+                  onClick={() => setSelectedDate(day.key)}
+                  aria-current={selected ? "date" : undefined}
+                  aria-label={`${day.weekday}, dia ${day.day}${saved ? ", possui registro" : ""}`}
+                  className={`diary-week-day ${selected ? "is-selected" : ""}`}
                 >
-                  {new Date(`${day.entry_date}T12:00:00`).toLocaleDateString("pt-BR", {
-                    day: "2-digit",
-                    month: "short",
-                  })}
-                  {day.locked ? " 🔒" : ""}
+                  <span>{day.weekday}</span>
+                  <strong>{day.day}</strong>
+                  <i className={saved ? "is-saved" : ""} aria-hidden="true" />
                 </button>
-              ))}
-            </div>
-          )}
+              );
+            })}
+          </div>
+          <button
+            onClick={() => moveDay(7)}
+            aria-label="Próxima semana"
+            className="diary-week-arrow"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </section>
-        <div className="diary-paper relative overflow-hidden rounded-[28px] border border-g-gold/30 p-6 text-[#382c4c] shadow-2xl">
+
+        <div
+          className={`diary-paper diary-paper-${diaryPaper} relative overflow-hidden rounded-[28px] border border-g-gold/30 p-6 shadow-2xl`}
+          style={{ color: inkColor }}
+        >
           <div className="absolute right-4 top-4 flex gap-2">
             <button
               onClick={() => setHidden(!hidden)}
@@ -327,6 +440,73 @@ function DiaryPage() {
           </div>
           <p className="font-serif-g text-2xl font-bold">Pensamentos de hoje</p>
           <p className="mt-1 text-xs opacity-60">{formattedSelectedDate}</p>
+          <div className="diary-writing-tools" aria-label="Aparência da escrita">
+            <div className="diary-tool-group">
+              <Palette className="h-4 w-4 opacity-55" aria-hidden="true" />
+              {diaryColors.map((color) => (
+                <button
+                  type="button"
+                  key={color.value}
+                  onClick={() => setInkColor(color.value)}
+                  className={`diary-color-option ${inkColor === color.value ? "is-selected" : ""}`}
+                  style={{ backgroundColor: color.value }}
+                  aria-label={`Cor ${color.label}`}
+                  aria-pressed={inkColor === color.value}
+                />
+              ))}
+            </div>
+            <div className="diary-tool-group">
+              <PaintBucket className="h-4 w-4 opacity-55" aria-hidden="true" />
+              {diaryPapers.map((paper) => (
+                <button
+                  type="button"
+                  key={paper.value}
+                  onClick={() => setDiaryPaper(paper.value)}
+                  className={`diary-paper-option ${diaryPaper === paper.value ? "is-selected" : ""}`}
+                  style={{ backgroundColor: paper.color }}
+                  aria-label={`Fundo ${paper.label}`}
+                  aria-pressed={diaryPaper === paper.value}
+                />
+              ))}
+            </div>
+            <div className="diary-tool-group">
+              <Type className="h-4 w-4 opacity-55" aria-hidden="true" />
+              {diaryFonts.map((font) => (
+                <button
+                  type="button"
+                  key={font.value}
+                  onClick={() => setDiaryFont(font.value)}
+                  className={`diary-font-option ${font.className} ${diaryFont === font.value ? "is-selected" : ""}`}
+                  aria-label={`Fonte ${font.value}`}
+                  aria-pressed={diaryFont === font.value}
+                >
+                  {font.label}
+                </button>
+              ))}
+            </div>
+            <label className="diary-date-picker" aria-label="Escolher outra data">
+              <CalendarDays className="h-4 w-4" />
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(event) => setSelectedDate(event.target.value)}
+              />
+            </label>
+            <button
+              type="button"
+              onClick={saveAppearance}
+              disabled={appearanceSaving}
+              className="diary-appearance-save"
+              aria-label="Salvar aparência na minha conta"
+              title="Salvar aparência na conta"
+            >
+              {appearanceSaving ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
+            </button>
+          </div>
           {loading ? (
             <div className="grid min-h-[360px] place-items-center">
               <LoaderCircle className="h-8 w-8 animate-spin opacity-50" />
@@ -337,7 +517,8 @@ function DiaryPage() {
               disabled={!unlocked}
               onChange={(event) => setText(event.target.value)}
               placeholder="Escreva livremente. Este espaço é somente seu…"
-              className={`mt-8 min-h-[360px] w-full resize-none bg-transparent leading-8 outline-none placeholder:text-[#493867]/40 ${hidden ? "blur-md select-none" : ""}`}
+              className={`mt-6 min-h-[360px] w-full resize-none bg-transparent text-[1rem] leading-8 outline-none placeholder:text-white/35 ${activeFontClass} ${hidden ? "select-none blur-md" : ""}`}
+              style={{ color: inkColor }}
             />
           )}
           <div className="mt-4 flex items-center justify-between text-xs opacity-60">
@@ -346,9 +527,12 @@ function DiaryPage() {
           </div>
 
           {passwordMode && (
-            <div className="absolute inset-0 z-10 grid place-items-center bg-[#eadff0]/65 p-6 backdrop-blur-2xl">
-              <form onSubmit={handlePassword} className="w-full max-w-xs text-center">
-                <span className="mx-auto grid h-14 w-14 place-items-center rounded-full border border-white/30 bg-white/15 shadow-inner backdrop-blur-xl">
+            <div className="diary-password-overlay absolute inset-0 z-10 grid place-items-center p-6 backdrop-blur-2xl">
+              <form
+                onSubmit={handlePassword}
+                className="diary-password-card w-full max-w-xs text-center"
+              >
+                <span className="diary-password-icon mx-auto grid h-14 w-14 place-items-center rounded-full">
                   {passwordMode === "unlock" ? (
                     <Lock className="h-6 w-6" />
                   ) : (
@@ -377,12 +561,12 @@ function DiaryPage() {
                       setPassword(event.target.value.replace(/\D/g, "").slice(0, 4))
                     }
                     placeholder="4 números"
-                    className="w-full rounded-xl border border-white/35 bg-white/30 px-4 py-3 pr-11 shadow-inner backdrop-blur-xl outline-none focus:border-[#7650a8]"
+                    className="diary-password-input w-full rounded-xl px-4 py-3 pr-11 outline-none"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 opacity-60"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-g-muted"
                     aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -401,13 +585,13 @@ function DiaryPage() {
                       setPasswordConfirmation(event.target.value.replace(/\D/g, "").slice(0, 4))
                     }
                     placeholder="Confirme os 4 números"
-                    className="mt-3 w-full rounded-xl border border-white/35 bg-white/30 px-4 py-3 shadow-inner backdrop-blur-xl outline-none focus:border-[#7650a8]"
+                    className="diary-password-input mt-3 w-full rounded-xl px-4 py-3 outline-none"
                   />
                 )}
                 <button
                   type="submit"
                   disabled={saving}
-                  className="mt-4 w-full rounded-full bg-[#493867] py-3 font-bold text-white disabled:opacity-50"
+                  className="diary-password-submit mt-4 w-full rounded-full py-3 font-bold disabled:opacity-50"
                 >
                   {saving
                     ? "Aguarde…"

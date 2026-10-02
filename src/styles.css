@@ -673,6 +673,54 @@ h3 {
     filter 400ms ease;
 }
 
+@media (max-width: 767px) and (max-height: 700px) {
+  .auth-page {
+    min-height: 100dvh;
+    height: 100dvh;
+    padding: 8px 20px;
+    overflow: hidden;
+  }
+
+  .login-card {
+    min-height: 0;
+    max-height: calc(100dvh - 16px);
+    padding: 12px 20px;
+  }
+
+  .auth-brand-logo {
+    height: 116px;
+  }
+
+  .auth-mode-switch {
+    margin-top: 0;
+  }
+
+  .auth-mode-button {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .auth-intro,
+  .auth-form {
+    margin-top: 0.75rem;
+  }
+
+  .auth-intro h1 {
+    font-size: 1.25rem;
+    line-height: 1.5rem;
+  }
+
+  .auth-input {
+    padding-top: 0.65rem;
+    padding-bottom: 0.65rem;
+  }
+
+  .auth-divider {
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+}
+
 .login-card.is-exiting {
   opacity: 0;
   transform: translateY(-8px) scale(0.985);
@@ -713,15 +761,19 @@ h3 {
 }
 
 .manifest-picker-card {
-  width: 90%;
+  width: 100%;
   margin-inline: auto;
-  gap: 0.9rem;
-  padding: 0.675rem;
+  gap: 1rem;
+  padding: 0.75rem;
 }
 
 .manifest-picker-card-thumb {
-  width: 4.5rem;
-  height: 4.5rem;
+  width: 6rem;
+  height: 6rem;
+}
+
+.card-border {
+  border: 1px solid rgb(232 196 106 / 0.35);
 }
 
 .card-brilho {
@@ -2542,28 +2594,6 @@ h3 {
   --diary-light-paper: #dce8ef;
 }
 
-.diary-password-overlay {
-  color: var(--g-text);
-  background: rgb(13 10 29 / 0.82);
-}
-
-.diary-password-card {
-  padding: 28px 22px;
-  border: 1px solid rgb(239 205 119 / 0.32);
-  border-radius: 20px;
-  background: linear-gradient(145deg, rgb(31 25 48 / 0.98), rgb(15 12 31 / 0.98));
-  box-shadow:
-    0 24px 70px rgb(0 0 0 / 0.38),
-    inset 0 1px 0 rgb(255 255 255 / 0.06);
-}
-
-.diary-password-icon {
-  border: 1px solid rgb(239 205 119 / 0.52);
-  color: var(--g-gold);
-  background: rgb(239 205 119 / 0.09);
-  box-shadow: 0 0 24px rgb(239 205 119 / 0.08);
-}
-
 .diary-password-input {
   border: 1px solid rgb(255 255 255 / 0.16);
   color: var(--g-text);
@@ -2578,10 +2608,4 @@ h3 {
 .diary-password-input:focus {
   border-color: var(--g-gold);
   box-shadow: 0 0 0 3px rgb(239 205 119 / 0.09);
-}
-
-.diary-password-submit {
-  color: #171123;
-  background: var(--g-gold);
-  box-shadow: 0 8px 24px rgb(239 205 119 / 0.16);
 }

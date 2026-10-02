@@ -205,7 +205,7 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen g-space px-5 py-8 font-sans-g text-g-text grid place-items-center">
+    <div className="auth-page min-h-screen g-space px-5 py-8 font-sans-g text-g-text grid place-items-center">
       <Toaster />
       {showJourneyLogo && (
         <div className="login-journey-logo fixed inset-0 z-50 grid place-items-center bg-[#0b0c12]/90 backdrop-blur-md">
@@ -219,9 +219,9 @@ function LoginPage() {
         className={`glass-panel login-card mx-auto w-full max-w-[430px] rounded-[32px] px-6 py-7 ${exiting ? "is-exiting" : ""}`}
       >
         <BrandLogo
-          className={`mx-auto h-[200px] w-[360px] max-w-full ${loginStatus === "loading" || loginStatus === "success" ? "auth-logo-blink" : ""}`}
+          className={`auth-brand-logo mx-auto h-[200px] w-[360px] max-w-full ${loginStatus === "loading" || loginStatus === "success" ? "auth-logo-blink" : ""}`}
         />
-        <div className="g-glass mt-3 grid grid-cols-2 rounded-full border border-white/10 p-1">
+        <div className="auth-mode-switch g-glass mt-3 grid grid-cols-2 rounded-full border border-white/10 p-1">
           <button
             onClick={() => {
               setMode("login");
@@ -243,7 +243,7 @@ function LoginPage() {
             Criar conta
           </button>
         </div>
-        <div className="mt-6 text-center">
+        <div className="auth-intro mt-6 text-center">
           <h1 className="text-2xl font-semibold">
             {mode === "login" ? "Bem-vindo(a) de volta!" : registrationSteps[registerStep].title}
           </h1>
@@ -265,7 +265,7 @@ function LoginPage() {
             </div>
           )}
         </div>
-        <form ref={loginFormRef} onSubmit={submit} className="mt-6 space-y-3">
+        <form ref={loginFormRef} onSubmit={submit} className="auth-form mt-6 space-y-3">
           {mode === "register" ? (
             <div key={registerStep} className="register-step-panel min-h-36">
               {registerStep === 1 && (
@@ -461,7 +461,7 @@ function LoginPage() {
             </>
           )}
         </form>
-        <div className="my-6 flex items-center gap-3 text-xs text-g-muted">
+        <div className="auth-divider my-6 flex items-center gap-3 text-xs text-g-muted">
           <span className="h-px flex-1 bg-white/10" />
           ou continue com
           <span className="h-px flex-1 bg-white/10" />

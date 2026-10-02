@@ -176,7 +176,7 @@ function ManifestGoal() {
             </p>
             <span className="shrink-0 text-[10px] text-g-gold">Apenas digite e aperte ENTER</span>
           </div>
-          <div className="mt-3 rounded-3xl border border-g-violet/70 g-glass p-4">
+          <div className="card-border mt-3 rounded-3xl g-glass p-4">
             <textarea
               value={text}
               onChange={(e) => {
@@ -223,7 +223,7 @@ function ManifestGoal() {
               </span>
             </div>
             {entries.length === 0 ? (
-              <p className="g-glass mt-4 rounded-2xl border border-dashed border-g-muted/30 p-5 text-center text-sm text-g-muted">
+              <p className="card-border g-glass mt-4 rounded-2xl p-5 text-center text-sm text-g-muted">
                 Nenhum registro salvo ainda.
               </p>
             ) : (
@@ -233,7 +233,7 @@ function ManifestGoal() {
                   return (
                     <li
                       key={`${entry.date}-${index}`}
-                      className="rounded-2xl border border-g-violet/30 g-glass p-4"
+                      className="card-border rounded-2xl g-glass p-4"
                     >
                       <time dateTime={entry.date} className="text-xs font-medium text-g-gold">
                         {date.toLocaleDateString("pt-BR", {

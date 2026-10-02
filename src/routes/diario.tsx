@@ -464,6 +464,63 @@ function DiaryPage() {
           </div>,
           document.body,
         )}
+      {passwordMode === "unlock" &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div className="liquid-overlay fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-6">
+            <form
+              onSubmit={handlePassword}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="unlock-diary-password-title"
+              className="liquid-dialog w-full max-w-sm rounded-[32px] p-6 text-center text-g-text"
+            >
+              <span className="liquid-icon mx-auto grid h-16 w-16 place-items-center rounded-full text-g-gold">
+                <Lock className="h-7 w-7" />
+              </span>
+              <h2 id="unlock-diary-password-title" className="mt-5 text-xl font-semibold">
+                Diário protegido
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-g-muted">
+                Digite sua senha para acessar seus pensamentos.
+              </p>
+              <div className="relative mt-5">
+                <input
+                  autoFocus
+                  required
+                  type={showPassword ? "text" : "password"}
+                  inputMode="numeric"
+                  pattern="[0-9]{4}"
+                  minLength={4}
+                  maxLength={4}
+                  value={password}
+                  onChange={(event) =>
+                    setPassword(event.target.value.replace(/\D/g, "").slice(0, 4))
+                  }
+                  placeholder="4 números"
+                  aria-label="Senha de 4 números"
+                  className="diary-password-input w-full rounded-xl px-4 py-3 pr-11 outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-g-muted"
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
+              <button
+                type="submit"
+                disabled={saving}
+                className="g-cta mt-7 w-full rounded-full py-3 font-semibold text-g-bg shadow-lg transition active:scale-95 disabled:opacity-50"
+              >
+                {saving ? "Aguarde…" : "DESBLOQUEAR"}
+              </button>
+            </form>
+          </div>,
+          document.body,
+        )}
       <main className="desktop-content mt-5 px-6">
         <section className="diary-week" aria-label="Calendário semanal">
           <button
@@ -544,55 +601,6 @@ function DiaryPage() {
             <span>{protectedDiary ? "Protegido com senha" : "Diário aberto"}</span>
             <span>{unlocked ? `${text.length} caracteres` : "Conteúdo protegido"}</span>
           </div>
-
-          {passwordMode === "unlock" && (
-            <div className="diary-password-overlay absolute inset-0 z-10 grid place-items-center p-6 backdrop-blur-2xl">
-              <form
-                onSubmit={handlePassword}
-                className="diary-password-card w-full max-w-xs text-center"
-              >
-                <span className="diary-password-icon mx-auto grid h-14 w-14 place-items-center rounded-full">
-                  <Lock className="h-6 w-6" />
-                </span>
-                <h2 className="mt-4 text-xl font-bold">Diário protegido</h2>
-                <p className="mt-2 text-sm opacity-65">
-                  Digite sua senha para acessar seus pensamentos.
-                </p>
-                <div className="relative mt-5">
-                  <input
-                    autoFocus
-                    required
-                    type={showPassword ? "text" : "password"}
-                    inputMode="numeric"
-                    pattern="[0-9]{4}"
-                    minLength={4}
-                    maxLength={4}
-                    value={password}
-                    onChange={(event) =>
-                      setPassword(event.target.value.replace(/\D/g, "").slice(0, 4))
-                    }
-                    placeholder="4 números"
-                    className="diary-password-input w-full rounded-xl px-4 py-3 pr-11 outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-g-muted"
-                    aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-                  >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                  </button>
-                </div>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="diary-password-submit mt-4 w-full rounded-full py-3 font-bold disabled:opacity-50"
-                >
-                  {saving ? "Aguarde…" : "DESBLOQUEAR"}
-                </button>
-              </form>
-            </div>
-          )}
         </div>
 
         <div className="diary-writing-tools mt-4" aria-label="Aparência da escrita">

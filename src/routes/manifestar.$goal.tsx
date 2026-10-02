@@ -175,7 +175,7 @@ function ManifestGoal() {
             </p>
             <span className="shrink-0 text-[10px] text-g-gold">Apenas digite e aperte ENTER</span>
           </div>
-          <div className="mt-3 rounded-3xl border border-g-gold/10 g-glass p-4">
+          <div className="card-border mt-3 rounded-3xl g-glass p-4">
             <textarea
               value={text}
               onChange={(e) => {

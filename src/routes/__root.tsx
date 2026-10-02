@@ -17,6 +17,7 @@ import { clearAll, loadSettings, SETTINGS_CHANGED } from "../lib/goals";
 import { clearNotifications, ensureAutomaticNotifications } from "../lib/notifications";
 import { clearBrowserSessionData, supabase } from "../lib/supabase";
 import { AudioPlayerProvider } from "../components/AudioPlayerProvider";
+import { DesktopFooter } from "../components/DesktopFooter";
 
 declare global {
   interface Window {
@@ -170,6 +171,7 @@ gtag('config', ${JSON.stringify(googleAnalyticsId)}, { send_page_view: false });
       </head>
       <body>
         {children}
+        <DesktopFooter />
         <Scripts />
       </body>
     </html>

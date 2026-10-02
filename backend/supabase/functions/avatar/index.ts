@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { consumeRateLimit } from "../_shared/rate-limit.ts";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -19,7 +20,12 @@ function corsHeaders(request: Request) {
   };
 }
 
-function json(request: Request, body: unknown, status = 200) {
+function json(
+  request: Request,
+  body: unknown,
+  status = 200,
+  extraHeaders: Record<string, string> = {},
+) {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
@@ -27,6 +33,7 @@ function json(request: Request, body: unknown, status = 200) {
       "Content-Type": "application/json",
       "Cache-Control": "private, no-store, max-age=0",
       "X-Content-Type-Options": "nosniff",
+      ...extraHeaders,
     },
   });
 }
@@ -100,10 +107,11 @@ Deno.serve(async (request: Request) => {
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   const bucket = Deno.env.get("GCS_BUCKET_NAME");
   const clientEmail = Deno.env.get("GCS_CLIENT_EMAIL");
   const privateKey = Deno.env.get("GCS_PRIVATE_KEY");
-  if (!supabaseUrl || !anonKey || !bucket || !clientEmail || !privateKey) {
+  if (!supabaseUrl || !anonKey || !serviceRoleKey || !bucket || !clientEmail || !privateKey) {
     return json(request, { error: "Função de avatar não configurada." }, 500);
   }
 
@@ -112,6 +120,24 @@ Deno.serve(async (request: Request) => {
   });
   const { data, error } = await authClient.auth.getUser(token);
   if (error || !data.user) return json(request, { error: "Sessão inválida." }, 401);
+
+  const adminClient = createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  try {
+    const limit = await consumeRateLimit(adminClient, "avatar", data.user.id, 10, 600);
+    if (!limit.allowed) {
+      return json(
+        request,
+        { error: "Muitas alterações de foto. Tente novamente mais tarde." },
+        429,
+        { "Retry-After": String(limit.retryAfter) },
+      );
+    }
+  } catch (error) {
+    console.error("avatar rate limit failed", error instanceof Error ? error.name : "unknown");
+    return json(request, { error: "Serviço temporariamente indisponível." }, 503);
+  }
 
   try {
     const accessToken = await googleAccessToken(clientEmail, privateKey);

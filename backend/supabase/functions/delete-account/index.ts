@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { consumeRateLimit } from "../_shared/rate-limit.ts";
 
 const allowedOrigins = new Set([
   "https://getsemani-two.vercel.app",
@@ -17,7 +18,12 @@ function corsHeaders(request: Request) {
   };
 }
 
-function json(request: Request, body: unknown, status = 200) {
+function json(
+  request: Request,
+  body: unknown,
+  status = 200,
+  extraHeaders: Record<string, string> = {},
+) {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
@@ -25,6 +31,7 @@ function json(request: Request, body: unknown, status = 200) {
       "Content-Type": "application/json",
       "Cache-Control": "private, no-store, max-age=0",
       "X-Content-Type-Options": "nosniff",
+      ...extraHeaders,
     },
   });
 }
@@ -58,6 +65,21 @@ Deno.serve(async (request: Request) => {
   const adminClient = createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+  try {
+    const limit = await consumeRateLimit(adminClient, "delete-account", data.user.id, 5, 3600);
+    if (!limit.allowed) {
+      return json(request, { error: "Muitas tentativas. Tente novamente mais tarde." }, 429, {
+        "Retry-After": String(limit.retryAfter),
+      });
+    }
+  } catch (error) {
+    console.error(
+      "delete-account rate limit failed",
+      error instanceof Error ? error.name : "unknown",
+    );
+    return json(request, { error: "Serviço temporariamente indisponível." }, 503);
+  }
+
   // Revoga os refresh tokens de todas as sessões/dispositivos antes de remover o usuário.
   await adminClient.auth.admin.signOut(token, "global");
   const { error: deleteError } = await adminClient.auth.admin.deleteUser(data.user.id, false);

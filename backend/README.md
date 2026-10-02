@@ -120,3 +120,22 @@ automaticamente pelo ambiente das Edge Functions. Nunca envie a service role par
 O Supabase Studio ficará disponível em `http://localhost:54323`.
 
 > A chave `service_role` nunca deve ser enviada ao navegador nem adicionada ao Git.
+
+## Rate limit
+
+As Edge Functions usam `public.consume_edge_rate_limit`, executada exclusivamente pela
+`service_role`, para aplicar limites atômicos por usuário autenticado:
+
+- `avatar`: 10 operações a cada 10 minutos;
+- `delete-account`: 5 tentativas por hora.
+
+Ao exceder o limite, a função responde com HTTP `429` e o cabeçalho `Retry-After`. Se o contador
+não estiver disponível, a operação privilegiada falha fechada com HTTP `503`. Aplique a migration
+antes de publicar as funções:
+
+```bash
+cd backend
+supabase db push
+supabase functions deploy avatar
+supabase functions deploy delete-account
+```

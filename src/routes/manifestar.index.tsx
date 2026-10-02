@@ -104,6 +104,11 @@ function ChooseGoal() {
     const goal = addCustomGoal(title);
     navigate({ to: "/manifestar/$goal", params: { goal: goal.id }, search: { historico: false } });
   };
+
+  const cancelCustom = () => {
+    setCustomName("");
+    setShowCustom(false);
+  };
   return (
     <div className="manifest-picker min-h-screen g-space font-sans-g text-g-text flex justify-center">
       <div className="manifest-picker-page w-full max-w-[430px] min-h-screen g-stars pb-32">
@@ -225,7 +230,13 @@ function ChooseGoal() {
             </p>
           )}
           {showCustomCard && showCustom && (
-            <div className="rounded-2xl border border-g-violet/50 g-glass p-4">
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                createCustom();
+              }}
+              className="mx-auto w-full max-w-xl rounded-2xl border border-g-gold/35 g-glass p-4 sm:p-5"
+            >
               <label htmlFor="custom-goal" className="text-sm font-medium">
                 Qual é a sua manifestação?
               </label>
@@ -234,19 +245,26 @@ function ChooseGoal() {
                 autoFocus
                 value={customName}
                 onChange={(e) => setCustomName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && createCustom()}
                 placeholder="Ex.: Meu novo projeto"
                 className="g-glass mt-3 w-full rounded-xl border border-g-muted/30 px-4 py-3 outline-none focus:border-g-gold"
               />
-              <button
-                type="button"
-                onClick={createCustom}
-                disabled={!customName.trim()}
-                className="g-cta mt-3 w-full rounded-full py-3 font-bold text-g-bg flex items-center justify-center gap-2 disabled:opacity-40"
-              >
-                Continuar <Sparkles className="h-4 w-4" />
-              </button>
-            </div>
+              <div className="mt-4 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={cancelCustom}
+                  className="liquid-back-button min-w-28 rounded-xl px-5 py-3 text-sm font-semibold text-g-text transition active:scale-95"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={!customName.trim()}
+                  className="manifest-gold-button flex min-w-40 items-center justify-center gap-2 px-5 py-3 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Continuar <Sparkles className="h-4 w-4" />
+                </button>
+              </div>
+            </form>
           )}
         </div>
       </div>

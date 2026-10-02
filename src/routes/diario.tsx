@@ -560,7 +560,7 @@ function DiaryPage() {
         </section>
 
         <div
-          className={`diary-paper diary-paper-${diaryPaper} relative overflow-hidden rounded-[28px] border border-g-gold/30 p-6 shadow-2xl`}
+          className={`diary-paper diary-paper-${diaryPaper} relative overflow-hidden rounded-[28px] border border-g-gold/10 p-6 shadow-2xl`}
           style={{ color: inkColor }}
         >
           <div className="absolute right-4 top-4 flex gap-2">

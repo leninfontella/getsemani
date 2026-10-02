@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
 
 import logo from "@/assets/getsemani-logo.png";
+import { SocialIcons } from "@/components/SocialIcons";
 
 const footerLinks = [
   { to: "/", label: "Início" },
@@ -38,8 +39,10 @@ export function DesktopFooter() {
           ))}
         </nav>
 
+        <SocialIcons className="desktop-footer-social" />
+
         <p className="desktop-footer-copyright">
-          © {new Date().getFullYear()} Getsêmani. Todos os direitos reservados.
+          © {new Date().getFullYear()} Getsêmani · versão 1.0. Todos os direitos reservados.
         </p>
       </div>
     </footer>

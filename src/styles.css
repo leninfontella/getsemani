@@ -330,6 +330,34 @@ html.is-scrolling::-webkit-scrollbar-thumb {
     color: var(--g-gold);
   }
 
+  .desktop-footer-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 16px;
+    color: rgb(255 255 255 / 0.52);
+  }
+
+  .desktop-footer-social a {
+    display: grid;
+    width: 20px;
+    height: 20px;
+    place-items: center;
+    color: inherit;
+    transition: color 180ms ease;
+  }
+
+  .desktop-footer-social a:hover {
+    color: var(--g-gold);
+  }
+
+  .desktop-footer-social svg {
+    width: 15px;
+    height: 15px;
+    stroke-width: 1.7;
+  }
+
   .desktop-footer-copyright {
     margin-top: 18px;
     padding-top: 15px;

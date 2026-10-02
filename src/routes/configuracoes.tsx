@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { addNotification, clearNotifications } from "@/lib/notifications";
 import { AppShell, BrandLogo } from "@/components/AppShell";
 import { LiquidConfirmDialog } from "@/components/LiquidConfirmDialog";
+import { SocialIcons } from "@/components/SocialIcons";
 import {
   Dialog,
   DialogContent,
@@ -371,6 +372,11 @@ function SettingsPage() {
             <AndroidIcon className="h-3.5 w-3.5 shrink-0 text-[#3DDC84]" />
             <span>Baixar versão para Android</span>
           </button>
+          <SocialIcons
+            className="mt-3 flex items-center justify-center gap-3 lg:hidden"
+            itemClassName="liquid-back-button grid h-9 w-9 place-items-center rounded-full text-g-text"
+            iconClassName="h-4 w-4 stroke-[1.7]"
+          />
         </section>
         <button
           onClick={() => setConfirmDelete(true)}
@@ -378,7 +384,7 @@ function SettingsPage() {
         >
           <Trash2 className="h-3.5 w-3.5" /> Excluir conta
         </button>
-        <p className="text-center text-xs text-g-muted">Getsêmani · versão 1.0</p>
+
       </main>
     </AppShell>
   );

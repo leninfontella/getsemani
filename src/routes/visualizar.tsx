@@ -54,7 +54,7 @@ function VisualizePage() {
     }
   };
   return (
-    <AppShell title="Todas as manifestações">
+    <AppShell title="Todas as suas manifestações">
       <LiquidConfirmDialog
         open={Boolean(pendingDelete)}
         icon={<Trash2 className="h-7 w-7" />}

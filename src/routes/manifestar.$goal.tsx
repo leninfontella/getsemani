@@ -168,7 +168,7 @@ function ManifestGoal() {
             <p>
               {writtenToday ? (
                 <span className="text-g-gold">
-                  Já manifestou hoje? Então, aproveite e escreva mais!
+                  Continue escrevendo o que deseja!
                 </span>
               ) : (
                 "Sua manifestação de hoje"

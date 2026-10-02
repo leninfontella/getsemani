@@ -8,6 +8,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import * as React from "react";
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
@@ -16,6 +17,20 @@ import { clearAll, loadSettings, SETTINGS_CHANGED } from "../lib/goals";
 import { clearNotifications, ensureAutomaticNotifications } from "../lib/notifications";
 import { clearBrowserSessionData, supabase } from "../lib/supabase";
 import { AudioPlayerProvider } from "../components/AudioPlayerProvider";
+
+declare global {
+  interface Window {
+    dataLayer: unknown[];
+    gtag: (...args: unknown[]) => void;
+  }
+}
+
+const configuredGoogleAnalyticsId = import.meta.env["VITE_GA_ID"] as string | undefined;
+const googleAnalyticsId = /^G-[A-Z0-9]+$/.test(configuredGoogleAnalyticsId ?? "")
+  ? configuredGoogleAnalyticsId
+  : undefined;
+
+let lastTrackedPage: string | undefined;
 
 function NotFoundComponent() {
   return (
@@ -135,6 +150,23 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="pt-BR">
       <head>
         <HeadContent />
+        {googleAnalyticsId ? (
+          <>
+            <script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(googleAnalyticsId)}`}
+            />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+window.gtag = gtag;
+gtag('js', new Date());
+gtag('config', ${JSON.stringify(googleAnalyticsId)}, { send_page_view: false });`,
+              }}
+            />
+          </>
+        ) : null}
       </head>
       <body>
         {children}
@@ -146,7 +178,31 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+
+  React.useEffect(() => {
+    if (!googleAnalyticsId || typeof window.gtag !== "function") return;
+
+    const trackPageView = (href: string) => {
+      const url = new URL(href, window.location.origin);
+      const page = `${url.pathname}${url.search}${url.hash}`;
+      if (lastTrackedPage === page) return;
+
+      lastTrackedPage = page;
+      window.gtag("event", "page_view", {
+        page_title: document.title,
+        page_location: url.href,
+        page_path: page,
+      });
+    };
+
+    trackPageView(window.location.href);
+
+    return router.subscribe("onResolved", ({ toLocation, hrefChanged }) => {
+      if (hrefChanged) trackPageView(toLocation.href);
+    });
+  }, [router]);
 
   useEffect(() => {
     if (pathname === "/login") return;

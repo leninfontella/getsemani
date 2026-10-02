@@ -159,6 +159,7 @@ export function AppNav({ mobileOnly = false }: { mobileOnly?: boolean }) {
           // Previne falso positivo no bounce/rubber-banding inferior do iOS
           const maxScrollY = document.documentElement.scrollHeight - window.innerHeight;
           if (maxScrollY > 0 && currentScrollY >= maxScrollY - 10) {
+            lastScrollY = currentScrollY;
             ticking = false;
             return;
           }
@@ -168,11 +169,12 @@ export function AppNav({ mobileOnly = false }: { mobileOnly?: boolean }) {
           // Limiar para suavizar micro-movimentos
           if (diff > 10) {
             setIsCompact(true);
+            lastScrollY = currentScrollY;
           } else if (diff < -10) {
             setIsCompact(false);
+            lastScrollY = currentScrollY;
           }
 
-          lastScrollY = currentScrollY;
           ticking = false;
         });
         ticking = true;

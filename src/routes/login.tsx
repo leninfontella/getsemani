@@ -267,7 +267,7 @@ function LoginPage() {
         </div>
         <form ref={loginFormRef} onSubmit={submit} className="auth-form mt-6 space-y-3">
           {mode === "register" ? (
-            <div key={registerStep} className="register-step-panel min-h-36">
+            <div key={registerStep} className="register-step-panel">
               {registerStep === 1 && (
                 <Field icon={<UserRound />}>
                   <input
@@ -437,7 +437,12 @@ function LoginPage() {
                   className="auth-login-slide-fill"
                   style={{ width: `calc(${slideProgress}% + ${47.2 - slideProgress * 0.472}px)` }}
                 />
-                <span className="auth-login-slide-label">
+                <span
+                  className="auth-login-slide-label"
+                  style={{
+                    transform: `translateX(${loginStatus === "idle" ? slideProgress : 0}%)`,
+                  }}
+                >
                   {loginStatus === "loading"
                     ? "Entrando..."
                     : loginStatus === "success"

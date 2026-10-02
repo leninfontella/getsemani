@@ -136,8 +136,11 @@ Deno.serve(async (request: Request) => {
         );
       }
     } catch (error) {
-      console.error("avatar rate limit failed", error instanceof Error ? error.name : "unknown");
-      return json(request, { error: "Serviço temporariamente indisponível." }, 503);
+      // Rate limiting is an additional abuse-control layer. A database/RPC
+      // outage must not make authenticated avatar operations unavailable.
+      // Keep the complete error in the server logs so the limiter can be
+      // repaired without returning a misleading 503 to the user.
+      console.error("avatar rate limit unavailable; continuing", error);
     }
   }
 

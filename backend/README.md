@@ -135,7 +135,7 @@ antes de publicar as funções:
 
 ```bash
 cd backend
-supabase db push
-supabase functions deploy avatar
-supabase functions deploy delete-account
+npx supabase db push
+npx supabase functions deploy avatar
+npx supabase functions deploy delete-account
 ```

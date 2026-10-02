@@ -542,7 +542,15 @@ h3 {
   color: var(--g-text);
 }
 
+.auth-mode-switch {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .auth-mode-button {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  white-space: nowrap;
   color: var(--g-gold);
 }
 
@@ -642,9 +650,15 @@ h3 {
 }
 
 .auth-submit.auth-register-submit.is-continue {
-  width: calc(50% - 4px);
-  height: 40px;
-  font-size: 0.875rem;
+  width: 90%;
+  height: 52.2px;
+  font-size: 1rem;
+}
+
+/* Aligns one-field registration steps with the two-field login action. */
+.auth-form:is([data-register-step="1"], [data-register-step="3"])
+  .auth-register-submit.is-continue {
+  margin-top: 4rem;
 }
 
 .auth-submit.is-loading {
@@ -737,6 +751,11 @@ h3 {
   .auth-divider {
     margin-top: 0.75rem;
     margin-bottom: 0.75rem;
+  }
+
+  .auth-form:is([data-register-step="1"], [data-register-step="3"])
+    .auth-register-submit.is-continue {
+    margin-top: 3.25rem;
   }
 }
 

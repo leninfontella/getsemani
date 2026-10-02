@@ -265,7 +265,12 @@ function LoginPage() {
             </div>
           )}
         </div>
-        <form ref={loginFormRef} onSubmit={submit} className="auth-form mt-6 space-y-3">
+        <form
+          ref={loginFormRef}
+          onSubmit={submit}
+          data-register-step={mode === "register" ? registerStep : undefined}
+          className="auth-form mt-6 space-y-3"
+        >
           {mode === "register" ? (
             <div key={registerStep} className="register-step-panel">
               {registerStep === 1 && (

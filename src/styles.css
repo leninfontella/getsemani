@@ -674,19 +674,36 @@ h3 {
     filter 400ms ease;
 }
 
-@media (max-width: 767px) and (max-height: 700px) {
+/*
+ * Compact authentication layout for phone-sized viewports. In an installed
+ * iOS web app the viewport includes the safe-area regions, so the page owns
+ * one dynamic viewport and the card becomes the fallback scroll container
+ * only while the keyboard is open or the content genuinely does not fit.
+ */
+@media (max-width: 767px) and (max-height: 900px) {
   .auth-page {
     min-height: 100dvh;
     height: 100dvh;
-    padding: 8px 20px;
+    padding-top: max(8px, env(safe-area-inset-top, 0px));
+    padding-right: max(20px, env(safe-area-inset-right, 0px));
+    padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+    padding-left: max(20px, env(safe-area-inset-left, 0px));
     overflow: hidden;
   }
 
   .login-card {
     min-height: 0;
-    height: calc(100dvh - 16px);
-    max-height: calc(100dvh - 16px);
+    height: 100%;
+    max-height: 100%;
     padding: 12px 20px;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .login-card::-webkit-scrollbar {
+    display: none;
   }
 
   .auth-brand-logo {

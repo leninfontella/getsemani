@@ -44,6 +44,7 @@ export function LiquidConfirmDialog({
         <div className="mt-2 text-sm leading-relaxed text-g-muted">{description}</div>
         <div className="mt-7 grid grid-cols-2 gap-3">
           <button
+            type="button"
             onClick={onCancel}
             disabled={loading}
             className="liquid-button rounded-full py-3 font-semibold disabled:opacity-50"
@@ -51,6 +52,7 @@ export function LiquidConfirmDialog({
             {cancelLabel}
           </button>
           <button
+            type="button"
             onClick={onConfirm}
             disabled={loading}
             className={`rounded-full py-3 font-semibold shadow-lg transition active:scale-95 disabled:opacity-50 ${destructive ? "bg-gradient-to-r from-red-500/90 to-rose-400/90 text-white shadow-red-500/25" : "g-cta text-g-bg"}`}

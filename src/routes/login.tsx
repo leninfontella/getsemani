@@ -223,6 +223,7 @@ function LoginPage() {
         />
         <div className="auth-mode-switch g-glass mt-3 grid grid-cols-2 rounded-full border border-white/10 p-1">
           <button
+            type="button"
             onClick={() => {
               setMode("login");
               setRegisterStep(1);
@@ -233,6 +234,7 @@ function LoginPage() {
             Entrar
           </button>
           <button
+            type="button"
             onClick={() => {
               setMode("register");
               setRegisterStep(1);
@@ -478,12 +480,14 @@ function LoginPage() {
         </div>
         <div className="grid grid-cols-2 gap-3">
           <button
+            type="button"
             onClick={() => futureLogin("Google")}
             className="g-glass flex items-center justify-center gap-2 rounded-xl border border-white/15 py-3 text-sm font-semibold"
           >
             <GoogleLogo /> Google
           </button>
           <button
+            type="button"
             onClick={() => futureLogin("Apple")}
             className="g-glass flex items-center justify-center gap-2 rounded-xl border border-white/15 py-3 text-sm font-semibold"
           >

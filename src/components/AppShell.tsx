@@ -296,10 +296,10 @@ export function AppNav({ mobileOnly = false }: { mobileOnly?: boolean }) {
 
 export function AppShell({ title, children }: { title?: string; children: ReactNode }) {
   return (
-    <div className="min-h-screen g-space font-sans-g text-g-text flex justify-center">
+    <div className="min-h-[100dvh] g-space font-sans-g text-g-text flex justify-center">
       <Toaster />
       <AppNav />
-      <div className="app-page page-enter relative w-full max-w-[430px] min-h-screen g-stars pb-32">
+      <div className="app-page page-enter relative w-full max-w-[430px] min-h-[100dvh] g-stars pb-32">
         {title && (
           <header className="home-hero relative flex h-[290px] flex-col items-center justify-center px-6 text-center">
             <div

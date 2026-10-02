@@ -238,6 +238,7 @@ function ChooseGoal() {
                 className="g-glass mt-3 w-full rounded-xl border border-g-muted/30 px-4 py-3 outline-none focus:border-g-gold"
               />
               <button
+                type="button"
                 onClick={createCustom}
                 disabled={!customName.trim()}
                 className="g-cta mt-3 w-full rounded-full py-3 font-bold text-g-bg flex items-center justify-center gap-2 disabled:opacity-40"

@@ -226,6 +226,7 @@ html.is-scrolling::-webkit-scrollbar-thumb {
   --g-gold: oklch(0.85 0.12 85);
   --g-text: oklch(0.96 0.01 285);
   --g-muted: rgb(255 255 255 / 0.7);
+  --app-nav-clearance: 8rem;
 }
 @theme inline {
   --color-g-bg: var(--g-bg);
@@ -244,6 +245,33 @@ html.is-scrolling::-webkit-scrollbar-thumb {
 @utility g-stars {
   isolation: isolate;
   background: transparent;
+}
+
+/* Shared interaction and mobile viewport conventions. */
+:where(button, a[href], input, select, textarea, [role="button"], [role="slider"]):focus-visible {
+  outline: 2px solid var(--g-gold);
+  outline-offset: 3px;
+}
+
+:where(button, a[href], [role="button"], [role="slider"]) {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.app-page,
+.manifest-picker-page,
+.manifest-editor-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-bottom: calc(var(--app-nav-clearance) + env(safe-area-inset-bottom, 0px));
+}
+
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
 }
 
 .g-stars::before,
@@ -1580,6 +1608,10 @@ h3 {
 }
 
 .liquid-overlay {
+  padding-top: max(1.5rem, env(safe-area-inset-top, 0px));
+  padding-right: max(1.5rem, env(safe-area-inset-right, 0px));
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 0px));
+  padding-left: max(1.5rem, env(safe-area-inset-left, 0px));
   background: rgb(3 2 8 / 0.84);
   -webkit-backdrop-filter: blur(64px) brightness(0.3) saturate(80%);
   backdrop-filter: blur(64px) brightness(0.3) saturate(80%);

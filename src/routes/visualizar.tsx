@@ -94,6 +94,7 @@ function VisualizePage() {
                   </div>
                 </Link>
                 <button
+                  type="button"
                   onClick={() => setPendingDelete(goal)}
                   aria-label={`Excluir ${goal.title}`}
                   className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-red-400/10 text-red-300 transition hover:bg-red-400/20"

@@ -119,7 +119,7 @@ export function NotificationCenter({ name }: { name: string }) {
                   </button>
                 )}
               </header>
-              <div className="relative z-10 max-h-[min(520px,calc(100vh-11rem))] overflow-y-auto overscroll-contain">
+              <div className="relative z-10 max-h-[min(520px,calc(100dvh-11rem))] overflow-y-auto overscroll-contain">
                 {items.length ? (
                   items.map((item) => {
                     const offset = drag?.id === item.id ? drag.offset : 0;

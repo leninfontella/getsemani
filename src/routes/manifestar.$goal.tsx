@@ -185,7 +185,7 @@ function ManifestGoal() {
               onKeyDown={formatOnEnter}
               placeholder={`${goal.prompt}\n\nEx.: "${goal.example}"`}
               rows={7}
-              className="w-full resize-none bg-transparent text-base leading-relaxed outline-none placeholder:text-g-muted/70"
+              className="manifest-writing-input w-full resize-none bg-transparent text-base leading-relaxed outline-none placeholder:text-g-muted/70"
             />
           </div>
           <button

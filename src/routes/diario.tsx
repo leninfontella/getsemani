@@ -593,7 +593,7 @@ function DiaryPage() {
               disabled={!unlocked}
               onChange={(event) => setText(event.target.value)}
               placeholder="Escreva livremente. Este espaço é somente seu…"
-              className={`mt-6 min-h-[360px] w-full resize-none bg-transparent text-[1rem] leading-8 outline-none placeholder:text-white/35 ${activeFontClass} ${hidden ? "select-none blur-md" : ""}`}
+              className={`diary-writing-input mt-6 min-h-[360px] w-full resize-none bg-transparent text-[1rem] leading-8 outline-none placeholder:text-white/35 ${activeFontClass} ${hidden ? "select-none blur-md" : ""}`}
               style={{ color: inkColor }}
             />
           )}

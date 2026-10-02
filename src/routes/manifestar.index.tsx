@@ -246,20 +246,20 @@ function ChooseGoal() {
                 value={customName}
                 onChange={(e) => setCustomName(e.target.value)}
                 placeholder="Ex.: Meu novo projeto"
-                className="g-glass mt-3 w-full rounded-xl border border-g-muted/30 px-4 py-3 outline-none focus:border-g-gold"
+                className="custom-goal-input g-glass mt-3 w-full rounded-xl border border-g-muted/30 px-4 py-3 outline-none focus:border-g-gold"
               />
               <div className="mt-4 flex justify-end gap-3">
                 <button
                   type="button"
                   onClick={cancelCustom}
-                  className="liquid-back-button min-w-28 rounded-xl px-5 py-3 text-sm font-semibold text-g-text transition active:scale-95"
+                  className="custom-manifest-action liquid-back-button rounded-xl px-5 py-3 text-g-text transition active:scale-95"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={!customName.trim()}
-                  className="manifest-gold-button flex min-w-40 items-center justify-center gap-2 px-5 py-3 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="custom-manifest-action manifest-gold-button flex items-center justify-center gap-2 px-5 py-3 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Continuar <Sparkles className="h-4 w-4" />
                 </button>

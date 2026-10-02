@@ -1,10 +1,9 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Home } from "lucide-react";
 import { toast } from "sonner";
 import { addNotification } from "@/lib/notifications";
 import { Toaster } from "@/components/ui/sonner";
-import { AppNav, BackButton } from "@/components/AppShell";
+import { AppNav, BackButton, HomeButton } from "@/components/AppShell";
 import {
   allGoals,
   manifestGoals,
@@ -201,14 +200,7 @@ function ManifestGoal() {
                 ? "MANIFESTANDO..."
                 : "MANIFESTADO!"}
           </button>
-          <Link
-            to="/"
-            aria-label="Voltar para a tela inicial"
-            title="Voltar para o início"
-            className="g-glass mx-auto mt-4 grid h-10 w-10 place-items-center rounded-full border border-white/15 text-g-gold transition hover:border-g-gold/60 hover:bg-white/10 active:scale-95"
-          >
-            <Home className="h-4 w-4" />
-          </Link>
+          <HomeButton className="mx-auto mt-4" />
         </section>
 
         {historico && (

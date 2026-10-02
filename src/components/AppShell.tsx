@@ -90,6 +90,19 @@ export function BackButton({ className = "" }: { className?: string }) {
   );
 }
 
+export function HomeButton({ className = "" }: { className?: string }) {
+  return (
+    <Link
+      to="/"
+      aria-label="Voltar para a tela inicial"
+      title="Início"
+      className={`liquid-back-button grid h-11 w-11 place-items-center rounded-full text-g-text transition active:scale-95 ${className}`}
+    >
+      <Home className="h-5 w-5" />
+    </Link>
+  );
+}
+
 export function AppNav({ mobileOnly = false }: { mobileOnly?: boolean }) {
   const [desktopOpen, setDesktopOpen] = useState(false);
   const [isCompact, setIsCompact] = useState(false);
@@ -308,6 +321,7 @@ export function AppShell({ title, children }: { title?: string; children: ReactN
               aria-hidden="true"
             />
             <BackButton className="absolute left-6 top-7 z-20" />
+            <HomeButton className="absolute right-6 top-7 z-20" />
             <BrandLogo className="app-shell-hero-logo relative z-10 h-[220px] w-[400px] max-w-full" />
             <h1 className="font-serif-g relative z-10 -mt-5 text-3xl font-semibold">{title}</h1>
           </header>

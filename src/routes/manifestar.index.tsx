@@ -5,7 +5,7 @@ import { ChevronRight, Plus, Search, Sparkles } from "lucide-react";
 import { addCustomGoal, manifestGoals } from "@/lib/goals";
 import otherManifestations from "@/assets/goal-other-manifestations.jpg";
 import homeHero from "@/assets/home-hero.png";
-import { AppNav, BackButton, BrandLogo } from "@/components/AppShell";
+import { AppNav, BackButton, BrandLogo, HomeButton } from "@/components/AppShell";
 
 const goalGroups = [
   {
@@ -114,6 +114,7 @@ function ChooseGoal() {
             aria-hidden="true"
           />
           <BackButton className="absolute left-6 top-7 z-10" />
+          <HomeButton className="absolute right-6 top-7 z-10" />
           <BrandLogo className="relative z-10 h-[176px] w-[320px]" />
           <h2 className="font-serif-g relative z-10 mt-1 text-[2rem] font-semibold leading-[1.05]">
             O que você deseja

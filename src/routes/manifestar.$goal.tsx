@@ -101,7 +101,7 @@ function ManifestGoal() {
         title: "Manifestação registrada ✨",
         message: `Sua manifestação “${goal.title}” foi salva com sucesso.`,
       });
-      const remainingTime = 2500 - (Date.now() - submittingStartedAt);
+      const remainingTime = 1000 - (Date.now() - submittingStartedAt);
       if (remainingTime > 0) {
         await new Promise((resolve) => window.setTimeout(resolve, remainingTime));
       }

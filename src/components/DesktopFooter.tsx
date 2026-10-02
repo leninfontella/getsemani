@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
 
 import logo from "@/assets/getsemani-logo.png";
@@ -14,6 +14,10 @@ const footerLinks = [
 ] as const;
 
 export function DesktopFooter() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+
+  if (pathname === "/login") return null;
+
   return (
     <footer className="desktop-footer font-sans-g" aria-label="Rodapé">
       <div className="desktop-footer-inner">

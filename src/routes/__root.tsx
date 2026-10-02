@@ -175,7 +175,7 @@ function RootComponent() {
   useEffect(() => {
     if (!supabase) return;
     const { data } = supabase.auth.onAuthStateChange((event) => {
-      if (event !== "SIGNED_OUT" && event !== "USER_DELETED") return;
+      if (event !== "SIGNED_OUT") return;
       queryClient.clear();
       void clearBrowserSessionData().finally(() => {
         if (window.location.pathname !== "/login") window.location.replace("/login");

@@ -73,11 +73,10 @@ Deno.serve(async (request: Request) => {
       });
     }
   } catch (error) {
-    console.error(
-      "delete-account rate limit failed",
-      error instanceof Error ? error.name : "unknown",
-    );
-    return json(request, { error: "Serviço temporariamente indisponível." }, 503);
+    // Rate limiting is an additional abuse-control layer. A database/RPC
+    // outage must not prevent an authenticated user from deleting their account.
+    // Log the complete error so the limiter can be repaired separately.
+    console.error("delete-account rate limit unavailable; continuing", error);
   }
 
   // Revoga os refresh tokens de todas as sessões/dispositivos antes de remover o usuário.

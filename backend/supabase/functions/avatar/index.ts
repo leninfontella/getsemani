@@ -15,7 +15,7 @@ function corsHeaders(request: Request) {
   return {
     "Access-Control-Allow-Origin": allowedOrigins.has(origin) ? origin : "null",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-    "Access-Control-Allow-Methods": "POST, DELETE, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
     Vary: "Origin",
   };
 }
@@ -98,7 +98,7 @@ Deno.serve(async (request: Request) => {
   if (origin && !allowedOrigins.has(origin))
     return json(request, { error: "Origem não permitida." }, 403);
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders(request) });
-  if (request.method !== "POST" && request.method !== "DELETE") {
+  if (request.method !== "GET" && request.method !== "POST" && request.method !== "DELETE") {
     return json(request, { error: "Método não permitido." }, 405);
   }
 
@@ -124,25 +124,40 @@ Deno.serve(async (request: Request) => {
   const adminClient = createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
-  try {
-    const limit = await consumeRateLimit(adminClient, "avatar", data.user.id, 10, 600);
-    if (!limit.allowed) {
-      return json(
-        request,
-        { error: "Muitas alterações de foto. Tente novamente mais tarde." },
-        429,
-        { "Retry-After": String(limit.retryAfter) },
-      );
+  if (request.method !== "GET") {
+    try {
+      const limit = await consumeRateLimit(adminClient, "avatar", data.user.id, 10, 600);
+      if (!limit.allowed) {
+        return json(
+          request,
+          { error: "Muitas alterações de foto. Tente novamente mais tarde." },
+          429,
+          { "Retry-After": String(limit.retryAfter) },
+        );
+      }
+    } catch (error) {
+      console.error("avatar rate limit failed", error instanceof Error ? error.name : "unknown");
+      return json(request, { error: "Serviço temporariamente indisponível." }, 503);
     }
-  } catch (error) {
-    console.error("avatar rate limit failed", error instanceof Error ? error.name : "unknown");
-    return json(request, { error: "Serviço temporariamente indisponível." }, 503);
   }
 
   try {
-    const accessToken = await googleAccessToken(clientEmail, privateKey);
     const objectName = `avatars/${data.user.id}/profile`;
     const encodedObject = encodeURIComponent(objectName);
+    const publicUrl = `https://storage.googleapis.com/${encodeURIComponent(bucket)}/${objectName}`;
+
+    if (request.method === "GET") {
+      const url = `${publicUrl}?v=${Date.now()}`;
+      const { error: updateError } = await adminClient
+        .from("profiles")
+        .update({ avatar_url: url })
+        .eq("id", data.user.id)
+        .eq("avatar_url", "private");
+      if (updateError) throw updateError;
+      return json(request, { url, userId: data.user.id });
+    }
+
+    const accessToken = await googleAccessToken(clientEmail, privateKey);
 
     if (request.method === "DELETE") {
       const response = await fetch(
@@ -172,7 +187,6 @@ Deno.serve(async (request: Request) => {
       },
     );
     if (!upload.ok) throw new Error(`Cloud Storage recusou o envio (${upload.status}).`);
-    const publicUrl = `https://storage.googleapis.com/${encodeURIComponent(bucket)}/${objectName}`;
     return json(request, { url: `${publicUrl}?v=${Date.now()}`, userId: data.user.id });
   } catch (error) {
     console.error("avatar operation failed", error instanceof Error ? error.name : "unknown");

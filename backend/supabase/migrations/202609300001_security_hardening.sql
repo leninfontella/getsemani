@@ -8,8 +8,7 @@ revoke all on table public.profiles from anon;
 revoke all on table public.manifestations from anon;
 revoke all on table public.diaries from anon;
 
--- URLs públicas antigas deixam de ser servidas pelo perfil; a imagem passa pelo proxy autenticado.
-update public.profiles set avatar_url = 'private' where avatar_url is not null;
+-- As URLs de avatar permanecem públicas; o acesso ao restante do perfil continua protegido por RLS.
 
 -- Limites server-side contra payloads abusivos e dados fora do domínio esperado.
 alter table public.manifestations

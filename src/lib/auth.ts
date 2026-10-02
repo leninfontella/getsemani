@@ -10,6 +10,15 @@ export type LocalUser = { name: string; email: string; gender?: Gender; avatarUr
 
 const USER_KEY = "getsemani-user";
 
+async function resolveAvatarUrl(client: ReturnType<typeof requireSupabase>, avatarUrl: unknown) {
+  if (!avatarUrl) return undefined;
+  if (avatarUrl !== "private") return String(avatarUrl);
+
+  const { data, error } = await client.functions.invoke("avatar", { method: "GET" });
+  if (error || !data?.url) return undefined;
+  return String(data.url);
+}
+
 export function loadUser(): LocalUser | null {
   if (typeof window === "undefined") return null;
   try {
@@ -17,7 +26,7 @@ export function loadUser(): LocalUser | null {
     if (!value) return null;
     const user = JSON.parse(value) as LocalUser;
     // Object URLs belong to one document only and are invalid after a reload.
-    if (user.avatarUrl?.startsWith("blob:")) {
+    if (user.avatarUrl === "private" || user.avatarUrl?.startsWith("blob:")) {
       const { avatarUrl: _avatarUrl, ...withoutEphemeralAvatar } = user;
       localStorage.setItem(USER_KEY, JSON.stringify(withoutEphemeralAvatar));
       return withoutEphemeralAvatar;
@@ -73,6 +82,7 @@ export async function loginUser(email: string, password: string) {
     .select("name, gender, avatar_url")
     .eq("id", data.user.id)
     .maybeSingle();
+  const avatarUrl = await resolveAvatarUrl(client, profile?.avatar_url);
   cacheUser({
     name: String(profile?.name || metadata["name"] || email.split("@")[0]),
     email,
@@ -80,7 +90,7 @@ export async function loginUser(email: string, password: string) {
       (profile?.gender as Gender | undefined) ||
       (metadata["gender"] as Gender | undefined) ||
       "nao-informar",
-    ...(profile?.avatar_url ? { avatarUrl: String(profile.avatar_url) } : {}),
+    ...(avatarUrl ? { avatarUrl } : {}),
   });
   if (showWelcome) {
     // Persist the one-time marker in Auth so account-cache cleanup cannot erase it
@@ -102,11 +112,12 @@ export async function refreshCachedUser() {
     .eq("id", auth.user.id)
     .single();
   if (profileError) throw profileError;
+  const avatarUrl = await resolveAvatarUrl(client, profile.avatar_url);
   const user: LocalUser = {
     name: profile.name,
     email: auth.user.email || "",
     gender: profile.gender as Gender,
-    ...(profile.avatar_url ? { avatarUrl: String(profile.avatar_url) } : {}),
+    ...(avatarUrl ? { avatarUrl } : {}),
   };
   cacheUser(user);
   return user;

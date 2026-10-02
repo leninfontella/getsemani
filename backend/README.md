@@ -48,6 +48,8 @@ Supabase e envia o arquivo ao Cloud Storage. As credenciais Google ficam somente
 
 O objeto usa o caminho `avatars/{user-id}/profile`; trocar a foto sobrescreve o mesmo objeto e
 um parâmetro de versão evita que o navegador continue mostrando a imagem antiga.
+O perfil armazena a URL pública completa. Registros antigos marcados como `private` são reparados
+automaticamente pela função na próxima atualização do perfil autenticado.
 
 ### `manifestations`
 

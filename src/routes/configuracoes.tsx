@@ -97,10 +97,10 @@ function SettingsPage() {
     toast(`Lembrete confirmado para ${reminderTimeDraft}.`, {
       description:
         permission === "granted"
-          ? "Você receberá o aviso na central e nas notificações do dispositivo."
+          ? "Você receberá o aviso na central e uma notificação nativa no dispositivo."
           : permission === "denied"
-            ? "As notificações do dispositivo estão bloqueadas; o aviso continuará na central."
-            : "Seu navegador não oferece notificações; o aviso continuará na central.",
+            ? "As notificações do dispositivo estão bloqueadas nas configurações do navegador."
+            : "Seu navegador não oferece suporte a notificações nativas.",
     });
   };
   const uploadAvatar = async (file?: File) => {
@@ -334,7 +334,7 @@ function SettingsPage() {
           <SettingRow
             icon={<Bell />}
             title="Lembrete diário"
-            detail="Receber “Hora de Manifestar” na central"
+            detail="Receber “Hora de Manifestar” na central e no dispositivo"
           >
             <Switch
               checked={settings.reminder}
@@ -364,8 +364,7 @@ function SettingsPage() {
           )}
           {settings.reminder && (
             <p className="border-t border-g-muted/10 px-4 py-3 text-xs leading-relaxed text-g-muted">
-              Se o app estiver fechado nesse horário, o aviso aparecerá na central assim que você
-              voltar.
+              Se o app estiver suspenso nesse horário, o aviso será enviado assim que você voltar.
             </p>
           )}
           <SettingRow

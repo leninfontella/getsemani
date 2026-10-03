@@ -12,10 +12,10 @@ export type AppNotification = {
 
 const STORAGE_KEY = "getsemani-notifications";
 const DISMISSED_KEY = "getsemani-dismissed-notifications";
+const SYSTEM_REMINDER_SHOWN_KEY = "getsemani-system-reminder-shown";
 const PENDING_WELCOME_KEY = "getsemani-pending-welcome";
 const LEGACY_WELCOME_REMOVED_KEY = "getsemani-legacy-welcome-removed";
 export const NOTIFICATIONS_CHANGED = "getsemani:notifications-changed";
-export const REMINDER_DUE = "getsemani:reminder-due";
 
 const DAILY_AFFIRMATIONS = [
   "Eu confio no processo e recebo com gratidão tudo o que já está a caminho.",
@@ -145,8 +145,8 @@ export async function requestSystemNotificationPermission() {
 }
 
 async function showSystemReminderNotification(title: string, message: string) {
-  if (typeof window === "undefined" || !("Notification" in window)) return;
-  if (Notification.permission !== "granted") return;
+  if (typeof window === "undefined" || !("Notification" in window)) return false;
+  if (Notification.permission !== "granted") return false;
   try {
     const registration = await registerNotificationWorker();
     if (registration) {
@@ -157,11 +157,13 @@ async function showSystemReminderNotification(title: string, message: string) {
         tag: "getsemani-daily-reminder",
         data: { url: "/" },
       });
-      return;
+      return true;
     }
     new Notification(title, { body: message, icon: "/getsemani-icon.png" });
+    return true;
   } catch {
     // A central interna continua sendo a fonte confiável quando o sistema bloqueia o aviso nativo.
+    return false;
   }
 }
 
@@ -193,6 +195,7 @@ export function clearNotifications() {
   if (typeof window === "undefined") return;
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(DISMISSED_KEY);
+  localStorage.removeItem(SYSTEM_REMINDER_SHOWN_KEY);
   notifyChanged();
 }
 
@@ -203,6 +206,9 @@ export function resetTodayReminderNotification() {
   const dismissedIds = loadDismissedNotificationIds();
   dismissedIds.delete(reminderId);
   saveDismissedNotificationIds(dismissedIds);
+  if (localStorage.getItem(SYSTEM_REMINDER_SHOWN_KEY) === dateKey) {
+    localStorage.removeItem(SYSTEM_REMINDER_SHOWN_KEY);
+  }
   saveNotifications(loadNotifications().filter((item) => item.id !== reminderId));
 }
 
@@ -229,19 +235,24 @@ export function ensureAutomaticNotifications() {
     const [hour = 7, minute = 0] = settings.reminderTime.split(":").map(Number);
     const reminderTime = new Date();
     reminderTime.setHours(hour, minute, 0, 0);
-    if (Date.now() >= reminderTime.getTime()) {
+    if (
+      Date.now() >= reminderTime.getTime() &&
+      localStorage.getItem(SYSTEM_REMINDER_SHOWN_KEY) !== dateKey
+    ) {
       const title = "Hora de Manifestar";
       const message = "Reserve alguns minutos para escrever e sentir a realidade que você deseja.";
-      const added = addNotification({
+      addNotification({
         id: `reminder-${dateKey}`,
         kind: "reminder",
         title,
         message,
       });
-      if (added) {
-        window.dispatchEvent(new CustomEvent(REMINDER_DUE, { detail: { title, message } }));
-        void showSystemReminderNotification(title, message);
-      }
+      localStorage.setItem(SYSTEM_REMINDER_SHOWN_KEY, dateKey);
+      void showSystemReminderNotification(title, message).then((shown) => {
+        if (!shown && localStorage.getItem(SYSTEM_REMINDER_SHOWN_KEY) === dateKey) {
+          localStorage.removeItem(SYSTEM_REMINDER_SHOWN_KEY);
+        }
+      });
     }
   }
 }

@@ -14,6 +14,7 @@ const STORAGE_KEY = "getsemani-notifications";
 const PENDING_WELCOME_KEY = "getsemani-pending-welcome";
 const LEGACY_WELCOME_REMOVED_KEY = "getsemani-legacy-welcome-removed";
 export const NOTIFICATIONS_CHANGED = "getsemani:notifications-changed";
+export const REMINDER_DUE = "getsemani:reminder-due";
 
 const DAILY_AFFIRMATIONS = [
   "Eu confio no processo e recebo com gratidão tudo o que já está a caminho.",
@@ -105,11 +106,50 @@ export function addNotification(
 ) {
   const items = loadNotifications();
   const id = notification.id || `${Date.now()}-${crypto.randomUUID()}`;
-  if (items.some((item) => item.id === id)) return;
+  if (items.some((item) => item.id === id)) return false;
   saveNotifications([
     { ...notification, id, createdAt: new Date().toISOString(), read: false },
     ...items,
   ]);
+  return true;
+}
+
+async function registerNotificationWorker() {
+  if (!("serviceWorker" in navigator)) return undefined;
+  return navigator.serviceWorker.register("/notification-sw.js", { scope: "/" });
+}
+
+export async function requestSystemNotificationPermission() {
+  if (typeof window === "undefined" || !("Notification" in window)) return "unsupported" as const;
+  if (Notification.permission === "granted") {
+    await registerNotificationWorker();
+    return "granted" as const;
+  }
+  if (Notification.permission === "denied") return "denied" as const;
+  const permission = await Notification.requestPermission();
+  if (permission === "granted") await registerNotificationWorker();
+  return permission;
+}
+
+async function showSystemReminderNotification(title: string, message: string) {
+  if (typeof window === "undefined" || !("Notification" in window)) return;
+  if (Notification.permission !== "granted") return;
+  try {
+    const registration = await registerNotificationWorker();
+    if (registration) {
+      await registration.showNotification(title, {
+        body: message,
+        icon: "/getsemani-icon.png",
+        badge: "/getsemani-icon.png",
+        tag: "getsemani-daily-reminder",
+        data: { url: "/" },
+      });
+      return;
+    }
+    new Notification(title, { body: message, icon: "/getsemani-icon.png" });
+  } catch {
+    // A central interna continua sendo a fonte confiável quando o sistema bloqueia o aviso nativo.
+  }
 }
 
 export function markNotificationRead(id: string) {
@@ -162,12 +202,18 @@ export function ensureAutomaticNotifications() {
     const reminderTime = new Date();
     reminderTime.setHours(hour, minute, 0, 0);
     if (Date.now() >= reminderTime.getTime()) {
-      addNotification({
+      const title = "Hora de Manifestar";
+      const message = "Reserve alguns minutos para escrever e sentir a realidade que você deseja.";
+      const added = addNotification({
         id: `reminder-${dateKey}`,
         kind: "reminder",
-        title: "Hora de Manifestar",
-        message: "Reserve alguns minutos para escrever e sentir a realidade que você deseja.",
+        title,
+        message,
       });
+      if (added) {
+        window.dispatchEvent(new CustomEvent(REMINDER_DUE, { detail: { title, message } }));
+        void showSystemReminderNotification(title, message);
+      }
     }
   }
 }

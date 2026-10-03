@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-router";
 import * as React from "react";
 import { useEffect, type ReactNode } from "react";
+import { toast } from "sonner";
 
 import appCss from "../styles.css?url";
 import { clearCachedUser, isAuthenticated } from "../lib/auth";
@@ -18,6 +19,7 @@ import {
   clearNotifications,
   ensureAutomaticNotifications,
   getNextAutomaticNotificationDelay,
+  REMINDER_DUE,
 } from "../lib/notifications";
 import { clearBrowserSessionData, supabase } from "../lib/supabase";
 import { AudioPlayerProvider } from "../components/AudioPlayerProvider";
@@ -256,6 +258,10 @@ function RootComponent() {
   useEffect(() => {
     if (pathname === "/login") return;
     let reminderTimer: ReturnType<typeof window.setTimeout>;
+    const showReminderToast = (event: Event) => {
+      const { title, message } = (event as CustomEvent<{ title: string; message: string }>).detail;
+      toast(title, { description: message, duration: 8_000 });
+    };
     const scheduleAutomaticNotifications = () => {
       window.clearTimeout(reminderTimer);
       ensureAutomaticNotifications();
@@ -267,6 +273,7 @@ function RootComponent() {
     const refreshWhenVisible = () => {
       if (document.visibilityState === "visible") scheduleAutomaticNotifications();
     };
+    window.addEventListener(REMINDER_DUE, showReminderToast);
     scheduleAutomaticNotifications();
     const reminderSafetyCheck = window.setInterval(ensureAutomaticNotifications, 30_000);
     window.addEventListener("focus", scheduleAutomaticNotifications);
@@ -276,6 +283,7 @@ function RootComponent() {
     return () => {
       window.clearTimeout(reminderTimer);
       window.clearInterval(reminderSafetyCheck);
+      window.removeEventListener(REMINDER_DUE, showReminderToast);
       window.removeEventListener("focus", scheduleAutomaticNotifications);
       window.removeEventListener("pageshow", scheduleAutomaticNotifications);
       document.removeEventListener("visibilitychange", refreshWhenVisible);

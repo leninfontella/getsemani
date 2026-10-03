@@ -128,9 +128,19 @@ export function NotificationCenter({ name }: { name: string }) {
                         key={item.id}
                         className="notification-item-shell relative mx-3 mb-2 overflow-hidden rounded-[18px] border border-white/10 first:mt-3 last:mb-3"
                       >
+                        <span
+                          className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-xs font-semibold text-white"
+                          style={{
+                            opacity: Math.min(1, Math.abs(offset) / 36),
+                            transform: `translateX(${Math.max(0, 10 - Math.abs(offset) / 5)}px)`,
+                          }}
+                          aria-hidden="true"
+                        >
+                          Limpar
+                        </span>
                         <button
                           type="button"
-                          className={`notification-item-glass relative flex w-full touch-pan-y gap-3 px-4 py-3 text-left transition-transform ${item.read ? "opacity-65" : ""}`}
+                          className={`notification-item-glass relative z-10 flex w-full touch-pan-y gap-3 px-4 py-3 text-left transition-transform ${item.read ? "opacity-65" : ""}`}
                           style={{
                             transform: `translateX(${offset}px)`,
                             opacity: 1 - Math.abs(offset) / 150,

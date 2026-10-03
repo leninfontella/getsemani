@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import {
   addNotification,
   clearNotifications,
+  requestSystemNotificationPermission,
   resetTodayReminderNotification,
 } from "@/lib/notifications";
 import { AppShell, BrandLogo } from "@/components/AppShell";
@@ -85,14 +86,22 @@ function SettingsPage() {
     update(key, value);
     toast(`${label} ${value ? "ativado" : "desativado"}.`);
   };
-  const confirmReminderTime = () => {
+  const confirmReminderTime = async () => {
     if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(reminderTimeDraft)) {
       toast("Escolha um horário válido.");
       return;
     }
+    const permission = await requestSystemNotificationPermission();
     resetTodayReminderNotification();
     update("reminderTime", reminderTimeDraft);
-    toast(`Lembrete confirmado para ${reminderTimeDraft}.`);
+    toast(`Lembrete confirmado para ${reminderTimeDraft}.`, {
+      description:
+        permission === "granted"
+          ? "Você receberá o aviso na central e nas notificações do dispositivo."
+          : permission === "denied"
+            ? "As notificações do dispositivo estão bloqueadas; o aviso continuará na central."
+            : "Seu navegador não oferece notificações; o aviso continuará na central.",
+    });
   };
   const uploadAvatar = async (file?: File) => {
     if (!file) return;
@@ -345,7 +354,7 @@ function SettingsPage() {
               </div>
               <button
                 type="button"
-                onClick={confirmReminderTime}
+                onClick={() => void confirmReminderTime()}
                 disabled={reminderTimeDraft === settings.reminderTime}
                 className="liquid-back-button ml-auto mt-3 flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold text-g-text transition active:scale-95 disabled:cursor-default disabled:opacity-35"
               >

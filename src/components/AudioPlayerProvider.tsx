@@ -13,6 +13,8 @@ import rainAudio from "@/assets/Chuva tranquila.mp3";
 import bowlsAudio from "@/assets/Tigelas Tibetanas.mp3";
 import frequency432Audio from "@/assets/432 Hz  Music.mp3";
 import frequency528Audio from "@/assets/528 Hz Music.mp3";
+import anxietyReliefAudio from "@/assets/Ansiedade e Inquietude Constante - Música Relaxante Para Acalmar as Angústias e Tranquilizar a Alma.mp3";
+import fearReleaseAudio from "@/assets/ELIMINAR MEDO _ Acabar Com Fobias e Pensamentos Negativos _ Limpar Inseguranças _ Criar Coragem.mp3";
 
 export const meditationSounds = [
   {
@@ -42,6 +44,20 @@ export const meditationSounds = [
     detail: "Transformação e amor",
     src: frequency528Audio,
     Icon: Radio,
+  },
+  {
+    id: "anxiety-relief",
+    title: "Alívio da ansiedade",
+    detail: "Acalmar a mente e a alma",
+    src: anxietyReliefAudio,
+    Icon: Waves,
+  },
+  {
+    id: "fear-release",
+    title: "Libertação do medo",
+    detail: "Coragem e segurança interior",
+    src: fearReleaseAudio,
+    Icon: Headphones,
   },
 ] as const;
 

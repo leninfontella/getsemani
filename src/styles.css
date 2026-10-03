@@ -1369,6 +1369,16 @@ h3 {
   background: linear-gradient(135deg, rgb(115 43 94 / 0.9), rgb(40 22 53 / 0.98));
 }
 
+.meditation-card.is-anxiety {
+  color: #9fe4dd;
+  background: linear-gradient(135deg, rgb(25 101 98 / 0.9), rgb(20 38 55 / 0.98));
+}
+
+.meditation-card.is-courage {
+  color: #ffb59f;
+  background: linear-gradient(135deg, rgb(126 55 43 / 0.9), rgb(48 25 48 / 0.98));
+}
+
 .meditation-card.is-active {
   border-color: var(--g-gold);
   box-shadow:

@@ -7,6 +7,8 @@ import {
   Pause,
   Play,
   Radio,
+  ShieldCheck,
+  Sparkles,
   Volume2,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
@@ -26,6 +28,8 @@ const cardPresentation: Record<
   bowls: { Icon: BellRing, category: "Meditação", className: "is-bowls" },
   "432-hz": { Icon: AudioLines, category: "Frequências", className: "is-432" },
   "528-hz": { Icon: Radio, category: "Frequências", className: "is-528" },
+  "anxiety-relief": { Icon: Sparkles, category: "Bem-estar", className: "is-anxiety" },
+  "fear-release": { Icon: ShieldCheck, category: "Bem-estar", className: "is-courage" },
 };
 
 const formatTime = (seconds: number) => {

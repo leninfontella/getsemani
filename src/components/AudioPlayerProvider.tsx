@@ -89,7 +89,7 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const audioRef = useRef<HTMLAudioElement>(null);
   const playerRef = useRef<HTMLElement>(null);
-  const playerDragRef = useRef<{ pointerId: number; offsetY: number }>();
+  const playerDragRef = useRef<{ pointerId: number; offsetY: number } | null>(null);
   const [activeSound, setActiveSound] = useState<MeditationSound>();
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -121,7 +121,7 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
 
   const finishPlayerDrag = (event: ReactPointerEvent<HTMLElement>) => {
     if (playerDragRef.current?.pointerId !== event.pointerId) return;
-    playerDragRef.current = undefined;
+    playerDragRef.current = null;
     setDraggingPlayer(false);
     if (playerRef.current?.hasPointerCapture(event.pointerId)) {
       playerRef.current.releasePointerCapture(event.pointerId);

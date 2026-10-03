@@ -255,7 +255,7 @@ function RootComponent() {
 
   useEffect(() => {
     if (pathname === "/login") return;
-    let reminderTimer: ReturnType<typeof window.setTimeout>;
+    let reminderTimer: number | undefined;
     const scheduleAutomaticNotifications = () => {
       window.clearTimeout(reminderTimer);
       ensureAutomaticNotifications();

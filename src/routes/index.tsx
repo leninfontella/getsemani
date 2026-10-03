@@ -414,8 +414,8 @@ function HomePage() {
             {calendarCells.map((day, index) => {
               const active = day
                 ? practiceDates.has(
-                  new Date(calendarYear, calendarMonth, day).toLocaleDateString("pt-BR"),
-                )
+                    new Date(calendarYear, calendarMonth, day).toLocaleDateString("pt-BR"),
+                  )
                 : false;
               const todayCell = viewingCurrentMonth && day === calendarNow.getDate();
               return day ? (
@@ -544,7 +544,7 @@ function HomePage() {
                     onClick={() => {
                       const card =
                         carouselRef.current?.querySelectorAll<HTMLElement>(".manifestation-card")[
-                        index
+                          index
                         ];
                       card?.scrollIntoView({
                         behavior: "smooth",

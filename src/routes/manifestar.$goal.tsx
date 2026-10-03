@@ -166,9 +166,7 @@ function ManifestGoal() {
           <div className="flex items-center justify-between gap-3 text-sm text-g-muted">
             <p>
               {writtenToday ? (
-                <span className="text-g-gold">
-                  Continue escrevendo o que deseja!
-                </span>
+                <span className="text-g-gold">Continue escrevendo o que deseja!</span>
               ) : (
                 "Sua manifestação de hoje"
               )}

@@ -48,10 +48,10 @@ export function NotificationCenter({ name }: { name: string }) {
         ...(isMobile
           ? { left: "50%", right: "auto", transform: "translateX(-50%)" }
           : {
-            left: "auto",
-            right: Math.max(20, window.innerWidth - rect.right),
-            transform: "none",
-          }),
+              left: "auto",
+              right: Math.max(20, window.innerWidth - rect.right),
+              transform: "none",
+            }),
       });
     };
     positionPanel();

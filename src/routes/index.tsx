@@ -242,7 +242,7 @@ function HomePage() {
             <div className="flex items-center gap-2.5">
               <button
                 type="button"
-                className="hero-profile grid h-11 w-11 place-items-center overflow-hidden rounded-full border border-g-gold/70 bg-[#181322]/80 font-serif-g text-lg font-semibold text-g-gold disabled:cursor-default"
+                className="hero-profile grid h-14 w-14 place-items-center overflow-hidden rounded-full border border-g-gold/70 bg-[#181322]/80 font-serif-g text-lg font-semibold text-g-gold disabled:cursor-default"
                 aria-label={avatarUrl ? "Ampliar foto do perfil" : `Avatar de ${name}`}
                 disabled={!avatarUrl}
                 onClick={() => setAvatarOpen(true)}
@@ -414,8 +414,8 @@ function HomePage() {
             {calendarCells.map((day, index) => {
               const active = day
                 ? practiceDates.has(
-                    new Date(calendarYear, calendarMonth, day).toLocaleDateString("pt-BR"),
-                  )
+                  new Date(calendarYear, calendarMonth, day).toLocaleDateString("pt-BR"),
+                )
                 : false;
               const todayCell = viewingCurrentMonth && day === calendarNow.getDate();
               return day ? (
@@ -544,7 +544,7 @@ function HomePage() {
                     onClick={() => {
                       const card =
                         carouselRef.current?.querySelectorAll<HTMLElement>(".manifestation-card")[
-                          index
+                        index
                         ];
                       card?.scrollIntoView({
                         behavior: "smooth",

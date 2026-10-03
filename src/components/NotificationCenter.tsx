@@ -48,10 +48,10 @@ export function NotificationCenter({ name }: { name: string }) {
         ...(isMobile
           ? { left: "50%", right: "auto", transform: "translateX(-50%)" }
           : {
-              left: "auto",
-              right: Math.max(20, window.innerWidth - rect.right),
-              transform: "none",
-            }),
+            left: "auto",
+            right: Math.max(20, window.innerWidth - rect.right),
+            transform: "none",
+          }),
       });
     };
     positionPanel();
@@ -116,7 +116,7 @@ export function NotificationCenter({ name }: { name: string }) {
               <header className="relative z-10 flex items-center justify-between border-b border-white/10 px-5 py-4">
                 <div>
                   <h3 className="text-lg font-semibold text-white">Notificações</h3>
-                  <p className="text-[10px] text-white/70">Deslize para a esquerda para apagar</p>
+                  <p className="text-[10px] text-white/70">Deslize para limpar</p>
                 </div>
                 {unread > 0 && (
                   <button
@@ -136,13 +136,13 @@ export function NotificationCenter({ name }: { name: string }) {
                       return (
                         <div
                           key={item.id}
-                          className="notification-item-shell relative mx-3 mb-2 overflow-hidden rounded-[18px] border border-white/10 first:mt-3"
+                          className="notification-item-shell relative mx-3 mb-2 overflow-hidden rounded-[18px] first:mt-3"
                         >
                           <span
-                            className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-xs font-semibold text-white"
+                            className="notification-clear-action liquid-back-button pointer-events-none absolute inset-y-0 right-0 flex w-[82px] items-center justify-center rounded-[18px] text-sm font-semibold text-white"
                             style={{
                               opacity: Math.min(1, Math.abs(offset) / 36),
-                              transform: `translateX(${Math.max(0, 10 - Math.abs(offset) / 5)}px)`,
+                              transform: `scale(${Math.min(1, 0.9 + Math.abs(offset) / 500)})`,
                             }}
                             aria-hidden="true"
                           >
@@ -150,7 +150,7 @@ export function NotificationCenter({ name }: { name: string }) {
                           </span>
                           <button
                             type="button"
-                            className={`notification-item-glass relative z-10 flex w-full touch-pan-y gap-3 px-4 py-3 text-left transition-transform ${item.read ? "opacity-65" : ""}`}
+                            className={`notification-item-glass relative z-10 flex w-full touch-pan-y gap-3 overflow-hidden rounded-[18px] border border-white/10 px-4 py-3 text-left transition-transform ${item.read ? "opacity-65" : ""}`}
                             style={{
                               transform: `translateX(${offset}px)`,
                               opacity: 1 - Math.abs(offset) / 150,

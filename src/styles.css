@@ -2466,7 +2466,7 @@ h3 {
   }
 }
 
-/* The installed app has less usable vertical space because iOS overlays its safe areas. */
+/* Compact the home hero only for the reduced viewport of an installed mobile app. */
 @media (display-mode: standalone) and (max-width: 767px) {
   .home-main-hero {
     height: 310px;

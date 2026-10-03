@@ -4,6 +4,7 @@ import { consumeRateLimit } from "../_shared/rate-limit.ts";
 const MAX_BYTES = 5 * 1024 * 1024;
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const allowedOrigins = new Set([
+  "https://getsemani-manifest.vercel.app",
   "https://getsemani-two.vercel.app",
   "http://localhost:3000",
   "http://localhost:5173",

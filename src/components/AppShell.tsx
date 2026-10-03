@@ -35,7 +35,7 @@ const nav: readonly NavItem[] = [
   { to: "/visualizar", label: "Visualizar", Icon: Eye },
   { to: "/manifestar", label: "Manifestar", Icon: Plus, isAction: true },
   { to: "/meditar", label: "Meditar", Icon: PersonStanding },
-  { to: "/diario", label: "Diário", Icon: BookOpen },
+  { to: "/diario", label: "Livro", Icon: BookOpen },
   { to: "/configuracoes", label: "Ajustes", Icon: Settings, desktopOnly: true },
 ];
 
@@ -213,7 +213,7 @@ export function AppNav({ mobileOnly = false }: { mobileOnly?: boolean }) {
     <>
       <button
         type="button"
-        className={`app-nav-trigger ${mobileOnly ? "is-mobile-only" : ""}`}
+        className={`app-nav-trigger notification-glass ${mobileOnly ? "is-mobile-only" : ""}`}
         aria-label="Abrir menu principal"
         aria-expanded={desktopOpen}
         aria-controls="app-navigation"

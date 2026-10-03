@@ -183,7 +183,7 @@ function DiaryPage() {
         if (!cloud && initialText) await saveOpenDiary(selectedDate, initialText);
       })
       .catch((error) =>
-        toast("Não foi possível carregar o diário.", {
+        toast("Não foi possível carregar o livro.", {
           description: error instanceof Error ? error.message : "Tente novamente.",
         }),
       )
@@ -207,10 +207,10 @@ function DiaryPage() {
         }
       }
       await refreshSavedDays();
-      toast("Página salva no seu diário ✨", { description: "Sincronizada com sua conta." });
+      toast("Página salva no seu livro ✨", { description: "Sincronizada com sua conta." });
       addNotification({
         kind: "success",
-        title: "Diário atualizado ✨",
+        title: "Livro atualizado ✨",
         message: "Sua página foi salva e sincronizada com segurança.",
       });
     } catch (error) {
@@ -245,9 +245,9 @@ function DiaryPage() {
           saveDiary({ text: "", locked: true, pin: "", updated: new Date().toISOString() });
         }
         await refreshSavedDays();
-        toast("Diário protegido com senha 🔒");
+        toast("Livro protegido com senha 🔒");
       } catch (error) {
-        toast("Não foi possível proteger o diário.", {
+        toast("Não foi possível proteger o livro.", {
           description: error instanceof Error ? error.message : "Tente novamente.",
         });
       } finally {
@@ -268,7 +268,7 @@ function DiaryPage() {
       setUnlocked(true);
       setHidden(false);
       setPasswordMode(null);
-      toast("Diário desbloqueado.");
+      toast("Livro desbloqueado.");
     } catch (error) {
       toast("Não foi possível desbloquear.", {
         description: error instanceof Error ? error.message : "Senha incorreta.",
@@ -295,7 +295,7 @@ function DiaryPage() {
         saveDiary({ text, locked: false, pin: "", updated: new Date().toISOString() });
       }
       await refreshSavedDays();
-      toast("Proteção removida. O diário está aberto.");
+      toast("Proteção removida. O livro está aberto.");
     } catch (error) {
       toast("Não foi possível remover a proteção.", {
         description: error instanceof Error ? error.message : "Tente novamente.",
@@ -367,7 +367,7 @@ function DiaryPage() {
   };
 
   return (
-    <AppShell title="Meu Diário">
+    <AppShell title="Meu Livro da Vida">
       <LiquidConfirmDialog
         open={confirmDelete}
         icon={<Trash2 className="h-7 w-7" />}
@@ -394,7 +394,7 @@ function DiaryPage() {
                 <KeyRound className="h-7 w-7" />
               </span>
               <h2 id="create-diary-password-title" className="mt-5 text-xl font-semibold">
-                Criar senha do diário
+                Criar senha do livro
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-g-muted">
                 Crie um PIN de 4 números. Esta senha não poderá ser recuperada.
@@ -479,7 +479,7 @@ function DiaryPage() {
                 <Lock className="h-7 w-7" />
               </span>
               <h2 id="unlock-diary-password-title" className="mt-5 text-xl font-semibold">
-                Diário protegido
+                Livro protegido
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-g-muted">
                 Digite sua senha para acessar seus pensamentos.
@@ -581,7 +581,7 @@ function DiaryPage() {
               {protectedDiary ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
             </button>
           </div>
-          <p className="font-serif-g text-2xl font-bold">Pensamentos de hoje</p>
+          <p className="pt-10 font-serif-g text-2xl font-bold">O que está acontecendo hoje?</p>
           <p className="mt-1 text-xs opacity-60">{formattedSelectedDate}</p>
           {loading ? (
             <div className="grid min-h-[360px] place-items-center">
@@ -592,13 +592,13 @@ function DiaryPage() {
               value={text}
               disabled={!unlocked}
               onChange={(event) => setText(event.target.value)}
-              placeholder="Escreva livremente. Este espaço é somente seu…"
+              placeholder="Descreva o seu sonho concretizado e conte como é viver essa realidade hoje..."
               className={`diary-writing-input mt-6 min-h-[360px] w-full resize-none bg-transparent text-[1rem] leading-8 outline-none placeholder:text-white/35 ${activeFontClass} ${hidden ? "select-none blur-md" : ""}`}
               style={{ color: inkColor }}
             />
           )}
           <div className="mt-4 flex items-center justify-between text-xs opacity-60">
-            <span>{protectedDiary ? "Protegido com senha" : "Diário aberto"}</span>
+            <span>{protectedDiary ? "Protegido com senha" : "Livro aberto"}</span>
             <span>{unlocked ? `${text.length} caracteres` : "Conteúdo protegido"}</span>
           </div>
         </div>
@@ -676,8 +676,8 @@ function DiaryPage() {
             type="button"
             onClick={save}
             disabled={!unlocked || loading || saving}
-            aria-label={saving ? "Salvando no diário" : "Salvar no diário"}
-            title={saving ? "Salvando…" : "Salvar no diário"}
+            aria-label={saving ? "Salvando no livro" : "Salvar no livro"}
+            title={saving ? "Salvando…" : "Salvar no livro"}
             className="liquid-button grid h-12 w-12 place-items-center rounded-full text-g-gold transition hover:bg-white/10 active:scale-95 disabled:opacity-40"
           >
             {saving ? (

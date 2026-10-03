@@ -14,7 +14,11 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { clearCachedUser, isAuthenticated } from "../lib/auth";
 import { clearAll, loadSettings, SETTINGS_CHANGED } from "../lib/goals";
-import { clearNotifications, ensureAutomaticNotifications } from "../lib/notifications";
+import {
+  clearNotifications,
+  ensureAutomaticNotifications,
+  getNextAutomaticNotificationDelay,
+} from "../lib/notifications";
 import { clearBrowserSessionData, supabase } from "../lib/supabase";
 import { AudioPlayerProvider } from "../components/AudioPlayerProvider";
 import { DesktopFooter } from "../components/DesktopFooter";
@@ -251,17 +255,29 @@ function RootComponent() {
 
   useEffect(() => {
     if (pathname === "/login") return;
-    const refreshAutomaticNotifications = () => ensureAutomaticNotifications();
-    refreshAutomaticNotifications();
-    const interval = window.setInterval(refreshAutomaticNotifications, 30_000);
-    window.addEventListener("focus", refreshAutomaticNotifications);
-    window.addEventListener("visibilitychange", refreshAutomaticNotifications);
-    window.addEventListener(SETTINGS_CHANGED, refreshAutomaticNotifications);
+    let reminderTimer: ReturnType<typeof window.setTimeout>;
+    const scheduleAutomaticNotifications = () => {
+      window.clearTimeout(reminderTimer);
+      ensureAutomaticNotifications();
+      reminderTimer = window.setTimeout(
+        scheduleAutomaticNotifications,
+        getNextAutomaticNotificationDelay(),
+      );
+    };
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") scheduleAutomaticNotifications();
+    };
+    scheduleAutomaticNotifications();
+    window.addEventListener("focus", scheduleAutomaticNotifications);
+    window.addEventListener("pageshow", scheduleAutomaticNotifications);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+    window.addEventListener(SETTINGS_CHANGED, scheduleAutomaticNotifications);
     return () => {
-      window.clearInterval(interval);
-      window.removeEventListener("focus", refreshAutomaticNotifications);
-      window.removeEventListener("visibilitychange", refreshAutomaticNotifications);
-      window.removeEventListener(SETTINGS_CHANGED, refreshAutomaticNotifications);
+      window.clearTimeout(reminderTimer);
+      window.removeEventListener("focus", scheduleAutomaticNotifications);
+      window.removeEventListener("pageshow", scheduleAutomaticNotifications);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+      window.removeEventListener(SETTINGS_CHANGED, scheduleAutomaticNotifications);
     };
   }, [pathname]);
 

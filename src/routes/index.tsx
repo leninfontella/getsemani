@@ -5,8 +5,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Flame,
+  Menu,
   MoonStar,
-  Settings,
   Sparkles,
   Sprout,
   Sun,
@@ -260,7 +260,7 @@ function HomePage() {
                 aria-label="Ajustes e configurações"
                 title="Ajustes"
               >
-                <Settings className="h-6 w-6 stroke-[1.8]" />
+                <Menu className="h-7 w-7 stroke-[2.4]" />
               </Link>
             </div>
           </div>

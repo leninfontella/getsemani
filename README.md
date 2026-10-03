@@ -1,14 +1,14 @@
 # Getsêmani
 
-Aplicação web de manifestação, reflexão e bem-estar. O Getsêmani reúne um painel pessoal para registrar objetivos, acompanhar manifestações, escrever um diário protegido e ouvir áudios de meditação em uma experiência responsiva e instalável como PWA.
+Aplicação web de manifestação, reflexão e bem-estar. O Getsêmani reúne um painel pessoal para registrar objetivos, acompanhar manifestações, escrever um livro protegido e ouvir áudios de meditação em uma experiência responsiva e instalável como PWA.
 
 ## Funcionalidades
 
 - Cadastro, confirmação de e-mail, login e gerenciamento de sessão com Supabase Auth.
 - Catálogo de objetivos e criação de manifestações personalizadas.
 - Registro e acompanhamento do histórico de cada manifestação.
-- Diário por data, com personalização de papel, fonte e cor da escrita.
-- Proteção opcional do diário por senha com criptografia no navegador.
+- Livro por data, com personalização de papel, fonte e cor da escrita.
+- Proteção opcional do livro por senha com criptografia no navegador.
 - Player de meditação com sons ambientes e frequências.
 - Central de notificações, lembretes e afirmações diárias.
 - Perfil com alteração de nome e avatar.
@@ -34,7 +34,7 @@ Aplicação web de manifestação, reflexão e bem-estar. O Getsêmani reúne um
 ├── src/
 │   ├── assets/          # imagens e áudios da aplicação
 │   ├── components/      # componentes de domínio e componentes de UI
-│   ├── lib/             # autenticação, Supabase, diário e manifestações
+│   ├── lib/             # autenticação, Supabase, livro e manifestações
 │   ├── routes/          # rotas file-based do TanStack Router
 │   ├── server.ts        # handler SSR e cabeçalhos de segurança
 │   └── start.ts         # middlewares da aplicação
@@ -47,7 +47,7 @@ Aplicação web de manifestação, reflexão e bem-estar. O Getsêmani reúne um
     └── security-isolation.mjs
 ```
 
-O navegador usa apenas a chave pública do Supabase. As políticas de Row Level Security (RLS) são a fronteira de autorização dos dados, enquanto operações privilegiadas ficam nas Edge Functions. O conteúdo protegido do diário é criptografado antes de sair do dispositivo.
+O navegador usa apenas a chave pública do Supabase. As políticas de Row Level Security (RLS) são a fronteira de autorização dos dados, enquanto operações privilegiadas ficam nas Edge Functions. O conteúdo protegido do livro é criptografado antes de sair do dispositivo.
 
 ## Pré-requisitos
 
@@ -92,7 +92,7 @@ O navegador usa apenas a chave pública do Supabase. As políticas de Row Level 
 
 Por padrão, o Vite fica disponível em `http://localhost:8080`.
 
-> A aplicação precisa das migrations aplicadas para que cadastro, perfil, manifestações e diário funcionem corretamente.
+> A aplicação precisa das migrations aplicadas para que cadastro, perfil, manifestações e livro funcionem corretamente.
 
 ## Backend local
 
@@ -188,7 +188,7 @@ O projeto adota defesa em profundidade:
 - Autenticação e renovação de JWT são administradas pelo Supabase Auth.
 - Edge Functions validam origem, método e usuário autenticado antes de operações privilegiadas.
 - A `service_role` existe somente no ambiente da função de exclusão de conta.
-- Diários protegidos usam AES-GCM de 256 bits; a chave deriva da senha com PBKDF2-SHA-256 e 210 mil iterações.
+- Livros protegidos usam AES-GCM de 256 bits; a chave deriva da senha com PBKDF2-SHA-256 e 210 mil iterações.
 - Salt e IV aleatórios são gerados para cada gravação protegida; a senha não é enviada nem armazenada.
 - Respostas SSR incluem CSP, HSTS em HTTPS, proteção contra framing, `nosniff`, política de referência e restrições de permissões.
 - Server Functions usam middleware CSRF.
@@ -223,7 +223,7 @@ Em produção, confirme:
 - segredos configurados apenas no backend;
 - fluxo de cadastro, login, logout, exclusão e isolamento entre contas testado.
 
-## Observações sobre o diário protegido
+## Observações sobre o livro protegido
 
 A criptografia acontece no cliente e a senha não pode ser recuperada pelo servidor. Se o usuário esquecer a senha, o conteúdo protegido não poderá ser descriptografado. Entradas sem proteção continuam sujeitas ao isolamento por RLS, mas são armazenadas sem criptografia de conteúdo no banco.
 

@@ -126,7 +126,7 @@ export function NotificationCenter({ name }: { name: string }) {
                     return (
                       <div
                         key={item.id}
-                        className="relative overflow-hidden border-b border-white/8 last:border-0"
+                        className="notification-item-shell relative mx-3 mb-2 overflow-hidden rounded-[18px] border border-white/10 first:mt-3 last:mb-3"
                       >
                         <button
                           type="button"

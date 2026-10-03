@@ -198,7 +198,7 @@ function SettingsPage() {
         open={confirmDelete}
         icon={<Trash2 className="h-7 w-7" />}
         title="Excluir sua conta?"
-        description="Esta ação apagará permanentemente sua conta, manifestações, diário, sessões e dados locais."
+        description="Esta ação apagará permanentemente sua conta, manifestações, livro, sessões e dados locais."
         confirmLabel="Excluir"
         loading={deleting}
         destructive
@@ -309,7 +309,7 @@ function SettingsPage() {
           <SettingRow
             icon={<Bell />}
             title="Lembrete diário"
-            detail="Receber lembrete para manifestar"
+            detail="Receber “Hora de Manifestar” na central"
           >
             <Switch
               checked={settings.reminder}
@@ -322,10 +322,19 @@ function SettingsPage() {
               <input
                 type="time"
                 value={settings.reminderTime}
-                onChange={(e) => update("reminderTime", e.target.value)}
+                onChange={(e) => {
+                  update("reminderTime", e.target.value);
+                  toast(`Lembrete definido para ${e.target.value}.`);
+                }}
                 className="g-glass rounded-lg border border-white/10 px-3 py-2"
               />
             </div>
+          )}
+          {settings.reminder && (
+            <p className="border-t border-g-muted/10 px-4 py-3 text-xs leading-relaxed text-g-muted">
+              Se o app estiver fechado nesse horário, o aviso aparecerá na central assim que você
+              voltar.
+            </p>
           )}
           <SettingRow
             icon={<Volume2 />}
@@ -384,7 +393,6 @@ function SettingsPage() {
         >
           <Trash2 className="h-3.5 w-3.5" /> Excluir conta
         </button>
-
       </main>
     </AppShell>
   );

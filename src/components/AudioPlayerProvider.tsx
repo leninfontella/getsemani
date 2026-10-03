@@ -1,5 +1,13 @@
 import { useRouterState } from "@tanstack/react-router";
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+} from "react";
 import { Headphones, Music2, Pause, Play, Radio, Square, Waves } from "lucide-react";
 import rainAudio from "@/assets/Chuva tranquila.mp3";
 import bowlsAudio from "@/assets/Tigelas Tibetanas.mp3";
@@ -64,12 +72,59 @@ export function useAudioPlayer() {
 export function AudioPlayerProvider({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const audioRef = useRef<HTMLAudioElement>(null);
+  const playerRef = useRef<HTMLElement>(null);
+  const playerDragRef = useRef<{ pointerId: number; offsetY: number }>();
   const [activeSound, setActiveSound] = useState<MeditationSound>();
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState("");
+  const [playerTop, setPlayerTop] = useState<number>();
+  const [draggingPlayer, setDraggingPlayer] = useState(false);
+
+  const startPlayerDrag = (event: ReactPointerEvent<HTMLElement>) => {
+    const player = playerRef.current;
+    if (!player) return;
+    const rect = player.getBoundingClientRect();
+    playerDragRef.current = { pointerId: event.pointerId, offsetY: event.clientY - rect.top };
+    player.setPointerCapture(event.pointerId);
+    setPlayerTop(rect.top);
+    setDraggingPlayer(true);
+    event.preventDefault();
+  };
+
+  const movePlayer = (event: ReactPointerEvent<HTMLElement>) => {
+    const drag = playerDragRef.current;
+    const player = playerRef.current;
+    if (!drag || !player || drag.pointerId !== event.pointerId) return;
+    const edge = 8;
+    const maximumTop = Math.max(edge, window.innerHeight - player.offsetHeight - edge);
+    setPlayerTop(Math.min(maximumTop, Math.max(edge, event.clientY - drag.offsetY)));
+  };
+
+  const finishPlayerDrag = (event: ReactPointerEvent<HTMLElement>) => {
+    if (playerDragRef.current?.pointerId !== event.pointerId) return;
+    playerDragRef.current = undefined;
+    setDraggingPlayer(false);
+    if (playerRef.current?.hasPointerCapture(event.pointerId)) {
+      playerRef.current.releasePointerCapture(event.pointerId);
+    }
+  };
+
+  useEffect(() => {
+    const keepPlayerInViewport = () => {
+      const player = playerRef.current;
+      if (!player) return;
+      setPlayerTop((top) =>
+        top === undefined
+          ? top
+          : Math.min(Math.max(8, window.innerHeight - player.offsetHeight - 8), top),
+      );
+    };
+    window.addEventListener("resize", keepPlayerInViewport);
+    return () => window.removeEventListener("resize", keepPlayerInViewport);
+  }, []);
 
   const toggleSound = async (sound: MeditationSound) => {
     const audio = audioRef.current;
@@ -171,7 +226,25 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
       />
       {children}
       {activeSound && pathname !== "/meditar" && pathname !== "/login" && (
-        <aside className="global-audio-player" aria-label={`Reproduzindo ${activeSound.title}`}>
+        <aside
+          ref={playerRef}
+          className={`global-audio-player notification-glass ${draggingPlayer ? "is-dragging" : ""}`}
+          style={playerTop === undefined ? undefined : { top: playerTop }}
+          aria-label={`Reproduzindo ${activeSound.title}. Arraste para mover para cima ou para baixo.`}
+          onPointerDown={startPlayerDrag}
+          onPointerMove={movePlayer}
+          onPointerUp={finishPlayerDrag}
+          onPointerCancel={finishPlayerDrag}
+        >
+          <span
+            className={`global-audio-equalizer ${playing ? "is-playing" : ""}`}
+            aria-hidden="true"
+          >
+            <i />
+            <i />
+            <i />
+            <i />
+          </span>
           <div className="global-audio-banner" aria-label={activeSound.title}>
             <div className="global-audio-banner-track" aria-hidden="true">
               <span>{activeSound.title}</span>
@@ -181,6 +254,7 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
           <button
             type="button"
             onClick={() => void toggleSound(activeSound)}
+            onPointerDown={(event) => event.stopPropagation()}
             aria-label={playing ? "Pausar" : "Reproduzir"}
             className="global-audio-control"
           >
@@ -193,6 +267,7 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
           <button
             type="button"
             onClick={stop}
+            onPointerDown={(event) => event.stopPropagation()}
             aria-label="Encerrar meditação"
             title="Encerrar meditação"
             className="global-audio-control"

@@ -1,4 +1,4 @@
--- Permite um registro de diário por usuário e por dia.
+-- Permite um registro de livro por usuário e por dia.
 alter table public.diaries
   add column if not exists entry_date date;
 

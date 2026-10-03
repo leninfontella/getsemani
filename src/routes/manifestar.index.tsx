@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronRight, Plus, Search, Sparkles } from "lucide-react";
 import { addCustomGoal, manifestGoals } from "@/lib/goals";
@@ -84,6 +84,17 @@ function ChooseGoal() {
   const [showCustom, setShowCustom] = useState(false);
   const [query, setQuery] = useState("");
   const [activeGroup, setActiveGroup] = useState("Todas");
+  const customFormRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (!showCustom) return;
+
+    const scrollToForm = window.setTimeout(() => {
+      customFormRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    }, 150);
+
+    return () => window.clearTimeout(scrollToForm);
+  }, [showCustom]);
 
   const normalizedQuery = normalizeText(query.trim());
   const visibleGroups = goalGroups
@@ -231,11 +242,13 @@ function ChooseGoal() {
           )}
           {showCustomCard && showCustom && (
             <form
+              ref={customFormRef}
               onSubmit={(event) => {
                 event.preventDefault();
                 createCustom();
               }}
               className="mx-auto w-full max-w-xl rounded-2xl border border-g-gold/35 g-glass p-4 sm:p-5"
+              style={{ scrollMarginBottom: "calc(7rem + env(safe-area-inset-bottom, 0px))" }}
             >
               <label htmlFor="custom-goal" className="text-sm font-medium">
                 Qual é a sua manifestação?

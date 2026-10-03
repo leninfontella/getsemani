@@ -140,7 +140,7 @@ export async function deleteCloudDiary(entryDate: string) {
 }
 
 export async function decryptDiary(diary: CloudDiary, password: string) {
-  if (!diary.encryption_salt || !diary.encryption_iv) throw new Error("Diário inválido.");
+  if (!diary.encryption_salt || !diary.encryption_iv) throw new Error("Livro inválido.");
   try {
     const key = await deriveKey(password, fromBase64(diary.encryption_salt));
     const decrypted = await crypto.subtle.decrypt(

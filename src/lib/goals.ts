@@ -373,7 +373,7 @@ export function manifestedGoals(entries: Record<string, Entry[]> = loadEntries()
     .sort((a, b) => latestEntry(b.id) - latestEntry(a.id));
 }
 
-/* Diário */
+/* Livro */
 export type Diary = { text: string; locked: boolean; pin: string; updated?: string };
 const DIARY = "getsemani-diary";
 export const loadDiary = () => read<Diary>(DIARY, { text: "", locked: false, pin: "" });

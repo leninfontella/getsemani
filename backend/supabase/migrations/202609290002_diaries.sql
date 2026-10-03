@@ -1,4 +1,4 @@
--- Diário individual. Quando bloqueado, content contém texto cifrado no cliente.
+-- Livro individual. Quando bloqueado, content contém texto cifrado no cliente.
 create table if not exists public.diaries (
   user_id uuid primary key references auth.users(id) on delete cascade,
   content text not null default '',

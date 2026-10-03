@@ -9,7 +9,7 @@ const footerLinks = [
   { to: "/manifestar", label: "Manifestar" },
   { to: "/visualizar", label: "Visualizar" },
   { to: "/meditar", label: "Meditar" },
-  { to: "/diario", label: "Diário" },
+  { to: "/diario", label: "Livro" },
   { to: "/configuracoes", label: "Ajustes" },
 ] as const;
 

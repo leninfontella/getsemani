@@ -159,9 +159,27 @@ export function ensureAutomaticNotifications() {
       addNotification({
         id: `reminder-${dateKey}`,
         kind: "reminder",
-        title: "Hora de manifestar",
+        title: "Hora de Manifestar",
         message: "Reserve alguns minutos para escrever e sentir a realidade que você deseja.",
       });
     }
   }
+}
+
+export function getNextAutomaticNotificationDelay() {
+  const now = new Date();
+  const nextMidnight = new Date(now);
+  nextMidnight.setHours(24, 0, 1, 0);
+  const candidates = [nextMidnight.getTime() - now.getTime()];
+  const settings = loadSettings();
+
+  if (settings.reminder) {
+    const [hour = 7, minute = 0] = settings.reminderTime.split(":").map(Number);
+    const nextReminder = new Date(now);
+    nextReminder.setHours(hour, minute, 0, 0);
+    if (nextReminder.getTime() <= now.getTime()) nextReminder.setDate(nextReminder.getDate() + 1);
+    candidates.push(nextReminder.getTime() - now.getTime());
+  }
+
+  return Math.max(1_000, Math.min(...candidates));
 }

@@ -118,81 +118,81 @@ export function NotificationCenter({ name }: { name: string }) {
                   <h3 className="text-lg font-semibold text-white">Notificações</h3>
                   <p className="text-[10px] text-white/70">Deslize para a esquerda para apagar</p>
                 </div>
-                <div className="flex flex-col items-end gap-2">
-                  {unread > 0 && (
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-g-gold"
-                      onClick={markAllNotificationsRead}
-                    >
-                      <CheckCheck className="h-4 w-4" /> Marcar todas
-                    </button>
-                  )}
-                  {items.length > 0 && (
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-white/75 transition hover:text-white"
-                      onClick={dismissAllNotifications}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" /> Limpar todas
-                    </button>
-                  )}
-                </div>
+                {unread > 0 && (
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-g-gold"
+                    onClick={markAllNotificationsRead}
+                  >
+                    <CheckCheck className="h-4 w-4" /> Marcar todas
+                  </button>
+                )}
               </header>
               <div className="relative z-10 max-h-[min(520px,calc(100dvh-11rem))] overflow-y-auto overscroll-contain">
                 {items.length ? (
-                  items.map((item) => {
-                    const offset = drag?.id === item.id ? drag.offset : 0;
-                    return (
-                      <div
-                        key={item.id}
-                        className="notification-item-shell relative mx-3 mb-2 overflow-hidden rounded-[18px] border border-white/10 first:mt-3 last:mb-3"
-                      >
-                        <span
-                          className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-xs font-semibold text-white"
-                          style={{
-                            opacity: Math.min(1, Math.abs(offset) / 36),
-                            transform: `translateX(${Math.max(0, 10 - Math.abs(offset) / 5)}px)`,
-                          }}
-                          aria-hidden="true"
+                  <>
+                    {items.map((item) => {
+                      const offset = drag?.id === item.id ? drag.offset : 0;
+                      return (
+                        <div
+                          key={item.id}
+                          className="notification-item-shell relative mx-3 mb-2 overflow-hidden rounded-[18px] border border-white/10 first:mt-3"
                         >
-                          Limpar
-                        </span>
-                        <button
-                          type="button"
-                          className={`notification-item-glass relative z-10 flex w-full touch-pan-y gap-3 px-4 py-3 text-left transition-transform ${item.read ? "opacity-65" : ""}`}
-                          style={{
-                            transform: `translateX(${offset}px)`,
-                            opacity: 1 - Math.abs(offset) / 150,
-                          }}
-                          onPointerDown={(event) => startDrag(event, item.id)}
-                          onPointerMove={(event) => moveDrag(event, item.id)}
-                          onPointerUp={finishDrag}
-                          onPointerCancel={() => setDrag(undefined)}
-                          onClick={() => markNotificationRead(item.id)}
-                        >
-                          <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-g-violet/20 text-g-gold">
-                            <Sparkles className="h-4 w-4" />
+                          <span
+                            className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-xs font-semibold text-white"
+                            style={{
+                              opacity: Math.min(1, Math.abs(offset) / 36),
+                              transform: `translateX(${Math.max(0, 10 - Math.abs(offset) / 5)}px)`,
+                            }}
+                            aria-hidden="true"
+                          >
+                            Limpar
                           </span>
-                          <span className="min-w-0 flex-1">
-                            <strong className="block text-sm text-white">{item.title}</strong>
-                            <span className="mt-0.5 block text-xs leading-relaxed text-white/75">
-                              {item.message}
+                          <button
+                            type="button"
+                            className={`notification-item-glass relative z-10 flex w-full touch-pan-y gap-3 px-4 py-3 text-left transition-transform ${item.read ? "opacity-65" : ""}`}
+                            style={{
+                              transform: `translateX(${offset}px)`,
+                              opacity: 1 - Math.abs(offset) / 150,
+                            }}
+                            onPointerDown={(event) => startDrag(event, item.id)}
+                            onPointerMove={(event) => moveDrag(event, item.id)}
+                            onPointerUp={finishDrag}
+                            onPointerCancel={() => setDrag(undefined)}
+                            onClick={() => markNotificationRead(item.id)}
+                          >
+                            <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-g-violet/20 text-g-gold">
+                              <Sparkles className="h-4 w-4" />
                             </span>
-                            <time className="mt-1 block text-[10px] text-white/50">
-                              {new Date(item.createdAt).toLocaleString("pt-BR", {
-                                dateStyle: "short",
-                                timeStyle: "short",
-                              })}
-                            </time>
-                          </span>
-                          {!item.read && (
-                            <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-g-violet" />
-                          )}
-                        </button>
-                      </div>
-                    );
-                  })
+                            <span className="min-w-0 flex-1">
+                              <strong className="block text-sm text-white">{item.title}</strong>
+                              <span className="mt-0.5 block text-xs leading-relaxed text-white/75">
+                                {item.message}
+                              </span>
+                              <time className="mt-1 block text-[10px] text-white/50">
+                                {new Date(item.createdAt).toLocaleString("pt-BR", {
+                                  dateStyle: "short",
+                                  timeStyle: "short",
+                                })}
+                              </time>
+                            </span>
+                            {!item.read && (
+                              <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-g-violet" />
+                            )}
+                          </button>
+                        </div>
+                      );
+                    })}
+                    <div className="flex justify-center px-4 pb-4 pt-1">
+                      <button
+                        type="button"
+                        className="liquid-back-button inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold text-white/85 transition hover:text-white active:scale-95"
+                        onClick={dismissAllNotifications}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" /> Limpar todas
+                      </button>
+                    </div>
+                  </>
                 ) : (
                   <p className="px-5 py-8 text-center text-sm text-white/70">
                     Nenhuma notificação por enquanto.

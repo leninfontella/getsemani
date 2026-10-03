@@ -1,9 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Bell, Camera, LogOut, Sparkles, Trash2, Volume2, X } from "lucide-react";
+import { Bell, Camera, Check, LogOut, Sparkles, Trash2, Volume2, X } from "lucide-react";
 import { toast } from "sonner";
-import { addNotification, clearNotifications } from "@/lib/notifications";
+import {
+  addNotification,
+  clearNotifications,
+  resetTodayReminderNotification,
+} from "@/lib/notifications";
 import { AppShell, BrandLogo } from "@/components/AppShell";
 import { LiquidConfirmDialog } from "@/components/LiquidConfirmDialog";
 import { SocialIcons } from "@/components/SocialIcons";
@@ -40,17 +44,20 @@ function SettingsPage() {
   const [avatarUrl, setAvatarUrl] = useState<string>();
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [savingAvatar, setSavingAvatar] = useState(false);
+  const [reminderTimeDraft, setReminderTimeDraft] = useState(defaultSettings.reminderTime);
   const avatarInput = useRef<HTMLInputElement>(null);
   useEffect(() => {
     const local = loadSettings();
     const cachedName = loadUser()?.name;
     setSettings({ ...local, ...(cachedName ? { name: cachedName } : {}) });
+    setReminderTimeDraft(local.reminderTime);
     setSavedName(cachedName || local.name);
     setAvatarUrl(loadUser()?.avatarUrl);
     void refreshCachedUser()
       .then((user) => {
         const next = { ...loadSettings(), name: user.name };
         setSettings(next);
+        setReminderTimeDraft(next.reminderTime);
         setSavedName(user.name);
         setAvatarUrl(user.avatarUrl);
         saveSettings(next);
@@ -77,6 +84,15 @@ function SettingsPage() {
   ) => {
     update(key, value);
     toast(`${label} ${value ? "ativado" : "desativado"}.`);
+  };
+  const confirmReminderTime = () => {
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(reminderTimeDraft)) {
+      toast("Escolha um horário válido.");
+      return;
+    }
+    resetTodayReminderNotification();
+    update("reminderTime", reminderTimeDraft);
+    toast(`Lembrete confirmado para ${reminderTimeDraft}.`);
   };
   const uploadAvatar = async (file?: File) => {
     if (!file) return;
@@ -317,17 +333,24 @@ function SettingsPage() {
             />
           </SettingRow>
           {settings.reminder && (
-            <div className="border-t border-g-muted/10 px-4 py-3 flex justify-between items-center">
-              <span className="text-sm text-g-muted">Horário</span>
-              <input
-                type="time"
-                value={settings.reminderTime}
-                onChange={(e) => {
-                  update("reminderTime", e.target.value);
-                  toast(`Lembrete definido para ${e.target.value}.`);
-                }}
-                className="g-glass rounded-lg border border-white/10 px-3 py-2"
-              />
+            <div className="border-t border-g-muted/10 px-4 py-3">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-sm text-g-muted">Horário</span>
+                <input
+                  type="time"
+                  value={reminderTimeDraft}
+                  onChange={(event) => setReminderTimeDraft(event.target.value)}
+                  className="g-glass rounded-lg border border-white/10 px-3 py-2"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={confirmReminderTime}
+                disabled={reminderTimeDraft === settings.reminderTime}
+                className="liquid-back-button ml-auto mt-3 flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold text-g-text transition active:scale-95 disabled:cursor-default disabled:opacity-35"
+              >
+                <Check className="h-3.5 w-3.5" /> Confirmar horário
+              </button>
             </div>
           )}
           {settings.reminder && (

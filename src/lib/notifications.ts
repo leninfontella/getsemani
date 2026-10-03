@@ -132,6 +132,12 @@ export function clearNotifications() {
   notifyChanged();
 }
 
+export function resetTodayReminderNotification() {
+  const now = new Date();
+  const dateKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  saveNotifications(loadNotifications().filter((item) => item.id !== `reminder-${dateKey}`));
+}
+
 export function ensureAutomaticNotifications() {
   const settings = loadSettings();
   const now = new Date();

@@ -268,12 +268,14 @@ function RootComponent() {
       if (document.visibilityState === "visible") scheduleAutomaticNotifications();
     };
     scheduleAutomaticNotifications();
+    const reminderSafetyCheck = window.setInterval(ensureAutomaticNotifications, 30_000);
     window.addEventListener("focus", scheduleAutomaticNotifications);
     window.addEventListener("pageshow", scheduleAutomaticNotifications);
     document.addEventListener("visibilitychange", refreshWhenVisible);
     window.addEventListener(SETTINGS_CHANGED, scheduleAutomaticNotifications);
     return () => {
       window.clearTimeout(reminderTimer);
+      window.clearInterval(reminderSafetyCheck);
       window.removeEventListener("focus", scheduleAutomaticNotifications);
       window.removeEventListener("pageshow", scheduleAutomaticNotifications);
       document.removeEventListener("visibilitychange", refreshWhenVisible);

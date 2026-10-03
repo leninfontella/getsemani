@@ -183,10 +183,10 @@ export function NotificationCenter({ name }: { name: string }) {
                         </div>
                       );
                     })}
-                    <div className="flex justify-center px-4 pb-4 pt-1">
+                    <div className="flex justify-end px-4 pb-4 pt-1">
                       <button
                         type="button"
-                        className="liquid-back-button inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold text-white/85 transition hover:text-white active:scale-95"
+                        className="inline-flex items-center gap-1.5 border-0 bg-transparent px-1 py-2 text-xs font-semibold text-white/75 transition hover:text-white active:scale-95"
                         onClick={dismissAllNotifications}
                       >
                         <Trash2 className="h-3.5 w-3.5" /> Limpar todas

@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import { createPortal } from "react-dom";
-import { Bell, CheckCheck, Sparkles } from "lucide-react";
+import { Bell, CheckCheck, Sparkles, Trash2 } from "lucide-react";
 import {
   deleteNotification,
+  dismissAllNotifications,
   ensureAutomaticNotifications,
   loadNotifications,
   markAllNotificationsRead,
@@ -14,7 +15,12 @@ import {
 export function NotificationCenter({ name }: { name: string }) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<AppNotification[]>([]);
-  const [drag, setDrag] = useState<{ id: string; startX: number; offset: number }>();
+  const [drag, setDrag] = useState<{
+    id: string;
+    startX: number;
+    offset: number;
+    width: number;
+  }>();
   const [panelStyle, setPanelStyle] = useState<CSSProperties>();
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -60,16 +66,19 @@ export function NotificationCenter({ name }: { name: string }) {
   const unread = items.filter((item) => !item.read).length;
   const finishDrag = () => {
     if (!drag) return;
-    if (drag.offset < -72) deleteNotification(drag.id);
+    if (drag.offset < -drag.width * 0.65) deleteNotification(drag.id);
     setDrag(undefined);
   };
   const startDrag = (event: PointerEvent, id: string) => {
     event.currentTarget.setPointerCapture(event.pointerId);
-    setDrag({ id, startX: event.clientX, offset: 0 });
+    setDrag({ id, startX: event.clientX, offset: 0, width: event.currentTarget.clientWidth });
   };
   const moveDrag = (event: PointerEvent, id: string) => {
     if (drag?.id !== id) return;
-    setDrag({ ...drag, offset: Math.max(-96, Math.min(0, event.clientX - drag.startX)) });
+    setDrag({
+      ...drag,
+      offset: Math.max(-(drag.width - 24), Math.min(0, event.clientX - drag.startX)),
+    });
   };
 
   return (
@@ -109,15 +118,26 @@ export function NotificationCenter({ name }: { name: string }) {
                   <h3 className="text-lg font-semibold text-white">Notificações</h3>
                   <p className="text-[10px] text-white/70">Deslize para a esquerda para apagar</p>
                 </div>
-                {unread > 0 && (
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-g-gold"
-                    onClick={markAllNotificationsRead}
-                  >
-                    <CheckCheck className="h-4 w-4" /> Marcar todas
-                  </button>
-                )}
+                <div className="flex flex-col items-end gap-2">
+                  {unread > 0 && (
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-g-gold"
+                      onClick={markAllNotificationsRead}
+                    >
+                      <CheckCheck className="h-4 w-4" /> Marcar todas
+                    </button>
+                  )}
+                  {items.length > 0 && (
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-white/75 transition hover:text-white"
+                      onClick={dismissAllNotifications}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" /> Limpar todas
+                    </button>
+                  )}
+                </div>
               </header>
               <div className="relative z-10 max-h-[min(520px,calc(100dvh-11rem))] overflow-y-auto overscroll-contain">
                 {items.length ? (

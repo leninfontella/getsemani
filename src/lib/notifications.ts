@@ -11,6 +11,7 @@ export type AppNotification = {
 };
 
 const STORAGE_KEY = "getsemani-notifications";
+const DISMISSED_KEY = "getsemani-dismissed-notifications";
 const PENDING_WELCOME_KEY = "getsemani-pending-welcome";
 const LEGACY_WELCOME_REMOVED_KEY = "getsemani-legacy-welcome-removed";
 export const NOTIFICATIONS_CHANGED = "getsemani:notifications-changed";
@@ -68,6 +69,18 @@ function saveNotifications(items: AppNotification[]) {
   notifyChanged();
 }
 
+function loadDismissedNotificationIds() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(DISMISSED_KEY) || "[]") as string[]);
+  } catch {
+    return new Set<string>();
+  }
+}
+
+function saveDismissedNotificationIds(ids: Set<string>) {
+  localStorage.setItem(DISMISSED_KEY, JSON.stringify([...ids].slice(-100)));
+}
+
 export function scheduleWelcomeNotification(name: string, email: string) {
   localStorage.setItem(
     PENDING_WELCOME_KEY,
@@ -106,7 +119,7 @@ export function addNotification(
 ) {
   const items = loadNotifications();
   const id = notification.id || `${Date.now()}-${crypto.randomUUID()}`;
-  if (items.some((item) => item.id === id)) return false;
+  if (items.some((item) => item.id === id) || loadDismissedNotificationIds().has(id)) return false;
   saveNotifications([
     { ...notification, id, createdAt: new Date().toISOString(), read: false },
     ...items,
@@ -163,19 +176,34 @@ export function markAllNotificationsRead() {
 }
 
 export function deleteNotification(id: string) {
+  const dismissedIds = loadDismissedNotificationIds();
+  dismissedIds.add(id);
+  saveDismissedNotificationIds(dismissedIds);
   saveNotifications(loadNotifications().filter((item) => item.id !== id));
+}
+
+export function dismissAllNotifications() {
+  const dismissedIds = loadDismissedNotificationIds();
+  loadNotifications().forEach((item) => dismissedIds.add(item.id));
+  saveDismissedNotificationIds(dismissedIds);
+  saveNotifications([]);
 }
 
 export function clearNotifications() {
   if (typeof window === "undefined") return;
   localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(DISMISSED_KEY);
   notifyChanged();
 }
 
 export function resetTodayReminderNotification() {
   const now = new Date();
   const dateKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-  saveNotifications(loadNotifications().filter((item) => item.id !== `reminder-${dateKey}`));
+  const reminderId = `reminder-${dateKey}`;
+  const dismissedIds = loadDismissedNotificationIds();
+  dismissedIds.delete(reminderId);
+  saveDismissedNotificationIds(dismissedIds);
+  saveNotifications(loadNotifications().filter((item) => item.id !== reminderId));
 }
 
 export function ensureAutomaticNotifications() {
